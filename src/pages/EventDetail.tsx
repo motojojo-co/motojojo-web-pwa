@@ -274,15 +274,30 @@ const EventDetail = () => {
                           <div>
                             <div className={`font-semibold ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>Venue</div>
                             <div className={isLocalGathering ? 'text-[#0CA678]' : 'text-black'}>{event.venue}, {event.city}</div>
+                            {/* Inline Map */}
+                            <div className="mt-4 w-full h-64 rounded-lg overflow-hidden border">
+                              <iframe
+                                src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(`${event.venue}, ${event.city}`)}`}
+                                width="100%"
+                                height="100%"
+                                style={{ border: 0 }}
+                                allowFullScreen
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                                title="Event Location Map"
+                              />
+                            </div>
+                            
+                            {/* Open in Google Maps Button */}
                             {event.location_map_link && (
                               <a
                                 href={event.location_map_link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`inline-block mt-2 px-3 py-1 rounded-md text-sm font-medium ${isLocalGathering ? 'bg-[#0CA678] text-white hover:bg-[#08996c]' : 'bg-violet text-white hover:bg-violet-700'}`}
+                                className={`inline-block mt-3 px-4 py-2 rounded-md text-sm font-medium ${isLocalGathering ? 'bg-[#0CA678] text-white hover:bg-[#08996c]' : 'bg-violet text-white hover:bg-violet-700'}`}
                                 style={{ textDecoration: 'none' }}
                               >
-                                View on Google Maps
+                                Open in Google Maps
                               </a>
                             )}
                           </div>
