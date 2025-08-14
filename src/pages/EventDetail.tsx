@@ -48,6 +48,7 @@ const EventDetail = () => {
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [isLocalGathering, setIsLocalGathering] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const { isSignedIn } = useAuth();
   
   // Fetch event details
@@ -87,6 +88,30 @@ const EventDetail = () => {
       setIsLocalGathering(localGatheringType && event.event_type === localGatheringType.id);
     }
   }, [event, eventTypes]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (!event?.date) return;
+
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const eventTime = new Date(event.date).getTime();
+      const distance = eventTime - now;
+
+      if (distance > 0) {
+        setCountdown({
+          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((distance % (1000 * 60)) / 1000)
+        });
+      } else {
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [event?.date]);
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -274,6 +299,8 @@ const EventDetail = () => {
                           <div>
                             <div className={`font-semibold ${isLocalGathering ? 'text-[#0CA678]' : 'text-black'}`}>Venue</div>
                             <div className={isLocalGathering ? 'text-[#0CA678]' : 'text-black'}>{event.venue}, {event.city}</div>
+
+
                             {/* Inline Map */}
                             <div className="mt-4 w-full h-64 rounded-lg overflow-hidden border">
                               <iframe
@@ -346,6 +373,39 @@ const EventDetail = () => {
                         </div>
                       </div>
                     </CardContent>
+                    
+                    {/* Countdown Timer */}
+                    {!isCompleted && (
+                      <div className="px-6 pb-4">
+                        <div className="flex items-center justify-center space-x-6 text-sm">
+                          <div className="text-center">
+                            <div className="text-lg font-bold text-red-600">
+                              {countdown.days}
+                            </div>
+                            <div className="text-red-500 text-xs">Days</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-lg font-bold text-red-600">
+                              {countdown.hours}
+                            </div>
+                            <div className="text-red-500 text-xs">Hours</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-lg font-bold text-red-600">
+                              {countdown.minutes}
+                            </div>
+                            <div className="text-red-500 text-xs">Minutes</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-lg font-bold text-red-600">
+                              {countdown.seconds}
+                            </div>
+                            <div className="text-red-500 text-xs">Seconds</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     <CardFooter className="px-6 pb-6 pt-0">
                       {isCompleted ? (
                         <div className="w-full text-center">
