@@ -14,6 +14,7 @@ import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { SendEmailCommand, SESv2Client } from "@aws-sdk/client-sesv2";
 import { generateTicketPDFs } from "@/lib/pdf/generateTicketPDF";
+import { createRazorpayOrder, verifyRazorpayPayment, initializeRazorpayCheckout } from "@/services/razorpayService";
 
 const sesClient = new SESv2Client({ 
   region: "ap-south-1", 
@@ -231,91 +232,157 @@ const BookingPage = () => {
 
     setIsBooking(true);
 
-    // Load Razorpay script if not already loaded
-    if (!(window as any).Razorpay) {
-      await new Promise<void>((resolve) => {
-        const script = document.createElement("script");
-        script.src = "https://checkout.razorpay.com/v1/checkout.js";
-        script.async = true;
-        script.onload = () => resolve();
-        document.body.appendChild(script);
-      });
-    }
-
-    // Calculate amount in paise
-    const amountInPaise = totalAmount * 100;
-
-    // Razorpay options
-    const options = {
-      key: "rzp_live_yAyC4YmewB4VQG", // Live key for production
-     // key: "rzp_test_AIaN0EfXmfZgMk", // Test key for development
-      amount: amountInPaise,
-      currency: "INR",
-      name: event.title,
-      description: "Event Ticket Booking",
-      handler: async (response: any) => {
-        // On successful payment, create booking in Supabase
-        try {
-          const { data: booking, error } = await supabase
-            .from('bookings')
-            .insert({
-              user_id: user.id,
-              event_id: eventId,
-              name: formData.name,
-              email: formData.email,
-              phone: formData.phone,
-              tickets: formData.tickets,
-              amount: totalAmount, // Save the final discounted amount
-              status: 'confirmed',
-              booking_date: new Date().toISOString(),
-              ticket_names: formData.tickets > 1 ? ticketNames.slice(0, formData.tickets) : null,
-              payment_id: response.razorpay_payment_id,
-              coupon_applied: isCouponApplied ? coupon.trim().toUpperCase() : null,
-              discount_amount: discount,
-            })
-            .select()
-            .single();
-          
-          if (error) throw error;
-          
-          // Send confirmation email with PDF tickets
-          const emailSent = await sendBookingConfirmationEmail(booking);
-          
-          if (!emailSent) {
-            console.warn('Email sending failed, but booking was successful');
-            // Optionally save this to retry later
-          }
-          
-          toast({ 
-            title: "Booking Successful!", 
-            description: "Your tickets have been booked and sent to your email." 
-          });
-          
-          navigate("/thank-you", { state: { bookingId: booking.id } });
-        } catch (err: any) {
-          console.error('Booking error:', err);
-          toast({ 
-            title: "Booking Failed", 
-            description: err.message || "There was an error processing your booking.", 
-            variant: "destructive" 
-          });
-        } finally {
-          setIsBooking(false);
+    try {
+      // Handle free events (amount = 0)
+      if (totalAmount === 0) {
+        // For free events, create booking directly without payment
+        const { data: booking, error } = await supabase
+          .from('bookings')
+          .insert({
+            user_id: user.id,
+            event_id: eventId,
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            tickets: formData.tickets,
+            amount: totalAmount,
+            status: 'confirmed',
+            booking_date: new Date().toISOString(),
+            ticket_names: formData.tickets > 1 ? ticketNames.slice(0, formData.tickets) : null,
+            payment_id: 'FREE_EVENT',
+            order_id: null,
+            coupon_applied: isCouponApplied ? coupon.trim().toUpperCase() : null,
+            discount_amount: discount,
+          })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        
+        // Send confirmation email
+        const emailSent = await sendBookingConfirmationEmail(booking);
+        
+        if (!emailSent) {
+          console.warn('Email sending failed, but booking was successful');
         }
-      },
-      prefill: {
-        name: formData.name,
-        email: formData.email,
-        contact: formData.phone
-      },
-      theme: {
-        color: "#D32F55"
+        
+        toast({ 
+          title: "Booking Successful!", 
+          description: "Your free tickets have been booked and sent to your email." 
+        });
+        
+        navigate("/thank-you", { state: { bookingId: booking.id } });
+        return;
       }
-    };
 
-    const rzp = new (window as any).Razorpay(options);
-    rzp.open();
-    setIsBooking(false);
+      // For paid events, create Razorpay order first
+      const orderResponse = await createRazorpayOrder({
+        amount: totalAmount,
+        currency: 'INR',
+        receipt: `rcpt_${Date.now()}`, // Shortened receipt format
+        notes: {
+          eventId: eventId,
+          eventTitle: event.title,
+          tickets: formData.tickets,
+          customerName: formData.name,
+          customerEmail: formData.email,
+          couponApplied: isCouponApplied ? coupon.trim().toUpperCase() : null,
+          discountAmount: discount
+        }
+      });
+
+      if (!orderResponse.success) {
+        throw new Error('Failed to create order');
+      }
+
+      // Initialize Razorpay checkout with order
+      await initializeRazorpayCheckout(orderResponse.orderId, {
+        key: "rzp_live_RBveSyibt8B7dS", // Live key for production
+        // key: "rzp_test_AIaN0EfXmfZgMk", // Test key for development
+        amount: totalAmount * 100,
+        currency: "INR",
+        name: event.title,
+        description: "Event Ticket Booking",
+        prefill: {
+          name: formData.name,
+          email: formData.email,
+          contact: formData.phone
+        },
+        theme: {
+          color: "#D32F55"
+        },
+        handler: async (response: any) => {
+          // On successful payment, verify and create booking in Supabase
+          try {
+            // Verify the payment signature
+            const verificationResponse = await verifyRazorpayPayment({
+              orderId: response.razorpay_order_id,
+              paymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature
+            });
+
+            if (!verificationResponse.verified) {
+              throw new Error('Payment verification failed');
+            }
+
+            const { data: booking, error } = await supabase
+              .from('bookings')
+              .insert({
+                user_id: user.id,
+                event_id: eventId,
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                tickets: formData.tickets,
+                amount: totalAmount, // Save the final discounted amount
+                status: 'confirmed',
+                booking_date: new Date().toISOString(),
+                ticket_names: formData.tickets > 1 ? ticketNames.slice(0, formData.tickets) : null,
+                payment_id: response.razorpay_payment_id,
+                order_id: response.razorpay_order_id,
+                coupon_applied: isCouponApplied ? coupon.trim().toUpperCase() : null,
+                discount_amount: discount,
+              })
+              .select()
+              .single();
+            
+            if (error) throw error;
+            
+            // Send confirmation email with PDF tickets
+            const emailSent = await sendBookingConfirmationEmail(booking);
+            
+            if (!emailSent) {
+              console.warn('Email sending failed, but booking was successful');
+              // Optionally save this to retry later
+            }
+            
+            toast({ 
+              title: "Booking Successful!", 
+              description: "Your tickets have been booked and sent to your email." 
+            });
+            
+            navigate("/thank-you", { state: { bookingId: booking.id } });
+          } catch (err: any) {
+            console.error('Booking error:', err);
+            toast({ 
+              title: "Booking Failed", 
+              description: err.message || "There was an error processing your booking.", 
+              variant: "destructive" 
+            });
+          } finally {
+            setIsBooking(false);
+          }
+        }
+      });
+    } catch (error: any) {
+      console.error('Payment initialization error:', error);
+      toast({ 
+        title: "Payment Error", 
+        description: error.message || "There was an error initializing payment.", 
+        variant: "destructive" 
+      });
+      setIsBooking(false);
+    }
   };
 
   if (isLoading) return <div>Loading event details...</div>;
@@ -405,13 +472,13 @@ const BookingPage = () => {
               >
                 Preview Ticket
               </button>
-              <button
-                type="submit"
-                className={cn("w-full py-3 rounded-lg font-bold text-black bg-yellow-300 hover:bg-yellow-400 transition", { 'opacity-60 pointer-events-none': isBooking })}
-                disabled={isBooking}
-              >
-                {isBooking ? "Processing..." : "Proceed to Payment"}
-              </button>
+                             <button
+                 type="submit"
+                 className={cn("w-full py-3 rounded-lg font-bold text-black bg-yellow-300 hover:bg-yellow-400 transition", { 'opacity-60 pointer-events-none': isBooking })}
+                 disabled={isBooking}
+               >
+                 {isBooking ? "Processing..." : totalAmount === 0 ? "Book Free Tickets" : "Proceed to Payment"}
+               </button>
             </div>
           </form>
           {/* Ticket Preview Modal/Section */}

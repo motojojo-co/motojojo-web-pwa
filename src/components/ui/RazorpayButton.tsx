@@ -22,6 +22,7 @@ import BookingTicket from "@/components/tickets/BookingTicket";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getEvent } from "@/services/eventService";
+import { createRazorpayOrder, verifyRazorpayPayment, initializeRazorpayCheckout } from "@/services/razorpayService";
 
 interface RazorpayButtonProps {
   eventId: string; // Changed to string only since we're using UUIDs
@@ -31,18 +32,7 @@ interface RazorpayButtonProps {
   className?: string; // Added className prop to the interface
 }
 
-// Load Razorpay script
-const loadRazorpayScript = (callback: () => void) => {
-  if (typeof window !== 'undefined' && (window as any).Razorpay) {
-    callback();
-    return;
-  }
-
-  const script = document.createElement('script');
-  script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-  script.onload = callback;
-  document.head.appendChild(script);
-};
+// This function is now handled by the razorpayService
 
 const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: RazorpayButtonProps) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -252,20 +242,58 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
 
     await upsertUserIfNeeded(formData);
 
-    loadRazorpayScript(() => {
+    try {
       const totalAmount = amount * formData.tickets;
 
-      const options = {
-        //key: "rzp_live_yAyC4YmewB4VQG", // Live key for production
-        key: "rzp_test_AIaN0EfXmfZgMk", // Demo/Test key for testing
+      // Create Razorpay order first
+      const orderResponse = await createRazorpayOrder({
+        amount: totalAmount,
+        currency: 'INR',
+        receipt: `rcpt_${Date.now()}`, // Shortened receipt format
+        notes: {
+          eventId: eventId,
+          eventName: eventName,
+          tickets: formData.tickets,
+          customerName: formData.name,
+          customerEmail: formData.email
+        }
+      });
+
+      if (!orderResponse.success) {
+        throw new Error('Failed to create order');
+      }
+
+      // Initialize Razorpay checkout with order
+      await initializeRazorpayCheckout(orderResponse.orderId, {
+        key: "rzp_live_RBveSyibt8B7dS", // Live key for production
+        // key: "rzp_test_AIaN0EfXmfZgMk", // Demo/Test key for testing
         amount: totalAmount * 100,
         currency: "INR",
         name: "Motojojo",
         description: `${formData.tickets} Ticket(s) for ${eventName}`,
-        image: "/motojojo-logo.png", // Updated to use new logo
+        prefill: {
+          name: formData.name,
+          email: formData.email,
+          contact: formData.phone
+        },
+        theme: {
+          color: "#D32F55"
+        },
         handler: async function(response: any) {
           console.log('Razorpay payment successful:', response);
+          
           try {
+            // Verify the payment signature
+            const verificationResponse = await verifyRazorpayPayment({
+              orderId: response.razorpay_order_id,
+              paymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature
+            });
+
+            if (!verificationResponse.verified) {
+              throw new Error('Payment verification failed');
+            }
+
             // Save booking to Supabase
             const { data: booking, error: bookingError } = await supabase
               .from('bookings')
@@ -278,9 +306,8 @@ const RazorpayButton = ({ eventId, eventName, amount, onSuccess, className }: Ra
                 tickets: formData.tickets,
                 amount: totalAmount,
                 status: 'confirmed',
-                payment_id: response.razorpay_payment_id, // Use correct column
-                // razorpay_payment_id: response.razorpay_payment_id, // Old, does not exist
-                order_id: response.razorpay_order_id || null,
+                payment_id: response.razorpay_payment_id,
+                order_id: response.razorpay_order_id,
                 booking_date: new Date().toISOString(),
                 ticket_names: formData.tickets > 1 ? ticketNames : [formData.name],
               })
