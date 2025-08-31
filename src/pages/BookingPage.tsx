@@ -496,27 +496,7 @@ Thank you for choosing Motojojo Events!`;
                               >
                   Preview Ticket
                 </button>
-                <button
-                  type="button"
-                  className="w-full py-3 rounded-lg font-bold text-black bg-blue-300 hover:bg-blue-400 transition border border-blue-400"
-                  onClick={async () => {
-                    try {
-                      console.log('Testing email function...');
-                      await sendEmail({
-                        to: formData.email || 'amanmotojojos@gmail.com',
-                        subject: 'Test Email from Booking Page',
-                        html: '<h1>Test Email</h1><p>This is a test email from the booking page.</p>',
-                        text: 'Test Email - This is a test email from the booking page.'
-                      });
-                      toast({ title: "Test Email Sent!", description: "Check your email inbox." });
-                    } catch (error) {
-                      console.error('Test email error:', error);
-                      toast({ title: "Test Email Failed", description: error.message, variant: "destructive" });
-                    }
-                  }}
-                >
-                  Test Email
-                </button>
+
                 <button
                   type="submit"
                   className={cn("w-full py-3 rounded-lg font-bold text-black bg-yellow-300 hover:bg-yellow-400 transition", { 'opacity-60 pointer-events-none': isBooking })}
