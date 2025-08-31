@@ -12,17 +12,11 @@ import { useQuery } from "@tanstack/react-query";
 import { getEvent } from "@/services/eventService";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
-import { SendEmailCommand, SESv2Client } from "@aws-sdk/client-sesv2";
+import { sendEmail } from "@/services/emailService";
 import { generateTicketPDFs } from "@/lib/pdf/generateTicketPDF";
 import { createRazorpayOrder, verifyRazorpayPayment, initializeRazorpayCheckout } from "@/services/razorpayService";
 
-const sesClient = new SESv2Client({ 
-  region: "ap-south-1", 
-  credentials: {
-    accessKeyId: import.meta.env.VITE_AWS_ACCESS_KEY_ID,
-    secretAccessKey: import.meta.env.VITE_AWS_SECRET_ACCESS_KEY
-  } 
-});
+
 
 
 const BookingPage = () => {
@@ -105,6 +99,7 @@ const BookingPage = () => {
 
   // Function to generate and send email with PDF tickets
   const sendBookingConfirmationEmail = async (booking: any) => {
+    console.log('=== SENDING BOOKING CONFIRMATION EMAIL ===');
     try {
       // Generate PDF tickets
       const ticketData = {
@@ -132,78 +127,107 @@ const BookingPage = () => {
         : [ticketData];
 
       // Generate PDFs
+      console.log('=== GENERATING PDF TICKETS ===');
+      console.log('Tickets data:', ticketsData);
+      
       const pdfBlobs = await generateTicketPDFs(ticketsData);
+      console.log('PDF blobs generated:', pdfBlobs.length);
       
       // Convert blobs to base64 for email attachment
       // const attachments = await Promise.all(
       //   pdfBlobs.map(async (blob, index) => {
       //     const arrayBuffer = await blob.arrayBuffer();
       //     const buffer = Buffer.from(arrayBuffer);
+      //     console.log(`Converting PDF ${index + 1} to base64...`);
       //     return {
-      //       Filename: `ticket-${ticketsData[index].ticketNumber}.pdf`,
-      //       Content: buffer.toString('base64'),
-      //       ContentType: 'application/pdf',
-      //       ContentDisposition: 'attachment',
+      //       filename: `ticket-${ticketsData[index].ticketNumber}.pdf`,
+      //       content: buffer.toString('base64'),
+      //       contentType: 'application/pdf',
       //     };
       //   })
       // );
-
-      // Prepare email parameters
-      const sesParams = {
-        FromEmailAddress: 'Mojo Event <info@motojojo.co>',
-        Destination: {
-          ToAddresses: [formData.email],
-        },
-        Content: {
-          Simple: {
-            Subject: {
-              Data: `Your Booking Confirmation for '${event.title}'`,
-              Charset: 'UTF-8'
-            },
-            Body: {
-              Html: {
-                Data: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; line-height: 1.6;">
-                  <div style="text-align: center; margin-bottom: 20px;">
-                    <h1 style="color: #D32F55;">🎉 Booking Confirmed!</h1>
-                  </div>
-                  
-                  <div style="background-color: #f9f9f9; border-radius: 8px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #D32F55;">
-                    <h2 style="margin-top: 0; color: #D32F55;">Event Details</h2>
-                    <p><strong>${event.title}</strong></p>
-                    <p>📅 ${new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                    <p>📍 ${event.venue || 'Venue to be announced'}, ${event.city || ''}</p>
-                    <p>👥 ${formData.tickets} ticket${formData.tickets > 1 ? 's' : ''} (${ticketsData.map(t => t.ticketHolderName).join(', ')})</p>
-                    <p>💰 Total Paid: ₹${totalAmount.toLocaleString('en-IN')}</p>
-                  </div>
-                  
-                  <p>Your tickets are attached to this email as PDFs. You can also view them in your account.</p>
-                  
-                  <div style="margin: 25px 0; text-align: center;">
-                    <p>🔍 <strong>What's next?</strong></p>
-                    <p>Show your ticket PDF at the venue for entry. Each attendee must have their own ticket.</p>
-                  </div>
-                  
-                  <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; color: #666; text-align: center;">
-                    <p>Need help? Contact us at support@motojojo.co</p>
-                    <p>© ${new Date().getFullYear()} Mojo Events. All rights reserved.</p>
-                  </div>
-                </div>
-                `,
-                Charset: 'UTF-8'
-              },
-              Text: {
-                Data: `Thank you for your booking!\n\nEvent: ${event.title}\nDate: ${new Date(event.date).toLocaleDateString()}\nVenue: ${event.venue || 'To be announced'}, ${event.city || ''}\nTickets: ${formData.tickets} (${ticketsData.map(t => t.ticketHolderName).join(', ')})\nTotal Paid: ₹${totalAmount.toLocaleString('en-IN')}\n\nYour tickets are attached as PDFs.\n\nThank you for choosing Mojo Events!`,
-                Charset: 'UTF-8'
-              }
-            }
-          }
-        },
-        // Attachments: attachments
-      };
       
-      // Send email with attachments
-      await sesClient.send(new SendEmailCommand(sesParams));
+      // console.log('Attachments prepared:', attachments.length);
+
+    // Prepare email content
+const htmlContent = `
+<div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; padding: 24px; color: #333; line-height: 1.6; background: #fff;">
+  
+  <!-- Header -->
+  <div style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #D32F55; font-size: 28px;">🎉 Woohoo! Your Spot is Reserved</h1>
+    <p style="font-size: 16px; color: #666;">Thanks for booking with <strong>Motojojo</strong> — we can’t wait to see you!</p>
+  </div>
+  
+  <!-- Event Card -->
+  <div style="background-color: #fdf5f7; border-radius: 10px; padding: 20px; margin-bottom: 20px; border: 1px solid #f1c2ce;">
+    <h2 style="margin-top: 0; color: #D32F55;">📌 Your Event Details</h2>
+    <p><strong>${event.title}</strong></p>
+    <p>📅 <strong>${new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong></p>
+    <p>📍 ${event.venue || 'Venue to be announced'}, ${event.city || ''}</p>
+    <p>👥 ${formData.tickets} ticket${formData.tickets > 1 ? 's' : ''} booked for: <em>${ticketsData.map(t => t.ticketHolderName).join(', ')}</em></p>
+    <p>💰 <strong>Total Paid:</strong> ₹${totalAmount.toLocaleString('en-IN')}</p>
+  </div>
+
+  <!-- Highlighted Note -->
+  <div style="text-align: center; margin: 25px 0;"> 
+    You can also find them anytime in your <a href="https://www.motojojo.co/profile?tab=bookings" style="color:#D32F55; text-decoration:none;">Motojojo Account</a>.</p>
+  </div>
+
+  <!-- What’s Next -->
+  <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #D32F55;">
+    <h3 style="margin-top: 0; color: #D32F55;">🔍 What’s Next?</h3>
+    <ul style="padding-left: 20px; margin: 0;">
+      <li>📲 Save your ticket on your phone or print it out</li>
+      <li>🚪 Carry a valid ID along with your ticket</li>
+      <li>💫 Arrive early to soak in the vibes!</li>
+    </ul>
+  </div>
+  
+  <!-- Call to Action -->
+  <div style="text-align: center; margin: 30px 0;">
+    <a href="https://motojojo.co/events/${event.id}" 
+       style="display: inline-block; padding: 12px 24px; background: #D32F55; color: #fff; border-radius: 6px; text-decoration: none; font-size: 16px; font-weight: bold;">
+       View Event Details 🔗
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 13px; color: #777; text-align: center;">
+    <p>Need help? Reply to this email or reach us at <a href="mailto:info@motojojo.co" style="color: #D32F55;">info@motojojo.co</a></p>
+    <p>✨ Follow us on <a href="https://instagram.com/motojojo.co" style="color: #D32F55;">Instagram</a> for sneak peeks & updates</p>
+    <p>© ${new Date().getFullYear()} Motojojo Events. All rights reserved.</p>
+  </div>
+</div>
+`;
+
+
+      const textContent = `Thank you for your booking!
+
+Event: ${event.title}
+Date: ${new Date(event.date).toLocaleDateString()}
+Venue: ${event.venue || 'To be announced'}, ${event.city || ''}
+Tickets: ${formData.tickets} (${ticketsData.map(t => t.ticketHolderName).join(', ')})
+Total Paid: ₹${totalAmount.toLocaleString('en-IN')}
+
+Your tickets are attached as PDFs.
+
+Thank you for choosing Motojojo Events!`;
+
+      // Send email using Spacemail
+      console.log('=== SENDING BOOKING CONFIRMATION EMAIL ===');
+      console.log('To:', formData.email);
+      console.log('Subject:', `Your Booking Confirmation for '${event.title}'`);
+      // console.log('Attachments count:', attachments.length);
+      
+      await sendEmail({
+        to: formData.email,
+        subject: `Your Booking Confirmation for '${event.title}'`,
+        html: htmlContent,
+        text: textContent,
+        // attachments: attachments
+      });
+
       console.log('Email with tickets sent successfully for booking:', booking.id);
       return true;
     } catch (error) {
@@ -469,16 +493,37 @@ const BookingPage = () => {
                 type="button"
                 className="w-full py-3 rounded-lg font-bold text-black bg-yellow-300 hover:bg-yellow-400 transition border border-yellow-400"
                 onClick={() => setShowPreview(true)}
-              >
-                Preview Ticket
-              </button>
-                             <button
-                 type="submit"
-                 className={cn("w-full py-3 rounded-lg font-bold text-black bg-yellow-300 hover:bg-yellow-400 transition", { 'opacity-60 pointer-events-none': isBooking })}
-                 disabled={isBooking}
-               >
-                 {isBooking ? "Processing..." : totalAmount === 0 ? "Book Free Tickets" : "Proceed to Payment"}
-               </button>
+                              >
+                  Preview Ticket
+                </button>
+                <button
+                  type="button"
+                  className="w-full py-3 rounded-lg font-bold text-black bg-blue-300 hover:bg-blue-400 transition border border-blue-400"
+                  onClick={async () => {
+                    try {
+                      console.log('Testing email function...');
+                      await sendEmail({
+                        to: formData.email || 'amanmotojojos@gmail.com',
+                        subject: 'Test Email from Booking Page',
+                        html: '<h1>Test Email</h1><p>This is a test email from the booking page.</p>',
+                        text: 'Test Email - This is a test email from the booking page.'
+                      });
+                      toast({ title: "Test Email Sent!", description: "Check your email inbox." });
+                    } catch (error) {
+                      console.error('Test email error:', error);
+                      toast({ title: "Test Email Failed", description: error.message, variant: "destructive" });
+                    }
+                  }}
+                >
+                  Test Email
+                </button>
+                <button
+                  type="submit"
+                  className={cn("w-full py-3 rounded-lg font-bold text-black bg-yellow-300 hover:bg-yellow-400 transition", { 'opacity-60 pointer-events-none': isBooking })}
+                  disabled={isBooking}
+                >
+                  {isBooking ? "Processing..." : totalAmount === 0 ? "Book Free Tickets" : "Proceed to Payment"}
+                </button>
             </div>
           </form>
           {/* Ticket Preview Modal/Section */}
