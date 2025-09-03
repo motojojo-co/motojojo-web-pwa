@@ -23,6 +23,13 @@ export interface CreateEventInput {
   has_discount?: boolean;
   real_price?: number | null;
   discounted_price?: number | null;
+  base_price?: number;
+  gst?: number;
+  convenience_fee?: number;
+  subtotal?: number;
+  ticket_price?: number;
+  location_map_link?: string;
+  offers?: any[];
 }
 
 export const createEvent = async (eventData: CreateEventInput) => {
@@ -33,7 +40,8 @@ export const createEvent = async (eventData: CreateEventInput) => {
       dataToInsert.image = eventData.images[0];
       dataToInsert.images = eventData.images;
     }
-    // Insert event
+    
+    // Insert event with offers included
     const { data, error } = await supabase
       .from('events')
       .insert(dataToInsert)
@@ -60,6 +68,8 @@ export const updateEvent = async (id: string, eventData: Partial<CreateEventInpu
       dataToUpdate.image = eventData.images[0];
       dataToUpdate.images = eventData.images;
     }
+    
+    // Update event with offers included
     const { data, error } = await supabase
       .from('events')
       .update(dataToUpdate)

@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/select";
 import { getEventTypes, EventType } from "@/services/eventTypeService";
 import { useQuery } from "@tanstack/react-query";
+import EventOffersManager from "./EventOffersManager";
+import { EventOffer, getEventOffers } from "@/services/eventOfferService";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -54,6 +56,7 @@ const formSchema = z.object({
   subtotal: z.number().min(0, "Subtotal must be non-negative"),
   ticket_price: z.number().min(0, "Ticket price must be non-negative"),
   location_map_link: z.string().url("Please enter a valid URL").optional(),
+  offers: z.array(z.any()).optional(),
 });
 
 type EventFormData = z.infer<typeof formSchema>;
@@ -68,11 +71,36 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
+  const [eventOffers, setEventOffers] = useState<EventOffer[]>([]);
 
   const { data: eventTypes = [] } = useQuery({
     queryKey: ['eventTypes'],
     queryFn: getEventTypes
   });
+
+  // Fetch offers when editing an existing event
+  useEffect(() => {
+    if (isEditing && initialData?.id) {
+      const loadOffers = async () => {
+        try {
+          // First try to get offers from initialData
+          if (initialData.offers && initialData.offers.length > 0) {
+            setEventOffers(initialData.offers);
+          } else {
+            // If no offers in initialData, fetch from database
+            const fetchedOffers = await getEventOffers(initialData.id);
+            setEventOffers(fetchedOffers);
+          }
+        } catch (error) {
+          console.error("Error loading offers:", error);
+          // If there's an error, set empty array
+          setEventOffers([]);
+        }
+      };
+      
+      loadOffers();
+    }
+  }, [isEditing, initialData?.id, initialData?.offers]);
 
   // 2. Update default values for images
   const form = useForm<z.infer<typeof formSchema>>({
@@ -104,13 +132,38 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
       subtotal: initialData?.subtotal || 0,
       ticket_price: initialData?.ticket_price || 0,
       location_map_link: initialData?.location_map_link || "",
+      offers: initialData?.offers || [],
     },
   });
 
   const handleSubmit = async (data: EventFormData) => {
     try {
       setIsSubmitting(true);
-      await onSubmit(data);
+      
+      // Format offers data to match the expected database structure
+      const formattedData = {
+        ...data,
+        offers: eventOffers.map(offer => ({
+          id: offer.id.startsWith('temp-') ? `offer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` : offer.id,
+          offer_type: offer.offer_type,
+          title: offer.title,
+          description: offer.description || '',
+          price_adjustment: offer.price_adjustment,
+          min_quantity: offer.min_quantity,
+          max_quantity: offer.max_quantity || null,
+          group_size: offer.group_size,
+          conditions: offer.conditions || {},
+          is_active: offer.is_active,
+          valid_from: offer.valid_from || new Date().toISOString(),
+          valid_until: offer.valid_until || null,
+          created_at: offer.created_at || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }))
+      };
+      
+      console.log('Submitting event with formatted offers:', formattedData.offers);
+      
+      await onSubmit(formattedData);
       toast({
         title: `Event ${isEditing ? "updated" : "created"} successfully!`,
         description: `The event "${data.title}" has been ${isEditing ? "updated" : "created"}.`,
@@ -585,6 +638,18 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                       <FormMessage />
                     </FormItem>
                   )}
+                />
+              </div>
+
+              {/* Event Offers Section */}
+              <div className="col-span-2">
+                <EventOffersManager
+                  eventId={initialData?.id || "new"}
+                  offers={eventOffers}
+                  onOffersChange={(offers: EventOffer[]) => {
+                    setEventOffers(offers);
+                    form.setValue("offers", offers);
+                  }}
                 />
               </div>
 

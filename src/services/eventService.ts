@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { EventOffer } from "./eventOfferService";
 
 export interface Event {
   id: string;
@@ -34,6 +35,7 @@ export interface Event {
   subtotal?: number;
   ticket_price?: number;
   location_map_link?: string; // Google Maps link for the event location
+  offers?: EventOffer[]; // Event offers
 }
 
 export const getAllEvents = async (): Promise<Event[]> => {
@@ -385,6 +387,7 @@ export const getEvent = async (id: string): Promise<Event | null> => {
       typeof data.location_map_link === "string"
         ? data.location_map_link
         : undefined,
+    offers: data.offers || [],
   };
 };
 
@@ -497,4 +500,56 @@ export const getPrivateEventsForUser = async (): Promise<Event[]> => {
     console.error("Error in getPrivateEventsForUser:", error);
     return [];
   }
+};
+
+// Get all events for admin dashboard (including private and unpublished events with offers)
+export const getAdminEvents = async (): Promise<Event[]> => {
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .order("date", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching admin events:", error);
+    throw new Error("Failed to fetch admin events");
+  }
+
+  // Transform data to match the Event interface
+  const events = data || [];
+  return events.map((event) => ({
+    id: event.id,
+    title: event.title,
+    subtitle: event.subtitle || undefined,
+    description: event.description,
+    date: event.date,
+    time: event.time,
+    category: event.category,
+    venue: event.venue,
+    city: event.city,
+    address: event.address || "",
+    price: event.price,
+    image: event.image,
+    images: event.images || [],
+    gallery: [], // Default value since gallery field doesn't exist in DB
+    featured: false, // Default value since featured field doesn't exist in DB
+    created_by: "", // Default value since created_by field doesn't exist in DB
+    is_published: event.is_published !== undefined ? event.is_published : true,
+    is_private: event.is_private || false,
+    created_at: event.created_at,
+    event_type: event.event_type,
+    host: event.host || undefined,
+    duration: event.duration || undefined,
+    long_description: event.long_description || null,
+    updated_at: event.updated_at,
+    has_discount: event.has_discount ?? false,
+    real_price: event.real_price ?? null,
+    discounted_price: event.discounted_price ?? null,
+    base_price: event.base_price ?? 0,
+    gst: event.gst ?? 0,
+    convenience_fee: event.convenience_fee ?? 0,
+    subtotal: event.subtotal ?? 0,
+    ticket_price: event.ticket_price ?? 0,
+    location_map_link: event.location_map_link || undefined,
+    offers: event.offers || [], // Include offers from the database
+  }));
 };

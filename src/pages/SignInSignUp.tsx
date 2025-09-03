@@ -7,6 +7,7 @@ import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { FcGoogle } from "react-icons/fc";
+import { User } from "lucide-react";
 import MovingPartyBackground from "@/components/ui/MovingPartyBackground";
 
 const SignInSignUp = () => {
@@ -61,6 +62,16 @@ const SignInSignUp = () => {
     setGoogleLoading(false);
   };
 
+  const handleGuestLogin = () => {
+    // For guest login, we'll redirect directly to the booking page
+    // The booking page will handle guest users without authentication
+    if (redirect) {
+      navigate(redirect);
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-raspberry relative overflow-y-auto">
       <MovingPartyBackground />
@@ -70,15 +81,29 @@ const SignInSignUp = () => {
           <img src="/public/motojojo.png" alt="Motojojo" className="w-16 h-16 md:w-20 md:h-20 mb-4 drop-shadow-lg" />
           <h1 className="text-2xl md:text-3xl font-extrabold mb-2 text-violet drop-shadow text-center">Welcome to Motojojo</h1>
           <p className="mb-4 md:mb-6 text-center text-raspberry font-medium text-base md:text-lg">{authMode === 'signIn' ? 'Sign in to discover and book unique experiences.' : 'Create your Motojojo account and join the community!'}</p>
+          
+          {/* Google Authentication Button */}
           <Button
             type="button"
             onClick={handleGoogleAuth}
-            className="w-full flex items-center justify-center gap-2 border border-sandstorm-300 bg-white text-raspberry hover:bg-sandstorm-100 hover:text-violet font-semibold mb-4 md:mb-6 transition-colors duration-150 text-base md:text-lg py-3"
+            className="w-full flex items-center justify-center gap-2 border border-sandstorm-300 bg-white text-raspberry hover:bg-sandstorm-100 hover:text-violet font-semibold mb-4 transition-colors duration-150 text-base md:text-lg py-3"
             disabled={googleLoading}
           >
             <FcGoogle className="w-5 h-5" />
             {googleLoading ? 'Redirecting...' : 'Continue with Google'}
           </Button>
+
+          {/* Guest Login Button */}
+          <Button
+            type="button"
+            onClick={handleGuestLogin}
+            variant="outline"
+            className="w-full flex items-center justify-center gap-2 border-2 border-violet bg-transparent text-violet hover:bg-violet hover:text-white font-semibold mb-4 transition-colors duration-150 text-base md:text-lg py-3"
+          >
+            <User className="w-5 h-5" />
+            Continue as Guest
+          </Button>
+
           <div className="w-full flex items-center gap-2 mb-4">
             <div className="flex-1 h-px bg-sandstorm-200" />
             <span className="text-xs text-sandstorm-600">or</span>

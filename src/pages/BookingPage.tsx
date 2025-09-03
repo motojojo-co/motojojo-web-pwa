@@ -15,6 +15,7 @@ import Footer from "@/components/shared/Footer";
 import { sendEmail } from "@/services/emailService";
 import { generateTicketPDFs } from "@/lib/pdf/generateTicketPDF";
 import { createRazorpayOrder, verifyRazorpayPayment, initializeRazorpayCheckout } from "@/services/razorpayService";
+import OfferSelection from "@/components/booking/OfferSelection";
 
 
 
@@ -34,6 +35,7 @@ const BookingPage = () => {
   const [discount, setDiscount] = useState(0);
   const [isCouponApplied, setIsCouponApplied] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
+  const [offerPricing, setOfferPricing] = useState<any>(null);
 
   const { toast } = useToast();
   const { user, isSignedIn } = useAuth();
@@ -51,9 +53,20 @@ const BookingPage = () => {
     return event.ticket_price * formData.tickets;
   }, [event, formData.tickets]);
 
+  // Calculate total with offers applied
   const totalAmount = useMemo(() => {
-    return originalTotal - discount;
-  }, [originalTotal, discount]);
+    let finalTotal = originalTotal;
+    
+    // Apply offer pricing if available
+    if (offerPricing) {
+      finalTotal = offerPricing.totalPrice;
+    }
+    
+    // Apply coupon discount
+    finalTotal = finalTotal - discount;
+    
+    return Math.max(0, finalTotal);
+  }, [originalTotal, discount, offerPricing]);
 
   useEffect(() => {
     setTicketNames(Array(formData.tickets).fill(""));
@@ -61,6 +74,8 @@ const BookingPage = () => {
     setDiscount(0);
     setIsCouponApplied(false);
     setCoupon("");
+    // Reset offer pricing when tickets change
+    setOfferPricing(null);
   }, [formData.tickets]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -238,10 +253,8 @@ Thank you for choosing Motojojo Events!`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isSignedIn) {
-      toast({ title: "Please sign in", description: "You need to be signed in to book tickets.", variant: "destructive" });
-      return;
-    }
+    
+    // Allow both authenticated and guest users to book
     if (!formData.name || !formData.email || !formData.phone) {
       toast({ title: "Missing Information", description: "Please fill in all the required fields.", variant: "destructive" });
       return;
@@ -263,7 +276,7 @@ Thank you for choosing Motojojo Events!`;
         const { data: booking, error } = await supabase
           .from('bookings')
           .insert({
-            user_id: user.id,
+            user_id: isSignedIn ? user.id : null, // Allow null for guest users
             event_id: eventId,
             name: formData.name,
             email: formData.email,
@@ -277,6 +290,7 @@ Thank you for choosing Motojojo Events!`;
             order_id: null,
             coupon_applied: isCouponApplied ? coupon.trim().toUpperCase() : null,
             discount_amount: discount,
+            is_guest_booking: !isSignedIn, // Mark as guest booking
           })
           .select()
           .single();
@@ -352,7 +366,7 @@ Thank you for choosing Motojojo Events!`;
             const { data: booking, error } = await supabase
               .from('bookings')
               .insert({
-                user_id: user.id,
+                user_id: isSignedIn ? user.id : null, // Allow null for guest users
                 event_id: eventId,
                 name: formData.name,
                 email: formData.email,
@@ -366,6 +380,7 @@ Thank you for choosing Motojojo Events!`;
                 order_id: response.razorpay_order_id,
                 coupon_applied: isCouponApplied ? coupon.trim().toUpperCase() : null,
                 discount_amount: discount,
+                is_guest_booking: !isSignedIn, // Mark as guest booking
               })
               .select()
               .single();
@@ -402,9 +417,10 @@ Thank you for choosing Motojojo Events!`;
       console.error('Payment initialization error:', error);
       toast({ 
         title: "Payment Error", 
-        description: error.message || "There was an error initializing payment.", 
+        description: error.message || "There was an error initializing payment. Please try again.", 
         variant: "destructive" 
       });
+    } finally {
       setIsBooking(false);
     }
   };
@@ -419,6 +435,15 @@ Thank you for choosing Motojojo Events!`;
         <div className="w-full max-w-lg lg:max-w-xl rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 mx-auto flex flex-col justify-center mt-12" style={{ background: '#D32F55', minHeight: 'auto' }}>
           <h2 className="text-2xl font-bold mb-2 text-center text-yellow-300">Complete Your Booking</h2>
           <p className="mb-4 text-center text-yellow-300">Please provide your details to book tickets for <b className="text-yellow-300">{event.title}</b>.</p>
+          
+          {/* Guest User Notice */}
+          {!isSignedIn && (
+            <div className="mb-4 p-3 bg-blue-100 border border-blue-300 rounded-lg">
+              <p className="text-blue-800 text-sm text-center">
+                <strong>Guest Booking:</strong> You're booking as a guest. Your tickets will be sent to your email address.
+              </p>
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Price Breakdown */}
             <div className="mb-2">
@@ -481,12 +506,40 @@ Thank you for choosing Motojojo Events!`;
                 </div>
             </div>
 
+            {/* Event Offers Section */}
+            {event && event.offers && event.offers.length > 0 && (
+              <OfferSelection
+                event={event}
+                basePrice={event.ticket_price || 0}
+                quantity={formData.tickets}
+                onPricingChange={setOfferPricing}
+              />
+            )}
+
             <div className="mt-2 text-right font-semibold text-yellow-300">
-              <div>Price: <span className="text-black">₹{event.ticket_price?.toLocaleString()} x {formData.tickets} = ₹{originalTotal.toLocaleString()}</span></div>
-              {isCouponApplied && (
-                <div>Discount (10%): <span className="text-black">- ₹{discount.toLocaleString()}</span></div>
+              <div>Base Price: <span className="text-black">₹{event.ticket_price?.toLocaleString()} x {formData.tickets} = ₹{originalTotal.toLocaleString()}</span></div>
+              
+                        {/* Show offer pricing if available */}
+          {offerPricing && offerPricing.adjustments && offerPricing.adjustments.length > 0 && (
+            <>
+              {offerPricing.adjustments.map((adj, idx) => (
+                <div key={idx} className={`text-sm ${adj.cost > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  {adj.description}: <span className="text-black">
+                    {adj.cost > 0 ? '+' : ''}₹{adj.cost.toLocaleString()}
+                  </span>
+                </div>
+              ))}
+              {offerPricing.savings > 0 && (
+                <div>Total Savings: <span className="text-black text-green-600">- ₹{offerPricing.savings.toLocaleString()}</span></div>
               )}
-              <div className="text-lg">Total: <span className="text-black">₹{totalAmount.toLocaleString()}</span></div>
+              <div>After Offers: <span className="text-black">₹{offerPricing.totalPrice.toLocaleString()}</span></div>
+            </>
+          )}
+              
+              {isCouponApplied && (
+                <div>Coupon Discount (10%): <span className="text-black">- ₹{discount.toLocaleString()}</span></div>
+              )}
+              <div className="text-lg">Final Total: <span className="text-black">₹{totalAmount.toLocaleString()}</span></div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 mt-4">
               <button
@@ -502,7 +555,7 @@ Thank you for choosing Motojojo Events!`;
                   className={cn("w-full py-3 rounded-lg font-bold text-black bg-yellow-300 hover:bg-yellow-400 transition", { 'opacity-60 pointer-events-none': isBooking })}
                   disabled={isBooking}
                 >
-                  {isBooking ? "Processing..." : totalAmount === 0 ? "Book Free Tickets" : "Proceed to Payment"}
+                  {isBooking ? "Processing..." : totalAmount === 0 ? "Book Free Tickets" : (isSignedIn ? "Proceed to Payment" : "Book as Guest")}
                 </button>
             </div>
           </form>

@@ -503,6 +503,62 @@ const EventDetail = () => {
                       </button>
                     )}
                   </div>
+
+                  {/* --- ADDED: Event Offers in Main Description --- */}
+                  {event.offers && event.offers.length > 0 && (
+                    <div className="mt-8">
+                      <h3
+                        className={`text-2xl font-bold mb-3 ${
+                          isLocalGathering ? "text-mapcream" : ""
+                        }`}
+                      >
+                        Special Offers & Deals
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {event.offers.map((offer: any, idx: number) => (
+                          <div
+                            key={idx}
+                            className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="font-semibold text-green-800 text-lg">
+                                {offer.title}
+                              </div>
+                              <Badge
+                                variant="outline"
+                                className="text-xs bg-green-100 text-green-700 border-green-300"
+                              >
+                                {offer.offer_type === 'flat_rate' ? 'Flat Rate' : 
+                                 offer.offer_type === 'add_person' ? 'Add Person' :
+                                 offer.offer_type === 'group_discount' ? 'Group Discount' :
+                                 offer.offer_type === 'student_discount' ? 'Student' :
+                                 offer.offer_type === 'women_flash_sale' ? 'Women Special' :
+                                 offer.offer_type === 'no_stag' ? 'No STAG' :
+                                 offer.offer_type === 'razorpay_above' ? 'Payment Fee' : 'Special'}
+                              </Badge>
+                            </div>
+                            {offer.description && (
+                              <div className="text-sm text-gray-700 mb-3">
+                                {offer.description}
+                              </div>
+                            )}
+                            <div className="flex items-center justify-between">
+                              <span className="text-green-600 font-bold text-lg">
+                                {offer.offer_type === 'flat_rate' ? `₹${offer.price_adjustment}` :
+                                 offer.price_adjustment > 0 ? `+₹${offer.price_adjustment}` :
+                                 `-₹${Math.abs(offer.price_adjustment)}`}
+                              </span>
+                              <div className="text-right text-sm text-gray-600">
+                                <div>Min: {offer.min_quantity}</div>
+                                {offer.max_quantity && <div>Max: {offer.max_quantity}</div>}
+                                <div>Group: {offer.group_size}</div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </FadeIn>
             </div>
@@ -755,6 +811,72 @@ const EventDetail = () => {
                             )}
                           </div>
                         </div>
+
+                        {/* --- ADDED: Event Offers Section --- */}
+                        {event.offers && event.offers.length > 0 && (
+                          <div className="flex items-start">
+                            <DollarSign
+                              className={`h-5 w-5 mr-3 mt-0.5 ${
+                                isLocalGathering
+                                  ? "text-[#0CA678]"
+                                  : "text-green-600"
+                              }`}
+                            />
+                            <div className="w-full">
+                              <div
+                                className={`font-semibold ${
+                                  isLocalGathering
+                                    ? "text-[#0CA678]"
+                                    : "text-black"
+                                }`}
+                              >
+                                Special Offers
+                              </div>
+                              <div className="space-y-2 mt-2">
+                                {event.offers.map((offer: any, idx: number) => (
+                                  <div
+                                    key={idx}
+                                    className="bg-green-50 border border-green-200 rounded-lg p-3"
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <div className="font-medium text-green-800">
+                                        {offer.title}
+                                      </div>
+                                      <Badge
+                                        variant="outline"
+                                        className="text-xs bg-green-100 text-green-700 border-green-300"
+                                      >
+                                        {offer.offer_type === 'flat_rate' ? 'Flat Rate' : 
+                                         offer.offer_type === 'add_person' ? 'Add Person' :
+                                         offer.offer_type === 'group_discount' ? 'Group Discount' :
+                                         offer.offer_type === 'student_discount' ? 'Student' :
+                                         offer.offer_type === 'women_flash_sale' ? 'Women Special' :
+                                         offer.offer_type === 'no_stag' ? 'No STAG' :
+                                         offer.offer_type === 'razorpay_above' ? 'Payment Fee' : 'Special'}
+                                      </Badge>
+                                    </div>
+                                    {offer.description && (
+                                      <div className="text-sm text-green-700 mt-1">
+                                        {offer.description}
+                                      </div>
+                                    )}
+                                    <div className="flex items-center justify-between mt-2 text-sm">
+                                      <span className="text-green-600 font-medium">
+                                        {offer.offer_type === 'flat_rate' ? `₹${offer.price_adjustment}` :
+                                         offer.price_adjustment > 0 ? `+₹${offer.price_adjustment}` :
+                                         `-₹${Math.abs(offer.price_adjustment)}`}
+                                      </span>
+                                      <span className="text-gray-600">
+                                        Min: {offer.min_quantity}
+                                        {offer.max_quantity && ` • Max: ${offer.max_quantity}`}
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
 

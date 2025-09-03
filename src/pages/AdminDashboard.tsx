@@ -40,7 +40,7 @@ import {
   deleteEvent,
   subscribeToEvents,
 } from "@/services/adminEventService";
-import { getEvents } from "@/services/eventService";
+import { getAdminEvents } from "@/services/eventService";
 import {
   EventType,
   getAllEventTypes,
@@ -175,7 +175,7 @@ const AdminDashboard = () => {
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["events"],
     queryFn: async () => {
-      return await getEvents();
+      return await getAdminEvents();
     },
   });
 
@@ -316,7 +316,9 @@ const AdminDashboard = () => {
     await updateEvent(selectedEvent.id, data);
     setIsEditDialogOpen(false);
     setSelectedEvent(null);
+    // Refresh both events and any related data
     queryClient.invalidateQueries({ queryKey: ["events"] });
+    queryClient.invalidateQueries({ queryKey: ["admin-bookings"] });
     toast({
       title: "Success",
       description: "Event updated successfully",
@@ -1581,6 +1583,20 @@ const AdminDashboard = () => {
                             <EventForm onSubmit={handleCreateEvent} />
                           </DialogContent>
                         </Dialog>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            queryClient.invalidateQueries({ queryKey: ["events"] });
+                            toast({
+                              title: "Refreshed",
+                              description: "Events list has been updated",
+                            });
+                          }}
+                        >
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Refresh
+                        </Button>
                       </CardTitle>
                       <CardDescription className="text-black">
                         Manage your events and their details
@@ -1598,6 +1614,9 @@ const AdminDashboard = () => {
                               <TableHead className="text-black">Date</TableHead>
                               <TableHead className="text-black">
                                 Price
+                              </TableHead>
+                              <TableHead className="text-black">
+                                Offers
                               </TableHead>
                               <TableHead className="text-black text-right">
                                 Actions
@@ -1618,6 +1637,27 @@ const AdminDashboard = () => {
                                 </TableCell>
                                 <TableCell className="text-black">
                                   ₹{event.price}
+                                </TableCell>
+                                <TableCell className="text-black">
+                                  {event.offers && event.offers.length > 0 ? (
+                                    <div className="space-y-1">
+                                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                        {event.offers.length} offer{event.offers.length !== 1 ? 's' : ''}
+                                      </span>
+                                      <div className="text-xs text-gray-600">
+                                        {event.offers.slice(0, 2).map((offer: any, idx: number) => (
+                                          <div key={idx} className="truncate max-w-32">
+                                            {offer.title}
+                                          </div>
+                                        ))}
+                                        {event.offers.length > 2 && (
+                                          <div className="text-blue-600">+{event.offers.length - 2} more</div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <span className="text-xs text-gray-500">No offers</span>
+                                  )}
                                 </TableCell>
                                 <TableCell className="text-black text-right">
                                   <Button
