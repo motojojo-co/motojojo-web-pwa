@@ -39,6 +39,7 @@ import BookingPage from "./pages/BookingPage";
 import ThankYou from "./pages/ThankYou";
 import InviteOnly from "./pages/InviteOnly";
 import JoinRequests from "./pages/admin/JoinRequests";
+import BulkEmailPage from "./pages/admin/BulkEmail";
 
 const queryClient = new QueryClient();
 
@@ -91,6 +92,11 @@ const App = () => (
           <Route path="/admin/users" element={
             <ProtectedRoute adminOnly>
               <AdminUsers />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/bulk-email" element={
+            <ProtectedRoute adminOnly>
+              <BulkEmailPage />
             </ProtectedRoute>
           } />
           <Route path="/host/login" element={<HostLogin />} />

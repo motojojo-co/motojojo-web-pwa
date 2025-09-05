@@ -415,6 +415,137 @@ app.post('/send-ticket', async (req, res) => {
   }
 });
 
+// Bulk email endpoint
+app.post('/send-bulk-email', async (req, res) => {
+  const { 
+    recipients,
+    subject,
+    html,
+    text,
+    template,
+    eventData
+  } = req.body;
+
+  if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Recipients array is required and cannot be empty' 
+    });
+  }
+
+  if (!subject) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Subject is required' 
+    });
+  }
+
+  try {
+    const results = [];
+    let totalSent = 0;
+    let totalFailed = 0;
+
+    // Process emails in batches to avoid overwhelming the email service
+    const batchSize = 5;
+    const batches = [];
+    
+    for (let i = 0; i < recipients.length; i += batchSize) {
+      batches.push(recipients.slice(i, i + batchSize));
+    }
+
+    console.log(`Processing ${recipients.length} recipients in ${batches.length} batches`);
+
+    for (const batch of batches) {
+      const batchPromises = batch.map(async (recipient) => {
+        try {
+          // Personalize the email content if name is provided
+          let personalizedHtml = html;
+          let personalizedText = text;
+          
+          if (recipient.name && html) {
+            personalizedHtml = html.replace(/\$\{name\}/g, recipient.name);
+          }
+          if (recipient.name && text) {
+            personalizedText = text.replace(/\$\{name\}/g, recipient.name);
+          }
+
+          // Send email using AWS SES
+          const sesParams = {
+            FromEmailAddress: 'info@motojojo.co',
+            Destination: {
+              ToAddresses: [recipient.email]
+            },
+            Content: {
+              Simple: {
+                Subject: {
+                  Data: subject,
+                  Charset: 'UTF-8'
+                },
+                Body: {
+                  Html: {
+                    Data: personalizedHtml,
+                    Charset: 'UTF-8'
+                  },
+                  Text: {
+                    Data: personalizedText || personalizedHtml.replace(/<[^>]*>/g, ''),
+                    Charset: 'UTF-8'
+                  }
+                }
+              }
+            }
+          };
+
+          await ses.send(new SendEmailCommand(sesParams));
+          console.log(`Email sent successfully to ${recipient.email}`);
+          return { email: recipient.email, success: true };
+        } catch (error) {
+          console.error(`Failed to send email to ${recipient.email}:`, error);
+          return { 
+            email: recipient.email, 
+            success: false, 
+            error: error.message 
+          };
+        }
+      });
+
+      const batchResults = await Promise.all(batchPromises);
+      results.push(...batchResults);
+
+      // Count successes and failures
+      batchResults.forEach(result => {
+        if (result.success) {
+          totalSent++;
+        } else {
+          totalFailed++;
+        }
+      });
+
+      // Add a delay between batches to avoid rate limiting
+      if (batches.indexOf(batch) < batches.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
+      }
+    }
+
+    console.log(`Bulk email completed: ${totalSent} sent, ${totalFailed} failed`);
+
+    res.status(200).json({ 
+      success: totalFailed === 0,
+      totalSent,
+      totalFailed,
+      results,
+      message: `Bulk email completed: ${totalSent} sent, ${totalFailed} failed`
+    });
+
+  } catch (error) {
+    console.error('Error sending bulk email:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      message: "Failed to process bulk email request"
+    });
+  }
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', service: 'Email Service' });

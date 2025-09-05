@@ -92,6 +92,9 @@ export default {
           800: "#0F0920",
           900: "#070510",
         },
+        motojojo: {
+          red: "#DC2626",
+        },
       },
       fontFamily: {
         sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif'],

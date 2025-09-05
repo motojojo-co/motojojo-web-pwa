@@ -146,6 +146,30 @@ html, body, *, *::before, *::after {
     image-rendering: crisp-edges;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   }
+
+  /* Custom Red Color */
+  .bg-motojojo-red {
+    background-color: #DC2626;
+  }
+
+  /* Media Logos Scrolling Animation */
+  .animate-scroll {
+    animation: scroll 15s linear infinite;
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Pause animation on hover */
+  .animate-scroll:hover {
+    animation-play-state: paused;
+  }
 }
 
 

@@ -11,6 +11,7 @@ import EventTypesSection from "@/components/home/EventTypesSection";
 import CityExperiencesSection from "@/components/home/CityExperiencesSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import FaqSection from "@/components/home/FaqSection";
+import MediaLogosSection from "@/components/home/MediaLogosSection";
 import MovingPartyBackground from "@/components/ui/MovingPartyBackground";
 import { cities } from "@/data/mockData";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -62,6 +63,7 @@ const Index = () => {
         <CityExperiencesSection selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
         <EventsSection />
         {/* <ArtistsSection /> */}
+        <MediaLogosSection />
         <TestimonialsSection />
         <FaqSection />
       </main>

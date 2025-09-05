@@ -80,6 +80,7 @@ import {
   Search,
   Filter,
   Users,
+  Mail,
   Calendar,
   DollarSign,
   TrendingUp,
@@ -1286,6 +1287,35 @@ const AdminDashboard = () => {
             <h2 className="text-3xl font-bold mb-8">Admin Dashboard</h2>
           </FadeIn>
 
+          {/* Quick Access Section */}
+          <FadeIn delay={50}>
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle>Quick Access</CardTitle>
+                <CardDescription>Common admin tasks and tools</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-4">
+                  <Button 
+                    onClick={() => window.location.href = '/admin/bulk-email'}
+                    className="flex items-center gap-2"
+                  >
+                    <Mail className="h-4 w-4" />
+                    Bulk Email Manager
+                  </Button>
+                  <Button 
+                    onClick={() => window.location.href = '/admin/users'}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Users className="h-4 w-4" />
+                    Manage Users
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </FadeIn>
+
           <Tabs
             value={currentTab}
             onValueChange={setCurrentTab}
@@ -1294,7 +1324,6 @@ const AdminDashboard = () => {
             <TabsList className="grid grid-cols-10 mb-8">
               <TabsTrigger value="events">Manage Events</TabsTrigger>
               <TabsTrigger value="event-types">Event Types</TabsTrigger>
-
               <TabsTrigger value="banners">Manage Banners</TabsTrigger>
               <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
               <TabsTrigger value="bookings">View Bookings</TabsTrigger>
