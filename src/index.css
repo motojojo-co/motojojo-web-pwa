@@ -170,6 +170,98 @@ html, body, *, *::before, *::after {
   .animate-scroll:hover {
     animation-play-state: paused;
   }
+
+  /* Event Types Scrolling Animation */
+  .animate-scroll-event-types {
+    animation: scrollEventTypes 20s linear infinite;
+  }
+
+  @keyframes scrollEventTypes {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Pause animation on hover */
+  .animate-scroll-event-types:hover {
+    animation-play-state: paused;
+  }
+
+  /* Navbar Enhancement Animations */
+  .navbar-glow {
+    box-shadow: 0 0 20px rgba(255, 195, 0, 0.3), 0 0 40px rgba(255, 31, 76, 0.2);
+  }
+
+  .navbar-floating {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-2px); }
+  }
+
+  .navbar-pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { 
+      box-shadow: 0 0 20px rgba(255, 195, 0, 0.3);
+    }
+    50% { 
+      box-shadow: 0 0 30px rgba(255, 195, 0, 0.5), 0 0 40px rgba(255, 31, 76, 0.3);
+    }
+  }
+
+  .navbar-slide-in {
+    animation: slideInFromTop 0.5s ease-out;
+  }
+
+  @keyframes slideInFromTop {
+    0% { 
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    100% { 
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .navbar-button-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .navbar-button-hover:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .navbar-glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .navbar-gradient-border {
+    position: relative;
+    background: linear-gradient(45deg, #E8CD53, #CF2B56, #25174F);
+    padding: 2px;
+    border-radius: 12px;
+  }
+
+  .navbar-gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(20px);
+  }
 }
 
 
