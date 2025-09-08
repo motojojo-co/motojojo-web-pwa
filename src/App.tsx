@@ -41,6 +41,7 @@ import InviteOnly from "./pages/InviteOnly";
 import JoinRequests from "./pages/admin/JoinRequests";
 import BulkEmailPage from "./pages/admin/BulkEmail";
 import ViewBooking from "./pages/admin/ViewBooking";
+import Gallery from "./pages/Gallery";
 
 const queryClient = new QueryClient();
 
@@ -138,6 +139,7 @@ const App = () => (
           <Route path="/inviteonly" element={<InviteOnly tag="inviteonly" />} />
           <Route path="/book/:eventId" element={<BookingPage />} />
           <Route path="/thank-you" element={<ThankYou />} />
+          <Route path="/gallery" element={<Gallery />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

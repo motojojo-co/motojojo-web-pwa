@@ -97,6 +97,7 @@ import {
 } from "lucide-react";
 import { experiences } from "@/data/mockData";
 import ArtistForm from "@/components/admin/ArtistForm";
+import VideoUploadForm from "@/components/admin/VideoUploadForm";
 import {
   processCompletedEvents,
   checkAttendanceFields,
@@ -1281,11 +1282,12 @@ const AdminDashboard = () => {
             onValueChange={setCurrentTab}
             className="w-full"
           >
-            <TabsList className="grid grid-cols-9 mb-8">
+            <TabsList className="grid grid-cols-10 mb-8">
               <TabsTrigger value="events">Manage Events</TabsTrigger>
               <TabsTrigger value="event-types">Event Types</TabsTrigger>
               <TabsTrigger value="banners">Manage Banners</TabsTrigger>
               <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
+              <TabsTrigger value="videos">Gallery Videos</TabsTrigger>
               <TabsTrigger value="revenue">Revenue</TabsTrigger>
               <TabsTrigger value="hosts">Host Management</TabsTrigger>
               <TabsTrigger value="host-activity">Host Activity</TabsTrigger>
@@ -1361,6 +1363,12 @@ const AdminDashboard = () => {
                     )}
                   </CardContent>
                 </Card>
+              </FadeIn>
+            </TabsContent>
+
+            <TabsContent value="videos">
+              <FadeIn delay={50}>
+                <VideoUploadForm />
               </FadeIn>
             </TabsContent>
 

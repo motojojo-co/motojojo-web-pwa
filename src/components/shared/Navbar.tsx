@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Search, User, Menu, X, ShoppingCart, Ticket, Home, Calendar, Heart, Settings, MessageSquare, History, LogOut, Lock, Bell, Sparkles, Zap } from "lucide-react";
+import { MapPin, Search, User, Menu, X, ShoppingCart, Ticket, Home, Calendar, Heart, Settings, MessageSquare, History, LogOut, Lock, Bell, Sparkles, Zap, Video } from "lucide-react";
 import { cities } from "@/data/mockData";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
@@ -168,6 +168,13 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               </Link>
             </Button>
 
+            <Button variant="ghost" asChild className="min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg">
+              <Link to="/gallery" className="flex items-center text-white">
+                <Video className="h-4 w-4 mr-2 text-white group-hover:text-sandstorm transition-colors duration-300" />
+                <span className="truncate text-white">Gallery</span>
+              </Link>
+            </Button>
+
             {/* Enhanced Auth Buttons */}
             {!isSignedIn ? (
               <>
@@ -307,6 +314,13 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                 <Link to="/previousevents">
                   <History className="h-4 w-4 mr-2" />
                   Past Experiences
+                </Link>
+              </Button>
+
+              <Button variant="ghost" className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" asChild>
+                <Link to="/gallery">
+                  <Video className="h-4 w-4 mr-2" />
+                  Gallery
                 </Link>
               </Button>
 
