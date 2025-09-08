@@ -136,15 +136,15 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                   <Zap className="h-3 w-3 text-black opacity-60" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 max-w-xs bg-white/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl">
+              <DropdownMenuContent align="end" className="w-48 max-w-xs bg-gradient-to-br from-raspberry to-sandstorm backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl">
                 {cities.map((city) => (
                   <DropdownMenuItem 
                     key={city.id}
                     onClick={() => setSelectedCity(city.name)}
-                    className="hover:bg-gradient-to-r hover:from-sandstorm/20 hover:to-raspberry/20 transition-all duration-200 rounded-xl mx-1 my-1"
+                    className="hover:bg-white/20 transition-all duration-200 rounded-xl mx-1 my-1 text-white"
                   >
-                    <MapPin className="h-4 w-4 mr-2 text-raspberry" />
-                    <span className="truncate max-w-[8rem]">{city.name}</span>
+                    <MapPin className="h-4 w-4 mr-2 text-white" />
+                    <span className="truncate max-w-[8rem] text-white font-medium">{city.name}</span>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -283,15 +283,15 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                     <Zap className="h-3 w-3 text-black opacity-60" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-full bg-white/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl">
+                <DropdownMenuContent align="end" className="w-full bg-gradient-to-br from-raspberry to-sandstorm backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl">
                   {cities.map((city) => (
                     <DropdownMenuItem 
                       key={city.id}
                       onClick={() => setSelectedCity(city.name)}
-                      className="hover:bg-gradient-to-r hover:from-sandstorm/20 hover:to-raspberry/20 transition-all duration-200 rounded-xl mx-1 my-1"
+                      className="hover:bg-white/20 transition-all duration-200 rounded-xl mx-1 my-1 text-white"
                     >
-                      <MapPin className="h-4 w-4 mr-2 text-raspberry" />
-                      {city.name}
+                      <MapPin className="h-4 w-4 mr-2 text-white" />
+                      <span className="text-white font-medium">{city.name}</span>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
