@@ -350,6 +350,89 @@ const EventDetail = () => {
   const TRUNCATE_LENGTH = 350;
   const shouldTruncate = fullDescription.length > TRUNCATE_LENGTH;
 
+  // Function to render formatted description with highlights and structure
+  const renderFormattedDescription = (text: string) => {
+    const lines = text.split('\n').filter(line => line.trim());
+    const elements: JSX.Element[] = [];
+    let currentIndex = 0;
+
+    lines.forEach((line, index) => {
+      const trimmedLine = line.trim();
+      
+      // Skip empty lines
+      if (!trimmedLine) return;
+
+      // Detect questions (lines ending with ?)
+      if (trimmedLine.endsWith('?')) {
+        elements.push(
+          <div key={index} className="mb-4">
+            <p className="text-xl font-semibold text-amber-800 mb-2 leading-relaxed">
+              {trimmedLine}
+            </p>
+          </div>
+        );
+      }
+      // Detect section headers (lines with colons or specific patterns)
+      else if (trimmedLine.includes(':') && (trimmedLine.includes('What') || trimmedLine.includes('expect') || trimmedLine.includes('note'))) {
+        elements.push(
+          <div key={index} className="mb-4">
+            <h4 className="text-lg font-bold text-amber-900 mb-3 flex items-center gap-2">
+              <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+              {trimmedLine}
+            </h4>
+          </div>
+        );
+      }
+      // Detect bullet points or list items
+      else if (trimmedLine.startsWith('•') || trimmedLine.startsWith('-') || trimmedLine.startsWith('*')) {
+        elements.push(
+          <div key={index} className="mb-3 ml-4">
+            <div className="flex items-start gap-3">
+              <div className="w-1.5 h-1.5 bg-amber-600 rounded-full mt-2.5 flex-shrink-0"></div>
+              <p className="text-base leading-relaxed text-gray-800">
+                {trimmedLine.substring(1).trim()}
+              </p>
+            </div>
+          </div>
+        );
+      }
+      // Detect emphasis text (lines with specific keywords)
+      else if (trimmedLine.includes('MEMBER-only') || trimmedLine.includes('curated experience') || trimmedLine.includes('true self')) {
+        elements.push(
+          <div key={index} className="mb-4">
+            <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+              <p className="text-base font-medium text-amber-900 leading-relaxed">
+                {trimmedLine}
+              </p>
+            </div>
+          </div>
+        );
+      }
+      // Detect call-to-action or closing lines
+      else if (trimmedLine.includes('book your tickets') || trimmedLine.includes('See you on') || trimmedLine.includes('Love, Team')) {
+        elements.push(
+          <div key={index} className="mb-4">
+            <p className="text-base font-semibold text-amber-800 leading-relaxed">
+              {trimmedLine}
+            </p>
+          </div>
+        );
+      }
+      // Regular paragraphs
+      else {
+        elements.push(
+          <div key={index} className="mb-4">
+            <p className="text-base leading-relaxed text-gray-800">
+              {trimmedLine}
+            </p>
+          </div>
+        );
+      }
+    });
+
+    return elements;
+  };
+
   return (
     <div
       className={`min-h-screen flex flex-col ${isLocalGathering ? "" : ""}`}
@@ -449,58 +532,102 @@ const EventDetail = () => {
                   {event.subtitle}
                 </h2>
 
-                {/* --- IMPROVED DESCRIPTION SECTION --- */}
+                {/* --- ENHANCED INTERACTIVE DESCRIPTION SECTION --- */}
                 <div className="mt-8">
-                  <h3
-                    className={`text-2xl font-bold mb-3 ${
-                      isLocalGathering ? "text-mapcream" : ""
-                    }`}
-                  >
-                    About The Event
-                  </h3>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-1 h-8 bg-gradient-to-b from-primary to-primary/70 rounded-full"></div>
+                    <h3
+                      className={`text-3xl font-bold ${
+                        isLocalGathering ? "text-mapcream" : "text-foreground"
+                      }`}
+                    >
+                      About The Event
+                    </h3>
+                  </div>
+                  
                   <div
+                    className="relative overflow-hidden transition-all duration-500 ease-in-out"
                     style={{
-                      background: "#FFF9C4",
-                      borderRadius: "12px",
-                      padding: "18px 20px",
+                      background: "linear-gradient(135deg, #FFF9C4 0%, #FFF8E1 100%)",
+                      borderRadius: "16px",
+                      padding: "24px 28px",
                       marginTop: 8,
                       marginBottom: 8,
                       color: "#111",
+                      boxShadow: "0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1)",
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
                     }}
                   >
+                    {/* Decorative elements */}
+                    <div className="absolute top-4 right-4 w-8 h-8 bg-gradient-to-br from-yellow-200/30 to-yellow-300/30 rounded-full"></div>
+                    <div className="absolute bottom-4 left-4 w-6 h-6 bg-gradient-to-br from-yellow-300/20 to-yellow-400/20 rounded-full"></div>
+                    
                     <div
-                      className="whitespace-pre-line max-w-none text-base leading-relaxed"
-                      style={{ color: "#111" }}
+                      className={`max-w-none leading-relaxed transition-all duration-300 ${
+                        shouldTruncate && !isDescriptionExpanded 
+                          ? "text-base" 
+                          : "text-lg"
+                      }`}
+                      style={{ 
+                        color: "#111",
+                        lineHeight: "1.8",
+                        letterSpacing: "0.01em"
+                      }}
                     >
-                      {shouldTruncate && !isDescriptionExpanded
-                        ? `${fullDescription.substring(0, TRUNCATE_LENGTH)}...`
-                        : fullDescription}
+                      {shouldTruncate && !isDescriptionExpanded ? (
+                        <div className="space-y-4">
+                          {renderFormattedDescription(fullDescription.substring(0, TRUNCATE_LENGTH))}
+                          <span className="text-amber-700 font-medium">...</span>
+                        </div>
+                      ) : (
+                        <div className="space-y-6">
+                          {renderFormattedDescription(fullDescription)}
+                        </div>
+                      )}
                     </div>
+                    
                     {shouldTruncate && (
-                      <button
-                        onClick={() =>
-                          setIsDescriptionExpanded(!isDescriptionExpanded)
-                        }
-                        style={{
-                          background: "#FFF176",
-                          color: "#222",
-                          fontWeight: "bold",
-                          border: "none",
-                          borderRadius: "8px",
-                          padding: "8px 20px",
-                          marginTop: "16px",
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-                          cursor: "pointer",
-                          transition: "background 0.2s",
-                        }}
-                        className={
-                          isLocalGathering
-                            ? "hover:bg-[#0CA678] hover:text-white"
-                            : ""
-                        }
-                      >
-                        {isDescriptionExpanded ? "Show Less" : "Read More"}
-                      </button>
+                      <div className="mt-6 flex justify-center">
+                        <button
+                          onClick={() =>
+                            setIsDescriptionExpanded(!isDescriptionExpanded)
+                          }
+                          className={`
+                            group relative overflow-hidden px-8 py-3 rounded-xl font-semibold
+                            transition-all duration-300 ease-out transform hover:scale-105
+                            focus:outline-none focus:ring-4 focus:ring-opacity-50
+                            ${isLocalGathering 
+                              ? "bg-gradient-to-r from-[#0CA678] to-[#059669] text-white hover:from-[#059669] hover:to-[#047857] focus:ring-[#0CA678]" 
+                              : "bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary/80 focus:ring-primary"
+                            }
+                            shadow-lg hover:shadow-xl
+                          `}
+                          style={{
+                            boxShadow: "0 4px 15px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06)",
+                          }}
+                        >
+                          <span className="relative z-10 flex items-center gap-2">
+                            {isDescriptionExpanded ? (
+                              <>
+                                <svg className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                </svg>
+                                Show Less
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                                Read More
+                              </>
+                            )}
+                          </span>
+                          
+                          {/* Animated background effect */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </button>
+                      </div>
                     )}
                   </div>
 

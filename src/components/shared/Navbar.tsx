@@ -136,18 +136,14 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                   <Zap className="h-3 w-3 text-black opacity-60" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 max-w-xs bg-raspberry/95 backdrop-blur-xl border border-raspberry/30 rounded-2xl shadow-2xl">
+              <DropdownMenuContent align="end" className="w-48 max-w-xs bg-white/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl">
                 {cities.map((city) => (
                   <DropdownMenuItem 
                     key={city.id}
                     onClick={() => setSelectedCity(city.name)}
-                    className={`transition-all duration-200 rounded-xl mx-1 my-1 ${
-                      city.name === selectedCity 
-                        ? "bg-gradient-to-r from-sandstorm to-raspberry text-raspberry font-semibold" 
-                        : "hover:bg-raspberry-600/50 text-white"
-                    }`}
+                    className="hover:bg-gradient-to-r hover:from-sandstorm/20 hover:to-raspberry/20 transition-all duration-200 rounded-xl mx-1 my-1"
                   >
-                    <MapPin className={`h-4 w-4 mr-2 ${city.name === selectedCity ? "text-raspberry" : "text-white"}`} />
+                    <MapPin className="h-4 w-4 mr-2 text-raspberry" />
                     <span className="truncate max-w-[8rem]">{city.name}</span>
                   </DropdownMenuItem>
                 ))}
@@ -280,18 +276,14 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                     <Zap className="h-3 w-3 text-black opacity-60" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-full bg-raspberry/95 backdrop-blur-xl border border-raspberry/30 rounded-2xl shadow-2xl">
+                <DropdownMenuContent align="end" className="w-full bg-white/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl">
                   {cities.map((city) => (
                     <DropdownMenuItem 
                       key={city.id}
                       onClick={() => setSelectedCity(city.name)}
-                      className={`transition-all duration-200 rounded-xl mx-1 my-1 ${
-                        city.name === selectedCity 
-                          ? "bg-gradient-to-r from-sandstorm to-raspberry text-raspberry font-semibold" 
-                          : "hover:bg-raspberry-600/50 text-white"
-                      }`}
+                      className="hover:bg-gradient-to-r hover:from-sandstorm/20 hover:to-raspberry/20 transition-all duration-200 rounded-xl mx-1 my-1"
                     >
-                      <MapPin className={`h-4 w-4 mr-2 ${city.name === selectedCity ? "text-raspberry" : "text-white"}`} />
+                      <MapPin className="h-4 w-4 mr-2 text-raspberry" />
                       {city.name}
                     </DropdownMenuItem>
                   ))}
