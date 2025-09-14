@@ -20,6 +20,7 @@ export interface CreateEventInput {
   event_type?: string;
   host?: string;
   is_published?: boolean;
+  is_private?: boolean;
   has_discount?: boolean;
   real_price?: number | null;
   discounted_price?: number | null;
@@ -30,6 +31,24 @@ export interface CreateEventInput {
   ticket_price?: number;
   location_map_link?: string;
   offers?: any[];
+  seats_available?: number;
+  // New timing fields
+  doors_open_time?: string | null;
+  show_start_time?: string | null;
+  // New location fields
+  nearest_station?: string | null;
+  address_reveal_note?: string | null;
+  late_arrival_note?: string | null;
+  // New amenities fields
+  alcohol_available?: boolean;
+  bar_available?: boolean;
+  food_policy?: string | null;
+  seating_type?: string | null;
+  indoor_outdoor?: string | null;
+  // New info fields
+  accessibility_info?: string | null;
+  parking_info?: string | null;
+  additional_info?: string | null;
 }
 
 export const createEvent = async (eventData: CreateEventInput) => {

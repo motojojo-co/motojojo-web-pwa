@@ -57,6 +57,24 @@ const formSchema = z.object({
   ticket_price: z.number().min(0, "Ticket price must be non-negative"),
   location_map_link: z.string().url("Please enter a valid URL").optional(),
   offers: z.array(z.any()).optional(),
+  seats_available: z.number().min(0, "Seats available must be non-negative").default(100),
+  // New timing fields
+  doors_open_time: z.string().optional(),
+  show_start_time: z.string().optional(),
+  // New location fields
+  nearest_station: z.string().optional(),
+  address_reveal_note: z.string().optional(),
+  late_arrival_note: z.string().optional(),
+  // New amenities fields
+  alcohol_available: z.boolean().default(false),
+  bar_available: z.boolean().default(false),
+  food_policy: z.string().optional(),
+  seating_type: z.string().optional(),
+  indoor_outdoor: z.string().optional(),
+  // New info fields
+  accessibility_info: z.string().optional(),
+  parking_info: z.string().optional(),
+  additional_info: z.string().optional(),
 });
 
 type EventFormData = z.infer<typeof formSchema>;
@@ -133,6 +151,24 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
       ticket_price: initialData?.ticket_price || 0,
       location_map_link: initialData?.location_map_link || "",
       offers: initialData?.offers || [],
+      seats_available: initialData?.seats_available || 100,
+      // New timing fields
+      doors_open_time: initialData?.doors_open_time || "",
+      show_start_time: initialData?.show_start_time || "",
+      // New location fields
+      nearest_station: initialData?.nearest_station || "",
+      address_reveal_note: initialData?.address_reveal_note || "",
+      late_arrival_note: initialData?.late_arrival_note || "",
+      // New amenities fields
+      alcohol_available: initialData?.alcohol_available ?? false,
+      bar_available: initialData?.bar_available ?? false,
+      food_policy: initialData?.food_policy || "",
+      seating_type: initialData?.seating_type || "",
+      indoor_outdoor: initialData?.indoor_outdoor || "",
+      // New info fields
+      accessibility_info: initialData?.accessibility_info || "",
+      parking_info: initialData?.parking_info || "",
+      additional_info: initialData?.additional_info || "",
     },
   });
 
@@ -639,6 +675,268 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                     </FormItem>
                   )}
                 />
+
+                {/* Seats Available */}
+                <FormField
+                  control={form.control}
+                  name="seats_available"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Seats Available</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          min={0} 
+                          {...field} 
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Event Timing Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">Event Timing</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="doors_open_time"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Doors Open Time</FormLabel>
+                        <FormControl>
+                          <Input type="time" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="show_start_time"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Show Start Time</FormLabel>
+                        <FormControl>
+                          <Input type="time" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Location & Transportation Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">Location & Transportation</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="nearest_station"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nearest Station</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Metro Station, Bus Stop" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="parking_info"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Parking Information</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Parking details, charges, availability..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="address_reveal_note"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address Reveal Note</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="When and how will the address be revealed?" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="late_arrival_note"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Late Arrival Note</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Policy for late arrivals..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Event Amenities Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">Event Amenities</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="alcohol_available"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Alcohol Available</FormLabel>
+                          <p className="text-sm text-muted-foreground">
+                            Will alcohol be served at this event?
+                          </p>
+                        </div>
+                        <FormControl>
+                          <input 
+                            type="checkbox" 
+                            checked={field.value} 
+                            onChange={(e) => field.onChange(e.target.checked)} 
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="bar_available"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Bar Available</FormLabel>
+                          <p className="text-sm text-muted-foreground">
+                            Will there be a bar at this event?
+                          </p>
+                        </div>
+                        <FormControl>
+                          <input 
+                            type="checkbox" 
+                            checked={field.value} 
+                            onChange={(e) => field.onChange(e.target.checked)} 
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="food_policy"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Food Policy</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Food policy, outside food allowed, etc." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="seating_type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Seating Type</FormLabel>
+                        <FormControl>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select seating type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="floor">Floor Seating</SelectItem>
+                              <SelectItem value="chairs">Chairs</SelectItem>
+                              <SelectItem value="mixed">Mixed Seating</SelectItem>
+                              <SelectItem value="standing">Standing Only</SelectItem>
+                              <SelectItem value="tables">Table Seating</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="indoor_outdoor"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Indoor/Outdoor</FormLabel>
+                        <FormControl>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select venue type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="indoor">Indoor</SelectItem>
+                              <SelectItem value="outdoor">Outdoor</SelectItem>
+                              <SelectItem value="mixed">Mixed Indoor/Outdoor</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Accessibility & Additional Info Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">Accessibility & Additional Information</h3>
+                <div className="grid grid-cols-1 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="accessibility_info"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Accessibility Information</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Wheelchair access, special accommodations, etc." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="additional_info"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Additional Information</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Any other important information for attendees..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
               {/* Event Offers Section */}

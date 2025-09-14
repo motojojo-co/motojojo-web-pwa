@@ -36,6 +36,24 @@ export interface Event {
   ticket_price?: number;
   location_map_link?: string; // Google Maps link for the event location
   offers?: EventOffer[]; // Event offers
+  seats_available?: number;
+  // New timing fields
+  doors_open_time?: string | null;
+  show_start_time?: string | null;
+  // New location fields
+  nearest_station?: string | null;
+  address_reveal_note?: string | null;
+  late_arrival_note?: string | null;
+  // New amenities fields
+  alcohol_available?: boolean;
+  bar_available?: boolean;
+  food_policy?: string | null;
+  seating_type?: string | null;
+  indoor_outdoor?: string | null;
+  // New info fields
+  accessibility_info?: string | null;
+  parking_info?: string | null;
+  additional_info?: string | null;
 }
 
 export const getAllEvents = async (): Promise<Event[]> => {
@@ -388,6 +406,24 @@ export const getEvent = async (id: string): Promise<Event | null> => {
         ? data.location_map_link
         : undefined,
     offers: data.offers || [],
+    seats_available: data.seats_available || 100,
+    // New timing fields
+    doors_open_time: data.doors_open_time || null,
+    show_start_time: data.show_start_time || null,
+    // New location fields
+    nearest_station: data.nearest_station || null,
+    address_reveal_note: data.address_reveal_note || null,
+    late_arrival_note: data.late_arrival_note || null,
+    // New amenities fields
+    alcohol_available: data.alcohol_available || false,
+    bar_available: data.bar_available || false,
+    food_policy: data.food_policy || null,
+    seating_type: data.seating_type || null,
+    indoor_outdoor: data.indoor_outdoor || null,
+    // New info fields
+    accessibility_info: data.accessibility_info || null,
+    parking_info: data.parking_info || null,
+    additional_info: data.additional_info || null,
   };
 };
 

@@ -30,6 +30,19 @@ import {
   AlertCircle,
   Lock,
   LogIn,
+  Users,
+  Train,
+  Car,
+  Utensils,
+  Wine,
+  Coffee,
+  Accessibility,
+  Info,
+  MapIcon,
+  Timer,
+  DoorOpen,
+  Play,
+  ChevronDown,
 } from "lucide-react";
 import {
   getEvent,
@@ -687,6 +700,271 @@ const EventDetail = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Enhanced Event Information FAQ Sections */}
+                <div className="mt-16">
+                  <FadeIn delay={200}>
+                    <div className="space-y-6">
+                      {/* Enhanced Header */}
+                      <div className="text-center mb-12">
+                        <div className="inline-flex items-center gap-4 mb-4">
+                          <div className="w-12 h-1 bg-gradient-to-r from-primary/20 via-primary to-primary/20 rounded-full"></div>
+                          <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+                          <div className="w-12 h-1 bg-gradient-to-r from-primary/20 via-primary to-primary/20 rounded-full"></div>
+                        </div>
+                        <h3
+                          className={`text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent ${
+                            isLocalGathering ? "from-[#0CA678] via-[#0CA678]/80 to-[#0CA678]" : ""
+                          }`}
+                        >
+                          Event Details
+                        </h3>
+                        <p className={`text-lg mt-2 ${
+                          isLocalGathering ? "text-mapcream/80" : "text-muted-foreground"
+                        }`}>
+                          Everything you need to know about this event
+                        </p>
+                      </div>
+                      
+                      <Accordion type="single" collapsible className="w-full space-y-4 accordion-smooth" defaultValue="">
+                        {/* Event Timing */}
+                        {(event.doors_open_time || event.show_start_time) && (
+                          <AccordionItem value="timing" className="group border-0 rounded-2xl mb-6 overflow-hidden bg-gradient-to-br from-white via-blue-50/30 to-white shadow-lg hover:shadow-xl transition-all duration-300">
+                            <AccordionTrigger className="px-8 py-6 hover:no-underline bg-gradient-to-r from-blue-500/5 to-blue-600/5 group-hover:from-blue-500/10 group-hover:to-blue-600/10 accordion-trigger-smooth">
+                              <div className="flex items-center gap-4">
+                                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300">
+                                  <Clock className="h-6 w-6 text-white" />
+                                </div>
+                                <div className="text-left flex-1">
+                                  <h4 className="text-xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-300">Event Timing</h4>
+                                  <p className="text-sm text-gray-600 group-hover:text-blue-600 transition-colors duration-300">When doors open and show starts</p>
+                                </div>
+                                <ChevronDown className="h-5 w-5 text-gray-500 accordion-chevron group-hover:text-blue-600 transition-colors duration-300" />
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="px-8 pb-6 bg-gradient-to-br from-blue-50/50 to-white accordion-content-smooth">
+                              <div className="space-y-4 accordion-content-reveal">
+                                {event.doors_open_time && (
+                                  <div className="group/item flex items-center gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-blue-200/50 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300">
+                                    <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-md">
+                                      <DoorOpen className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="font-semibold text-gray-900">Doors Open</span>
+                                      <div className="text-lg font-bold text-blue-600 mt-1">{event.doors_open_time}</div>
+                                    </div>
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                  </div>
+                                )}
+                                {event.show_start_time && (
+                                  <div className="group/item flex items-center gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-green-200/50 shadow-sm hover:shadow-md hover:border-green-300 transition-all duration-300">
+                                    <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600 shadow-md">
+                                      <Play className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="font-semibold text-gray-900">Show Starts</span>
+                                      <div className="text-lg font-bold text-green-600 mt-1">{event.show_start_time}</div>
+                                    </div>
+                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                  </div>
+                                )}
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        )}
+
+                        {/* Location & Transportation */}
+                        {(event.nearest_station || event.parking_info || event.address_reveal_note || event.late_arrival_note) && (
+                          <AccordionItem value="location" className="group border-0 rounded-2xl mb-6 overflow-hidden bg-gradient-to-br from-white via-purple-50/30 to-white shadow-lg hover:shadow-xl transition-all duration-300">
+                            <AccordionTrigger className="px-8 py-6 hover:no-underline bg-gradient-to-r from-purple-500/5 to-purple-600/5 group-hover:from-purple-500/10 group-hover:to-purple-600/10 accordion-trigger-smooth">
+                              <div className="flex items-center gap-4">
+                                <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg group-hover:shadow-purple-500/25 transition-all duration-300">
+                                  <MapPin className="h-6 w-6 text-white" />
+                                </div>
+                                <div className="text-left flex-1">
+                                  <h4 className="text-xl font-bold text-gray-900 group-hover:text-purple-700 transition-colors duration-300">Location & Transportation</h4>
+                                  <p className="text-sm text-gray-600 group-hover:text-purple-600 transition-colors duration-300">Getting there and venue details</p>
+                                </div>
+                                <ChevronDown className="h-5 w-5 text-gray-500 accordion-chevron group-hover:text-purple-600 transition-colors duration-300" />
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="px-8 pb-6 bg-gradient-to-br from-purple-50/50 to-white accordion-content-smooth">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 accordion-content-reveal">
+                                {event.nearest_station && (
+                                  <div className="group/item flex items-start gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-blue-200/50 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300">
+                                    <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-md">
+                                      <Train className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="font-semibold text-gray-900">Nearest Station</span>
+                                      <div className="text-gray-700 mt-1">{event.nearest_station}</div>
+                                    </div>
+                                  </div>
+                                )}
+                                {event.parking_info && (
+                                  <div className="group/item flex items-start gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-purple-200/50 shadow-sm hover:shadow-md hover:border-purple-300 transition-all duration-300">
+                                    <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 shadow-md">
+                                      <Car className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="font-semibold text-gray-900">Parking</span>
+                                      <div className="text-gray-700 mt-1">{event.parking_info}</div>
+                                    </div>
+                                  </div>
+                                )}
+                                {event.address_reveal_note && (
+                                  <div className="group/item flex items-start gap-4 p-4 bg-gradient-to-br from-yellow-50 to-yellow-100/50 backdrop-blur-sm rounded-xl border border-yellow-200/50 shadow-sm hover:shadow-md hover:border-yellow-300 transition-all duration-300">
+                                    <div className="p-2 rounded-lg bg-gradient-to-br from-yellow-500 to-yellow-600 shadow-md">
+                                      <MapIcon className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="font-semibold text-yellow-900">Address Reveal</span>
+                                      <div className="text-yellow-800 mt-1">{event.address_reveal_note}</div>
+                                    </div>
+                                  </div>
+                                )}
+                                {event.late_arrival_note && (
+                                  <div className="group/item flex items-start gap-4 p-4 bg-gradient-to-br from-orange-50 to-orange-100/50 backdrop-blur-sm rounded-xl border border-orange-200/50 shadow-sm hover:shadow-md hover:border-orange-300 transition-all duration-300">
+                                    <div className="p-2 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 shadow-md">
+                                      <Timer className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="font-semibold text-orange-900">Late Arrival Policy</span>
+                                      <div className="text-orange-800 mt-1">{event.late_arrival_note}</div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        )}
+
+                        {/* Event Amenities */}
+                        {(event.alcohol_available || event.bar_available || event.food_policy || event.seating_type || event.indoor_outdoor) && (
+                          <AccordionItem value="amenities" className="group border-0 rounded-2xl mb-6 overflow-hidden bg-gradient-to-br from-white via-green-50/30 to-white shadow-lg hover:shadow-xl transition-all duration-300">
+                            <AccordionTrigger className="px-8 py-6 hover:no-underline bg-gradient-to-r from-green-500/5 to-green-600/5 group-hover:from-green-500/10 group-hover:to-green-600/10 accordion-trigger-smooth">
+                              <div className="flex items-center gap-4">
+                                <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 shadow-lg group-hover:shadow-green-500/25 transition-all duration-300">
+                                  <Utensils className="h-6 w-6 text-white" />
+                                </div>
+                                <div className="text-left flex-1">
+                                  <h4 className="text-xl font-bold text-gray-900 group-hover:text-green-700 transition-colors duration-300">Event Amenities</h4>
+                                  <p className="text-sm text-gray-600 group-hover:text-green-600 transition-colors duration-300">Food, drinks, and venue features</p>
+                                </div>
+                                <ChevronDown className="h-5 w-5 text-gray-500 accordion-chevron group-hover:text-green-600 transition-colors duration-300" />
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="px-8 pb-6 bg-gradient-to-br from-green-50/50 to-white accordion-content-smooth">
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 accordion-content-reveal">
+                                {event.alcohol_available && (
+                                  <div className="group/item flex items-center gap-4 p-4 bg-gradient-to-br from-red-50 to-red-100/50 backdrop-blur-sm rounded-xl border border-red-200/50 shadow-sm hover:shadow-md hover:border-red-300 transition-all duration-300">
+                                    <div className="p-2 rounded-lg bg-gradient-to-br from-red-500 to-red-600 shadow-md">
+                                      <Wine className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="font-semibold text-red-900">Alcohol Available</span>
+                                      <div className="text-red-800 text-sm mt-1">Yes, alcohol will be served</div>
+                                    </div>
+                                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                  </div>
+                                )}
+                                {event.bar_available && (
+                                  <div className="group/item flex items-center gap-4 p-4 bg-gradient-to-br from-amber-50 to-amber-100/50 backdrop-blur-sm rounded-xl border border-amber-200/50 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300">
+                                    <div className="p-2 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 shadow-md">
+                                      <Coffee className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="font-semibold text-amber-900">Bar Available</span>
+                                      <div className="text-amber-800 text-sm mt-1">Yes, there will be a bar</div>
+                                    </div>
+                                    <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                                  </div>
+                                )}
+                                {event.food_policy && (
+                                  <div className="group/item flex items-start gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-green-200/50 shadow-sm hover:shadow-md hover:border-green-300 transition-all duration-300">
+                                    <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-green-600 shadow-md">
+                                      <Utensils className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="font-semibold text-gray-900">Food Policy</span>
+                                      <div className="text-gray-700 text-sm mt-1">{event.food_policy}</div>
+                                    </div>
+                                  </div>
+                                )}
+                                {event.seating_type && (
+                                  <div className="group/item flex items-center gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-indigo-200/50 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all duration-300">
+                                    <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-md">
+                                      <Users className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="font-semibold text-gray-900">Seating Type</span>
+                                      <div className="text-gray-700 text-sm mt-1 capitalize">{event.seating_type.replace('_', ' ')}</div>
+                                    </div>
+                                  </div>
+                                )}
+                                {event.indoor_outdoor && (
+                                  <div className="group/item flex items-center gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-teal-200/50 shadow-sm hover:shadow-md hover:border-teal-300 transition-all duration-300">
+                                    <div className="p-2 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 shadow-md">
+                                      <MapPin className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="font-semibold text-gray-900">Venue Type</span>
+                                      <div className="text-gray-700 text-sm mt-1 capitalize">{event.indoor_outdoor.replace('_', ' ')}</div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        )}
+
+                        {/* Accessibility & Additional Information */}
+                        {(event.accessibility_info || event.additional_info) && (
+                          <AccordionItem value="additional" className="group border-0 rounded-2xl mb-6 overflow-hidden bg-gradient-to-br from-white via-gray-50/30 to-white shadow-lg hover:shadow-xl transition-all duration-300">
+                            <AccordionTrigger className="px-8 py-6 hover:no-underline bg-gradient-to-r from-gray-500/5 to-gray-600/5 group-hover:from-gray-500/10 group-hover:to-gray-600/10 accordion-trigger-smooth">
+                              <div className="flex items-center gap-4">
+                                <div className="p-3 rounded-xl bg-gradient-to-br from-gray-500 to-gray-600 shadow-lg group-hover:shadow-gray-500/25 transition-all duration-300">
+                                  <Info className="h-6 w-6 text-white" />
+                                </div>
+                                <div className="text-left flex-1">
+                                  <h4 className="text-xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors duration-300">Additional Information</h4>
+                                  <p className="text-sm text-gray-600 group-hover:text-gray-600 transition-colors duration-300">Accessibility and other important details</p>
+                                </div>
+                                <ChevronDown className="h-5 w-5 text-gray-500 accordion-chevron group-hover:text-gray-600 transition-colors duration-300" />
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="px-8 pb-6 bg-gradient-to-br from-gray-50/50 to-white accordion-content-smooth">
+                              <div className="space-y-4 accordion-content-reveal">
+                                {event.accessibility_info && (
+                                  <div className="group/item flex items-start gap-4 p-4 bg-gradient-to-br from-blue-50 to-blue-100/50 backdrop-blur-sm rounded-xl border border-blue-200/50 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300">
+                                    <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-md">
+                                      <Accessibility className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="font-semibold text-blue-900">Accessibility Information</span>
+                                      <div className="text-blue-800 mt-1">{event.accessibility_info}</div>
+                                    </div>
+                                  </div>
+                                )}
+                                {event.additional_info && (
+                                  <div className="group/item flex items-start gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-300">
+                                    <div className="p-2 rounded-lg bg-gradient-to-br from-gray-500 to-gray-600 shadow-md">
+                                      <Info className="h-5 w-5 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="font-semibold text-gray-900">Additional Information</span>
+                                      <div className="text-gray-700 mt-1">{event.additional_info}</div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        )}
+                      </Accordion>
+                    </div>
+                  </FadeIn>
+                </div>
               </FadeIn>
             </div>
 
@@ -695,10 +973,15 @@ const EventDetail = () => {
               <FadeIn delay={400}>
                 <div className="sticky top-24">
                   <Card
-                    className={`border-none shadow-soft overflow-hidden ${
-                      isLocalGathering ? "bg-[#F7E1B5]" : ""
+                    className={`border-none shadow-2xl overflow-hidden backdrop-blur-sm ${
+                      isLocalGathering ? "bg-gradient-to-br from-[#F7E1B5] via-[#F7E1B5]/90 to-[#F7E1B5]" : "bg-gradient-to-br from-white via-yellow-50/30 to-white"
                     }`}
-                    style={!isLocalGathering ? { background: "#FFF9C4" } : {}}
+                    style={!isLocalGathering ? { 
+                      background: "linear-gradient(135deg, #FFF9C4 0%, #FFF8E1 50%, #FFF9C4 100%)",
+                      boxShadow: "0 20px 40px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.05)"
+                    } : {
+                      boxShadow: "0 20px 40px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.05)"
+                    }}
                   >
                     <CardContent
                       className="p-6"
@@ -1004,43 +1287,93 @@ const EventDetail = () => {
                             </div>
                           </div>
                         )}
+
+                        {/* Seats Available */}
+                        {event.seats_available && (
+                          <div className="flex items-start">
+                            <Users
+                              className={`h-5 w-5 mr-3 mt-0.5 ${
+                                isLocalGathering
+                                  ? "text-[#0CA678]"
+                                  : "text-blue-500"
+                              }`}
+                            />
+                            <div>
+                              <div
+                                className={`font-semibold ${
+                                  isLocalGathering
+                                    ? "text-[#0CA678]"
+                                    : "text-black"
+                                }`}
+                              >
+                                Seats Available
+                              </div>
+                              <div
+                                className={
+                                  isLocalGathering
+                                    ? "text-[#0CA678]"
+                                    : "text-black"
+                                }
+                              >
+                                {event.seats_available} seats
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
 
-                    {/* --- ADDED: Countdown Timer UI --- */}
+                    {/* --- ENHANCED: Countdown Timer UI --- */}
                     {!isCompleted && (
                       <div className="px-6 pb-4">
-                        <div className="flex items-center justify-around text-sm p-3 bg-red-50 rounded-lg">
-                          <div className="text-center">
-                            <div className="text-xl font-bold text-red-600">
-                              {countdown.days}
+                        <div className="relative overflow-hidden bg-gradient-to-r from-red-500 via-red-600 to-red-500 rounded-2xl p-6 shadow-lg">
+                          <div className="absolute inset-0 bg-gradient-to-r from-red-400/20 to-red-600/20 animate-pulse"></div>
+                          <div className="relative z-10">
+                            <div className="text-center mb-4">
+                              <h4 className="text-white font-bold text-lg mb-1">Event Starts In</h4>
+                              <div className="w-16 h-1 bg-white/30 rounded-full mx-auto"></div>
                             </div>
-                            <div className="text-red-500 text-xs uppercase">
-                              Days
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xl font-bold text-red-600">
-                              {countdown.hours}
-                            </div>
-                            <div className="text-red-500 text-xs uppercase">
-                              Hours
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xl font-bold text-red-600">
-                              {countdown.minutes}
-                            </div>
-                            <div className="text-red-500 text-xs uppercase">
-                              Minutes
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xl font-bold text-red-600">
-                              {countdown.seconds}
-                            </div>
-                            <div className="text-red-500 text-xs uppercase">
-                              Seconds
+                            <div className="grid grid-cols-4 gap-4">
+                              <div className="text-center group">
+                                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 group-hover:bg-white/30 transition-all duration-300">
+                                  <div className="text-2xl md:text-3xl font-bold text-white mb-1">
+                                    {countdown.days}
+                                  </div>
+                                  <div className="text-white/80 text-xs uppercase font-medium tracking-wider">
+                                    Days
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-center group">
+                                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 group-hover:bg-white/30 transition-all duration-300">
+                                  <div className="text-2xl md:text-3xl font-bold text-white mb-1">
+                                    {countdown.hours}
+                                  </div>
+                                  <div className="text-white/80 text-xs uppercase font-medium tracking-wider">
+                                    Hours
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-center group">
+                                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 group-hover:bg-white/30 transition-all duration-300">
+                                  <div className="text-2xl md:text-3xl font-bold text-white mb-1">
+                                    {countdown.minutes}
+                                  </div>
+                                  <div className="text-white/80 text-xs uppercase font-medium tracking-wider">
+                                    Minutes
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-center group">
+                                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 group-hover:bg-white/30 transition-all duration-300">
+                                  <div className="text-2xl md:text-3xl font-bold text-white mb-1">
+                                    {countdown.seconds}
+                                  </div>
+                                  <div className="text-white/80 text-xs uppercase font-medium tracking-wider">
+                                    Seconds
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
