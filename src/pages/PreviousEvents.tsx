@@ -322,7 +322,7 @@ const PreviousEvents = () => {
                     {dateEvents.map((event, index) => (
                       <FadeIn key={event.id} delay={index * 100}>
                         <Card className="hover-scale border-none shadow-soft overflow-hidden opacity-75 hover:opacity-100 transition-opacity">
-                          <div className="h-48 relative">
+                          <div className="aspect-[9/16] h-96 relative">
                             <img 
                               src={event.image} 
                               alt={event.title} 

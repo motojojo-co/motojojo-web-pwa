@@ -286,13 +286,6 @@ const Events = () => {
     navigate(getEventUrl(event));
   };
 
-  const handleQuickBook = (event: Event, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isMobile && 'vibrate' in navigator) {
-      navigator.vibrate(30);
-    }
-    handleAddToCart(event);
-  };
 
   // Mobile swipe gesture handlers
   const handleSwipeStart = (e: React.TouchEvent) => {
@@ -624,7 +617,7 @@ const Events = () => {
                             className={`hover-scale border-none shadow-soft overflow-hidden ${isMobile ? 'cursor-pointer' : ''}`}
                             onClick={() => handleEventCardClick(event)}
                           >
-                            <div className={`${isMobile ? 'h-40' : 'h-48'} relative group`}>
+                            <div className={`${isMobile ? 'aspect-[9/16] h-80' : 'aspect-[9/16] h-96'} relative group`}>
                               <img 
                                 src={event.image} 
                                 alt={event.title} 
@@ -695,7 +688,11 @@ const Events = () => {
                                   <Button 
                                     size="sm" 
                                     className="bg-gradient-to-r from-violet to-raspberry hover:from-raspberry hover:to-violet text-white font-semibold"
-                                    onClick={(e) => handleQuickBook(event, e)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if ('vibrate' in navigator) navigator.vibrate(30);
+                                      navigate(getEventUrl(event));
+                                    }}
                                   >
                                     Book
                                   </Button>

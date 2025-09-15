@@ -121,7 +121,7 @@ const KitchenGathering = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {dateEvents.map((event, index) => (
                         <Card key={event.id} className="hover-scale border-none shadow-soft overflow-hidden" style={{ backgroundColor: '#FF6B35' }}>
-                          <div className="h-48 relative">
+                          <div className="aspect-[9/16] h-96 relative">
                             <img
                               src={event.image}
                               alt={event.title}

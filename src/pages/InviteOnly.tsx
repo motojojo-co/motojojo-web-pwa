@@ -97,7 +97,7 @@ export default function InviteOnly({ tag = 'inviteonly' }: InviteOnlyProps) {
                     <img
                       src={event.image}
                       alt={event.title}
-                      className="w-full h-48 object-cover"
+                      className="w-full aspect-[9/16] h-96 object-cover"
                     />
                     <Badge className="absolute top-3 right-3 bg-purple-600 hover:bg-purple-700">
                       <Lock className="h-3 w-3 mr-1" />

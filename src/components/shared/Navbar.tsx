@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,6 +30,8 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
   const totalItems = useCartStore(state => state.getTotalItems());
   const [searchValue, setSearchValue] = useState("");
 
+
+
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -43,6 +45,9 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
+
+  // Remove the problematic event handler that was preventing navigation
+  // The bottom navigation should work without interference from third-party scripts
 
   const handleSignOut = async () => {
     try {
@@ -76,6 +81,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
 
   return (
     <>
+
       {/* Top Header - Modern Glassmorphism Design */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 navbar-slide-in ${
@@ -363,99 +369,230 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
         )}
       </header>
 
-      {/* Enhanced Bottom Navigation - Mobile Only */}
-      <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-xl border-t border-white/20 shadow-2xl"
+      {/* Bottom Navigation - Mobile Only */}
+      <div
+        className="md:hidden"
+        data-bottom-nav="container"
+        style={{ 
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(20px)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+          zIndex: 2147483647, // Maximum z-index value
+          height: '80px',
+          pointerEvents: 'auto',
+          isolation: 'isolate' // Creates a new stacking context
+        }}
       >
-        <div className="flex items-center justify-around py-3 px-2">
-          {/* Enhanced Home */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-2xl transition-all duration-300 relative group ${
-              location.pathname === "/" 
-                ? "bg-gradient-to-r from-sandstorm to-raspberry text-black shadow-lg scale-105" 
-                : "text-white hover:bg-white/20 hover:scale-105"
-            }`}
-            onClick={() => navigate("/")}
+        <div 
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+            padding: '12px 8px',
+            pointerEvents: 'auto'
+          }}
+        >
+          {/* Home Button */}
+          <button
+            data-bottom-nav="button"
+            style={{
+              backgroundColor: location.pathname === "/" ? '#E8CD53' : 'transparent',
+              color: location.pathname === "/" ? 'black' : 'white',
+              padding: '8px 12px',
+              border: '1px solid rgba(255,255,255,0.3)',
+              borderRadius: '8px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              pointerEvents: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '4px',
+              minWidth: '60px'
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Home button clicked');
+              navigate("/");
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Home button touched');
+              navigate("/");
+            }}
           >
-            <Home className={`h-5 w-5 transition-all duration-300 ${location.pathname === "/" ? "text-black" : "text-white group-hover:text-sandstorm"}`} />
-            <span className={`text-xs font-medium ${location.pathname === "/" ? "text-black" : "text-white"}`}>Home</span>
-            {location.pathname === "/" && <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-raspberry/20 via-sandstorm/20 to-violet/20 blur-sm -z-10"></div>}
-          </Button>
+            <Home size={16} />
+            <span>Home</span>
+          </button>
 
-          {/* Enhanced Experiences */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-2xl transition-all duration-300 relative group ${
-              location.pathname === "/events" 
-                ? "bg-gradient-to-r from-sandstorm to-raspberry text-black shadow-lg scale-105" 
-                : "text-white hover:bg-white/20 hover:scale-105"
-            }`}
-            onClick={() => navigate("/events")}
+          {/* Experiences Button */}
+          <button
+            data-bottom-nav="button"
+            style={{
+              backgroundColor: location.pathname === "/events" ? '#E8CD53' : 'transparent',
+              color: location.pathname === "/events" ? 'black' : 'white',
+              padding: '8px 12px',
+              border: '1px solid rgba(255,255,255,0.3)',
+              borderRadius: '8px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              pointerEvents: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '4px',
+              minWidth: '60px'
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Events button clicked');
+              navigate("/events");
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Events button touched');
+              navigate("/events");
+            }}
           >
-            <Calendar className={`h-5 w-5 transition-all duration-300 ${location.pathname === "/events" ? "text-black" : "text-white group-hover:text-sandstorm"}`} />
-            <span className={`text-xs font-medium ${location.pathname === "/events" ? "text-black" : "text-white"}`}>Experiences</span>
-            {location.pathname === "/events" && <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-raspberry/20 via-sandstorm/20 to-violet/20 blur-sm -z-10"></div>}
-          </Button>
+            <Calendar size={16} />
+            <span>Events</span>
+          </button>
 
-          {/* Enhanced My Bookings */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-2xl transition-all duration-300 relative group ${
-              location.pathname === "/profile" && location.search.includes("tab=bookings")
-                ? "bg-gradient-to-r from-sandstorm to-raspberry text-black shadow-lg scale-105" 
-                : "text-white hover:bg-white/20 hover:scale-105"
-            }`}
-            onClick={() => handleAuthenticatedNavigation("/profile?tab=bookings")}
+          {/* Bookings Button */}
+          <button
+            data-bottom-nav="button"
+            style={{
+              backgroundColor: (location.pathname === "/profile" && location.search.includes("tab=bookings")) ? '#E8CD53' : 'transparent',
+              color: (location.pathname === "/profile" && location.search.includes("tab=bookings")) ? 'black' : 'white',
+              padding: '8px 12px',
+              border: '1px solid rgba(255,255,255,0.3)',
+              borderRadius: '8px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              pointerEvents: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '4px',
+              minWidth: '60px',
+              position: 'relative'
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Bookings button clicked');
+              handleAuthenticatedNavigation("/profile?tab=bookings");
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Bookings button touched');
+              handleAuthenticatedNavigation("/profile?tab=bookings");
+            }}
           >
-            <Ticket className={`h-5 w-5 transition-all duration-300 ${location.pathname === "/profile" && location.search.includes("tab=bookings") ? "text-black" : "text-white group-hover:text-sandstorm"}`} />
-            <span className={`text-xs font-medium ${location.pathname === "/profile" && location.search.includes("tab=bookings") ? "text-black" : "text-white"}`}>Bookings</span>
+            <Ticket size={16} />
+            <span>Bookings</span>
             {totalItems > 0 && (
-              <Badge className="absolute -top-1 -right-1 bg-gradient-to-r from-raspberry to-violet text-white text-xs px-1.5 py-0.5 rounded-full animate-pulse">
+              <span style={{
+                position: 'absolute',
+                top: '-5px',
+                right: '-5px',
+                backgroundColor: '#CF2B56',
+                color: 'white',
+                borderRadius: '50%',
+                width: '18px',
+                height: '18px',
+                fontSize: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
                 {totalItems}
-              </Badge>
+              </span>
             )}
-            {location.pathname === "/profile" && location.search.includes("tab=bookings") && <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-raspberry/20 via-sandstorm/20 to-violet/20 blur-sm -z-10"></div>}
-          </Button>
+          </button>
 
-          {/* Enhanced Membership */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-2xl transition-all duration-300 relative group ${
-              location.pathname === "/membership"
-                ? "bg-gradient-to-r from-sandstorm to-raspberry text-black shadow-lg scale-105"
-                : "text-white hover:bg-white/20 hover:scale-105"
-            }`}
-            onClick={() => navigate("/membership")}
+          {/* Membership Button */}
+          <button
+            data-bottom-nav="button"
+            style={{
+              backgroundColor: location.pathname === "/membership" ? '#E8CD53' : 'transparent',
+              color: location.pathname === "/membership" ? 'black' : 'white',
+              padding: '8px 12px',
+              border: '1px solid rgba(255,255,255,0.3)',
+              borderRadius: '8px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              pointerEvents: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '4px',
+              minWidth: '60px'
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Membership button clicked');
+              navigate("/membership");
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Membership button touched');
+              navigate("/membership");
+            }}
           >
-            <Heart className={`h-5 w-5 transition-all duration-300 ${location.pathname === "/membership" ? "text-black" : "text-white group-hover:text-sandstorm"}`} />
-            <span className={`text-xs font-medium ${location.pathname === "/membership" ? "text-black" : "text-white"}`}>Membership</span>
-            {location.pathname === "/membership" && <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-raspberry/20 via-sandstorm/20 to-violet/20 blur-sm -z-10"></div>}
-          </Button>
+            <Heart size={16} />
+            <span>Membership</span>
+          </button>
 
-          {/* Enhanced Profile */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`flex flex-col items-center gap-1 h-auto py-2 px-3 rounded-2xl transition-all duration-300 relative group ${
-              location.pathname === "/profile" && !location.search.includes("tab=bookings")
-                ? "bg-gradient-to-r from-sandstorm to-raspberry text-black shadow-lg scale-105" 
-                : "text-white hover:bg-white/20 hover:scale-105"
-            }`}
-            onClick={() => handleAuthenticatedNavigation("/profile")}
+          {/* Profile Button */}
+          <button
+            data-bottom-nav="button"
+            style={{
+              backgroundColor: (location.pathname === "/profile" && !location.search.includes("tab=bookings")) ? '#E8CD53' : 'transparent',
+              color: (location.pathname === "/profile" && !location.search.includes("tab=bookings")) ? 'black' : 'white',
+              padding: '8px 12px',
+              border: '1px solid rgba(255,255,255,0.3)',
+              borderRadius: '8px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              pointerEvents: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '4px',
+              minWidth: '60px'
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Profile button clicked');
+              handleAuthenticatedNavigation("/profile");
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Profile button touched');
+              handleAuthenticatedNavigation("/profile");
+            }}
           >
-            <User className={`h-5 w-5 transition-all duration-300 ${location.pathname === "/profile" && !location.search.includes("tab=bookings") ? "text-black" : "text-white group-hover:text-sandstorm"}`} />
-            <span className={`text-xs font-medium ${location.pathname === "/profile" && !location.search.includes("tab=bookings") ? "text-black" : "text-white"}`}>Profile</span>
-            {location.pathname === "/profile" && !location.search.includes("tab=bookings") && <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-raspberry/20 via-sandstorm/20 to-violet/20 blur-sm -z-10"></div>}
-          </Button>
+            <User size={16} />
+            <span>Profile</span>
+          </button>
 
 
         </div>
-      </nav>
+      </div>
 
     </>
   );

@@ -463,7 +463,7 @@ const EventDetail = () => {
 
       <main className="flex-grow pt-16 pb-20 md:pb-0">
         {/* Event Banner */}
-        <div className="w-full h-[50vh] md:h-[60vh] relative overflow-hidden">
+        <div className="w-full max-w-sm mx-auto aspect-[9/16] h-[70vh] md:max-w-none md:h-[60vh] relative overflow-hidden">
           {event.images && event.images.length > 0 ? (
             <Swiper
               modules={[Navigation, Pagination]}
