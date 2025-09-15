@@ -56,7 +56,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-raspberry">
       <Navbar selectedCity={selectedCity} setSelectedCity={setSelectedCity} bgColor="#E91E63" />
-      <main className="flex-grow pb-20 md:pb-0">
+      <main className="flex-grow">
         <HeroSection />
         {/* <CityStrip selectedCity={selectedCity} setSelectedCity={setSelectedCity} /> */}
         <EventTypesSection />

@@ -373,7 +373,7 @@ const Events = () => {
         </div>
       )}
       
-      <main className="flex-grow pt-16 pb-20 md:pb-0">
+      <main className="flex-grow pt-16">
         <div className={`container-padding ${isMobile ? 'py-4 px-4' : 'py-8'}`}>
           <div className={`text-center ${isMobile ? 'mb-8' : 'mb-12'}`}>
             <h1 className={`${isMobile ? 'text-2xl' : 'text-4xl'} font-bold mb-4`}>Upcoming Experiences</h1>
@@ -762,7 +762,7 @@ const Events = () => {
 
       {/* Mobile Floating Action Buttons */}
       {isMobile && (
-        <div className="fixed bottom-20 right-4 z-50 flex flex-col gap-3">
+        <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-3">
           {/* Quick Search FAB */}
           <Button
             size="icon"

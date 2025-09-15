@@ -154,7 +154,7 @@ const PreviousEvents = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-grow pt-16 pb-20 md:pb-0">
+      <main className="flex-grow pt-16">
         <div className="container-padding py-8">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">Past Experiences</h1>

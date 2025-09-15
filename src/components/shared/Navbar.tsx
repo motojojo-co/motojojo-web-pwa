@@ -263,336 +263,123 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
 
         {/* Enhanced Mobile Search and Menu Overlay */}
         {isMobileMenuOpen && (
-          <div className="md:hidden p-6 bg-white/10 backdrop-blur-xl border-t border-white/20 shadow-2xl animate-slide-down">
-            <div className="flex flex-col space-y-4">
-              {/* Enhanced Mobile Search Bar */}
-              <form className="relative group" onSubmit={handleSearch}>
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/70 h-4 w-4 transition-all duration-300 group-focus-within:text-sandstorm group-focus-within:scale-110" />
-                  <Input
-                    placeholder="Search experiences, artists, venues..."
-                    className="pl-12 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl focus-visible:ring-2 focus-visible:ring-sandstorm/50 focus-visible:border-sandstorm/50 hover:bg-white/15 hover:border-white/30 transition-all duration-300 text-white placeholder:text-white/60 shadow-lg"
-                    value={searchValue}
-                    onChange={e => setSearchValue(e.target.value)}
-                  />
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-raspberry/20 via-sandstorm/20 to-violet/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 -z-10 blur-sm"></div>
+          <div className="md:hidden bg-white/10 backdrop-blur-xl border-t border-white/20 shadow-2xl animate-slide-down">
+            <div className="max-h-[80vh] overflow-y-auto p-6">
+              <div className="flex flex-col space-y-4">
+                {/* Enhanced Mobile Search Bar */}
+                <form className="relative group" onSubmit={handleSearch}>
+                  <div className="relative">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/70 h-4 w-4 transition-all duration-300 group-focus-within:text-sandstorm group-focus-within:scale-110" />
+                    <Input
+                      placeholder="Search experiences, artists, venues..."
+                      className="pl-12 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl focus-visible:ring-2 focus-visible:ring-sandstorm/50 focus-visible:border-sandstorm/50 hover:bg-white/15 hover:border-white/30 transition-all duration-300 text-white placeholder:text-white/60 shadow-lg"
+                      value={searchValue}
+                      onChange={e => setSearchValue(e.target.value)}
+                    />
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-raspberry/20 via-sandstorm/20 to-violet/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 -z-10 blur-sm"></div>
+                  </div>
+                </form>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="flex items-center justify-between w-full bg-gradient-to-r from-sandstorm to-raspberry hover:from-raspberry hover:to-violet text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-black" />
+                        {selectedCity}
+                      </div>
+                      <Zap className="h-3 w-3 text-black opacity-60" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-full bg-gradient-to-br from-raspberry to-sandstorm backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl">
+                    {cities.map((city) => (
+                      <DropdownMenuItem 
+                        key={city.id}
+                        onClick={() => setSelectedCity(city.name)}
+                        className="hover:bg-white/20 transition-all duration-200 rounded-xl mx-1 my-1 text-white"
+                      >
+                        <MapPin className="h-4 w-4 mr-2 text-white" />
+                        <span className="text-white font-medium">{city.name}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Navigation Menu - No Duplicates */}
+                <div className="space-y-3">
+                  <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" onClick={() => navigate("/")}>
+                    <Home className="h-4 w-4 mr-2" />
+                    Home
+                  </Button>
+
+                  <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" onClick={() => navigate("/events")}>
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Experiences
+                  </Button>
+
+                  <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" onClick={() => navigate("/previousevents")}>
+                    <History className="h-4 w-4 mr-2" />
+                    Past Experiences
+                  </Button>
+
+                  <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" onClick={() => navigate("/gallery")}>
+                    <Video className="h-4 w-4 mr-2" />
+                    Gallery
+                  </Button>
+
+                  <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" onClick={() => navigate("/inviteonly?tag=inviteonly")}>
+                    <Lock className="h-4 w-4 mr-2" />
+                    Invite Only
+                  </Button>
+
+                  <Button className="w-full justify-start bg-gradient-to-r from-sandstorm to-raspberry hover:from-raspberry hover:to-violet text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20" onClick={() => navigate("/membership")}>
+                    <Heart className="h-4 w-4 mr-2" />
+                    Membership
+                  </Button>
+
+                  {isSignedIn && (
+                    <>
+                      <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg relative" onClick={() => handleAuthenticatedNavigation("/profile?tab=bookings")}>
+                        <Ticket className="h-4 w-4 mr-2" />
+                        My Bookings
+                        {totalItems > 0 && (
+                          <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-raspberry to-violet text-white text-xs px-1.5 py-0.5 rounded-full animate-pulse">
+                            {totalItems}
+                          </Badge>
+                        )}
+                      </Button>
+
+                      <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" onClick={() => handleAuthenticatedNavigation("/profile")}>
+                        <User className="h-4 w-4 mr-2" />
+                        Profile
+                      </Button>
+                    </>
+                  )}
                 </div>
-              </form>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button className="flex items-center justify-between w-full bg-gradient-to-r from-sandstorm to-raspberry hover:from-raspberry hover:to-violet text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-black" />
-                      {selectedCity}
+
+                {/* Authentication Section */}
+                <div className="border-t border-white/20 pt-4 mt-4">
+                  {!isSignedIn ? (
+                    <div className="space-y-3">
+                      <Button variant="outline" onClick={() => navigate('/auth')} className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg">
+                        Sign In
+                      </Button>
+                      <Button onClick={() => navigate('/auth')} className="w-full bg-gradient-to-r from-sandstorm to-raspberry hover:from-raspberry hover:to-violet text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20">
+                        Sign Up
+                      </Button>
                     </div>
-                    <Zap className="h-3 w-3 text-black opacity-60" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-full bg-gradient-to-br from-raspberry to-sandstorm backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl">
-                  {cities.map((city) => (
-                    <DropdownMenuItem 
-                      key={city.id}
-                      onClick={() => setSelectedCity(city.name)}
-                      className="hover:bg-white/20 transition-all duration-200 rounded-xl mx-1 my-1 text-white"
-                    >
-                      <MapPin className="h-4 w-4 mr-2 text-white" />
-                      <span className="text-white font-medium">{city.name}</span>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Enhanced Mobile Buttons */}
-              <Button className="bg-gradient-to-r from-sandstorm to-raspberry hover:from-raspberry hover:to-violet text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 w-full border border-white/20" onClick={() => navigate("/membership")}>
-                <Heart className="h-4 w-4 mr-2" />
-                Membership
-              </Button>   
-              
-              <Button variant="ghost" className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" asChild>
-                <Link to="/events">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Experiences
-                </Link>
-              </Button>
-
-              <Button variant="ghost" className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" asChild>
-                <Link to="/previousevents">
-                  <History className="h-4 w-4 mr-2" />
-                  Past Experiences
-                </Link>
-              </Button>
-
-              <Button variant="ghost" className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" asChild>
-                <Link to="/gallery">
-                  <Video className="h-4 w-4 mr-2" />
-                  Gallery
-                </Link>
-              </Button>
-
-              <Button variant="ghost" className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" asChild>
-                <Link to="/inviteonly?tag=inviteonly">
-                  <Lock className="h-4 w-4 mr-2" />
-                  Invite Only
-                </Link>
-              </Button>
-
-              {!isSignedIn ? (
-                <>
-                  <Button variant="outline" onClick={() => navigate('/auth')} className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg">Sign In</Button>
-                  <Button onClick={() => navigate('/auth')} className="w-full bg-gradient-to-r from-sandstorm to-raspberry hover:from-raspberry hover:to-violet text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20">Sign Up</Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" onClick={() => handleAuthenticatedNavigation("/profile")}>
-                    <User className="h-4 w-4 mr-2" />
-                    Profile
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg relative" onClick={() => handleAuthenticatedNavigation("/profile?tab=bookings")}>
-                    <Ticket className="h-4 w-4 mr-2" />
-                    My Bookings
-                    {totalItems > 0 && (
-                      <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-raspberry to-violet text-white text-xs px-1.5 py-0.5 rounded-full animate-pulse">
-                        {totalItems}
-                      </Badge>
-                    )}
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-center bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-red-400 transition-all duration-300 hover:scale-105 shadow-lg" onClick={handleSignOut}>
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
-                  </Button>
-                </>
-              )}
-              
+                  ) : (
+                    <Button variant="ghost" className="w-full justify-center bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-red-400 transition-all duration-300 hover:scale-105 shadow-lg" onClick={handleSignOut}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         )}
       </header>
 
-      {/* Bottom Navigation - Mobile Only */}
-      <div
-        className="md:hidden"
-        data-bottom-nav="container"
-        style={{ 
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(20px)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.2)',
-          zIndex: 2147483647, // Maximum z-index value
-          height: '80px',
-          pointerEvents: 'auto',
-          isolation: 'isolate' // Creates a new stacking context
-        }}
-      >
-        <div 
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-around',
-            padding: '12px 8px',
-            pointerEvents: 'auto'
-          }}
-        >
-          {/* Home Button */}
-          <button
-            data-bottom-nav="button"
-            style={{
-              backgroundColor: location.pathname === "/" ? '#E8CD53' : 'transparent',
-              color: location.pathname === "/" ? 'black' : 'white',
-              padding: '8px 12px',
-              border: '1px solid rgba(255,255,255,0.3)',
-              borderRadius: '8px',
-              fontSize: '12px',
-              cursor: 'pointer',
-              pointerEvents: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              minWidth: '60px'
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('Home button clicked');
-              navigate("/");
-            }}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('Home button touched');
-              navigate("/");
-            }}
-          >
-            <Home size={16} />
-            <span>Home</span>
-          </button>
-
-          {/* Experiences Button */}
-          <button
-            data-bottom-nav="button"
-            style={{
-              backgroundColor: location.pathname === "/events" ? '#E8CD53' : 'transparent',
-              color: location.pathname === "/events" ? 'black' : 'white',
-              padding: '8px 12px',
-              border: '1px solid rgba(255,255,255,0.3)',
-              borderRadius: '8px',
-              fontSize: '12px',
-              cursor: 'pointer',
-              pointerEvents: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              minWidth: '60px'
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('Events button clicked');
-              navigate("/events");
-            }}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('Events button touched');
-              navigate("/events");
-            }}
-          >
-            <Calendar size={16} />
-            <span>Events</span>
-          </button>
-
-          {/* Bookings Button */}
-          <button
-            data-bottom-nav="button"
-            style={{
-              backgroundColor: (location.pathname === "/profile" && location.search.includes("tab=bookings")) ? '#E8CD53' : 'transparent',
-              color: (location.pathname === "/profile" && location.search.includes("tab=bookings")) ? 'black' : 'white',
-              padding: '8px 12px',
-              border: '1px solid rgba(255,255,255,0.3)',
-              borderRadius: '8px',
-              fontSize: '12px',
-              cursor: 'pointer',
-              pointerEvents: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              minWidth: '60px',
-              position: 'relative'
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('Bookings button clicked');
-              handleAuthenticatedNavigation("/profile?tab=bookings");
-            }}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('Bookings button touched');
-              handleAuthenticatedNavigation("/profile?tab=bookings");
-            }}
-          >
-            <Ticket size={16} />
-            <span>Bookings</span>
-            {totalItems > 0 && (
-              <span style={{
-                position: 'absolute',
-                top: '-5px',
-                right: '-5px',
-                backgroundColor: '#CF2B56',
-                color: 'white',
-                borderRadius: '50%',
-                width: '18px',
-                height: '18px',
-                fontSize: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                {totalItems}
-              </span>
-            )}
-          </button>
-
-          {/* Membership Button */}
-          <button
-            data-bottom-nav="button"
-            style={{
-              backgroundColor: location.pathname === "/membership" ? '#E8CD53' : 'transparent',
-              color: location.pathname === "/membership" ? 'black' : 'white',
-              padding: '8px 12px',
-              border: '1px solid rgba(255,255,255,0.3)',
-              borderRadius: '8px',
-              fontSize: '12px',
-              cursor: 'pointer',
-              pointerEvents: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              minWidth: '60px'
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('Membership button clicked');
-              navigate("/membership");
-            }}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('Membership button touched');
-              navigate("/membership");
-            }}
-          >
-            <Heart size={16} />
-            <span>Membership</span>
-          </button>
-
-          {/* Profile Button */}
-          <button
-            data-bottom-nav="button"
-            style={{
-              backgroundColor: (location.pathname === "/profile" && !location.search.includes("tab=bookings")) ? '#E8CD53' : 'transparent',
-              color: (location.pathname === "/profile" && !location.search.includes("tab=bookings")) ? 'black' : 'white',
-              padding: '8px 12px',
-              border: '1px solid rgba(255,255,255,0.3)',
-              borderRadius: '8px',
-              fontSize: '12px',
-              cursor: 'pointer',
-              pointerEvents: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              minWidth: '60px'
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('Profile button clicked');
-              handleAuthenticatedNavigation("/profile");
-            }}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('Profile button touched');
-              handleAuthenticatedNavigation("/profile");
-            }}
-          >
-            <User size={16} />
-            <span>Profile</span>
-          </button>
-
-
-        </div>
-      </div>
 
     </>
   );

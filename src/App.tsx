@@ -33,7 +33,6 @@ import Addebazi from "./pages/Addebazi";
 import KitchenGathering from "./pages/KitchenGathering";
 import PardahGathering from "./pages/PardahGathering";
 import GhumakariKalakar from "./pages/GhumakariKalakar";
-import WhatsAppButton from "./components/shared/WhatsAppButton";
 import AdminUsers from "./pages/AdminUsers";
 import BookingPage from "./pages/BookingPage";
 import ThankYou from "./pages/ThankYou";
@@ -143,7 +142,6 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <WhatsAppButton />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
