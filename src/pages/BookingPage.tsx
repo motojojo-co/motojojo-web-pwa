@@ -16,6 +16,7 @@ import { sendEmail } from "@/services/emailService";
 import { generateTicketPDFs } from "@/lib/pdf/generateTicketPDF";
 import { createRazorpayOrder, verifyRazorpayPayment, initializeRazorpayCheckout } from "@/services/razorpayService";
 import OfferSelection from "@/components/booking/OfferSelection";
+import { getActiveMembership } from "@/services/membershipService";
 
 
 
@@ -36,6 +37,7 @@ const BookingPage = () => {
   const [isCouponApplied, setIsCouponApplied] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
   const [offerPricing, setOfferPricing] = useState<any>(null);
+  const [hasMembership, setHasMembership] = useState(false);
 
   const { toast } = useToast();
   const { user, isSignedIn } = useAuth();
@@ -46,6 +48,18 @@ const BookingPage = () => {
     queryFn: () => getEvent(eventId!),
     enabled: !!eventId
   });
+
+  useEffect(() => {
+    const checkMembership = async () => {
+      if (isSignedIn && user?.id) {
+        const active = await getActiveMembership(user.id);
+        setHasMembership(active.hasActive);
+      } else {
+        setHasMembership(false);
+      }
+    };
+    checkMembership();
+  }, [isSignedIn, user?.id]);
 
   // Derived calculation for total amount
   const originalTotal = useMemo(() => {
@@ -62,11 +76,16 @@ const BookingPage = () => {
       finalTotal = offerPricing.totalPrice;
     }
     
+    // Apply membership discount (50%) if active
+    if (hasMembership) {
+      finalTotal = finalTotal * 0.5;
+    }
+
     // Apply coupon discount
     finalTotal = finalTotal - discount;
     
     return Math.max(0, finalTotal);
-  }, [originalTotal, discount, offerPricing]);
+  }, [originalTotal, discount, offerPricing, hasMembership]);
 
   useEffect(() => {
     setTicketNames(Array(formData.tickets).fill(""));
@@ -536,6 +555,10 @@ Thank you for choosing Motojojo Events!`;
             </>
           )}
               
+              {hasMembership && (
+                <div>Membership Discount (50%): <span className="text-black">- 50%</span></div>
+              )}
+
               {isCouponApplied && (
                 <div>Coupon Discount (10%): <span className="text-black">- ₹{discount.toLocaleString()}</span></div>
               )}

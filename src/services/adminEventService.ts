@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Event } from "./eventService";
+import { Event, CustomTag } from "./eventService";
 
 // Interface to create an event (matches database fields)
 export interface CreateEventInput {
@@ -49,6 +49,8 @@ export interface CreateEventInput {
   accessibility_info?: string | null;
   parking_info?: string | null;
   additional_info?: string | null;
+  // Custom tags/details
+  custom_tags?: CustomTag[];
 }
 
 export const createEvent = async (eventData: CreateEventInput) => {

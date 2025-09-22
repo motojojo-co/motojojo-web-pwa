@@ -1,6 +1,13 @@
 import { supabase } from "@/integrations/supabase/client";
 import { EventOffer } from "./eventOfferService";
 
+export interface CustomTag {
+  tag: string;
+  label: string;
+  value: string;
+  link?: string | null;
+}
+
 export interface Event {
   id: string;
   title: string;
@@ -54,6 +61,8 @@ export interface Event {
   accessibility_info?: string | null;
   parking_info?: string | null;
   additional_info?: string | null;
+  // Custom tags/details
+  custom_tags?: CustomTag[];
 }
 
 export const getAllEvents = async (): Promise<Event[]> => {
@@ -101,6 +110,7 @@ export const getAllEvents = async (): Promise<Event[]> => {
     subtotal: event.subtotal ?? 0,
     ticket_price: event.ticket_price ?? 0,
     location_map_link: event.location_map_link || undefined,
+    custom_tags: event.custom_tags || [],
   }));
 };
 
@@ -152,6 +162,7 @@ export const getAllPrivateEvents = async (): Promise<Event[]> => {
     subtotal: event.subtotal ?? 0,
     ticket_price: event.ticket_price ?? 0,
     location_map_link: event.location_map_link || undefined,
+    custom_tags: event.custom_tags || [],
   }));
 };
 
@@ -217,6 +228,7 @@ export const getEvents = async (filters?: {
     subtotal: event.subtotal ?? 0,
     ticket_price: event.ticket_price ?? 0,
     location_map_link: event.location_map_link || undefined,
+    custom_tags: event.custom_tags || [],
   }));
 };
 
@@ -346,6 +358,7 @@ export const getEventsByCategory = async (
     convenience_fee: event.convenience_fee ?? 0,
     subtotal: event.subtotal ?? 0,
     ticket_price: event.ticket_price ?? 0,
+    custom_tags: event.custom_tags || [],
   }));
 };
 
@@ -424,6 +437,7 @@ export const getEvent = async (id: string): Promise<Event | null> => {
     accessibility_info: data.accessibility_info || null,
     parking_info: data.parking_info || null,
     additional_info: data.additional_info || null,
+    custom_tags: data.custom_tags || [],
   };
 };
 
@@ -531,6 +545,7 @@ export const getPrivateEventsForUser = async (): Promise<Event[]> => {
       subtotal: event.subtotal ?? 0,
       ticket_price: event.ticket_price ?? 0,
       location_map_link: event.location_map_link || undefined,
+    custom_tags: event.custom_tags || [],
     }));
   } catch (error) {
     console.error("Error in getPrivateEventsForUser:", error);
@@ -587,5 +602,6 @@ export const getAdminEvents = async (): Promise<Event[]> => {
     ticket_price: event.ticket_price ?? 0,
     location_map_link: event.location_map_link || undefined,
     offers: event.offers || [], // Include offers from the database
+    custom_tags: event.custom_tags || [],
   }));
 };

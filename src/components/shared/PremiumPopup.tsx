@@ -84,7 +84,7 @@ const PremiumPopup = () => {
             className="w-full sm:w-auto bg-gradient-to-r from-violet to-red"
             onClick={() => {
               setIsOpen(false);
-              window.location.href = "/explorepremium";
+              window.location.href = "/pricing#plans";
             }}
           >
             Get Premium

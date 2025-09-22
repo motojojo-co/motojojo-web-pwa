@@ -28,6 +28,7 @@ import { getEventTypes, EventType } from "@/services/eventTypeService";
 import { useQuery } from "@tanstack/react-query";
 import EventOffersManager from "./EventOffersManager";
 import { EventOffer, getEventOffers } from "@/services/eventOfferService";
+import type { CustomTag } from "@/services/eventService";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -75,6 +76,16 @@ const formSchema = z.object({
   accessibility_info: z.string().optional(),
   parking_info: z.string().optional(),
   additional_info: z.string().optional(),
+  custom_tags: z
+    .array(
+      z.object({
+        tag: z.string().min(1, "Tag is required"),
+        label: z.string().min(1, "Heading/Label is required"),
+        value: z.string().min(1, "Details are required"),
+        link: z.string().url().optional().or(z.literal("")),
+      })
+    )
+    .optional(),
 });
 
 type EventFormData = z.infer<typeof formSchema>;
@@ -90,6 +101,7 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const [eventOffers, setEventOffers] = useState<EventOffer[]>([]);
+  const [customTags, setCustomTags] = useState<CustomTag[]>(initialData?.custom_tags || []);
 
   const { data: eventTypes = [] } = useQuery({
     queryKey: ['eventTypes'],
@@ -169,6 +181,7 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
       accessibility_info: initialData?.accessibility_info || "",
       parking_info: initialData?.parking_info || "",
       additional_info: initialData?.additional_info || "",
+      custom_tags: initialData?.custom_tags || [],
     },
   });
 
@@ -179,6 +192,7 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
       // Format offers data to match the expected database structure
       const formattedData = {
         ...data,
+        custom_tags: customTags,
         offers: eventOffers.map(offer => ({
           id: offer.id.startsWith('temp-') ? `offer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` : offer.id,
           offer_type: offer.offer_type,
@@ -936,6 +950,96 @@ export default function EventForm({ initialData, onSubmit, isEditing = false }: 
                       </FormItem>
                     )}
                   />
+                </div>
+              </div>
+
+              {/* Custom Tags & Details Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">Custom Tags & Details</h3>
+                <div className="space-y-3">
+                  {customTags.length === 0 && (
+                    <div className="text-sm text-muted-foreground">No custom details added yet.</div>
+                  )}
+                  {customTags.map((ct, index) => (
+                    <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-3 items-start">
+                      <div>
+                        <label className="text-sm font-medium">Tag</label>
+                        <Input
+                          value={ct.tag}
+                          onChange={(e) => {
+                            const next = [...customTags];
+                            next[index] = { ...next[index], tag: e.target.value };
+                            setCustomTags(next);
+                            form.setValue("custom_tags", next as any);
+                          }}
+                          placeholder="e.g., policy, link, note"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Heading/Label</label>
+                        <Input
+                          value={ct.label}
+                          onChange={(e) => {
+                            const next = [...customTags];
+                            next[index] = { ...next[index], label: e.target.value };
+                            setCustomTags(next);
+                            form.setValue("custom_tags", next as any);
+                          }}
+                          placeholder="e.g., Refund Policy"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Details</label>
+                        <Input
+                          value={ct.value}
+                          onChange={(e) => {
+                            const next = [...customTags];
+                            next[index] = { ...next[index], value: e.target.value };
+                            setCustomTags(next);
+                            form.setValue("custom_tags", next as any);
+                          }}
+                          placeholder="Write details or text"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <label className="text-sm font-medium">Link (optional)</label>
+                          <Input
+                            value={ct.link || ""}
+                            onChange={(e) => {
+                              const next = [...customTags];
+                              next[index] = { ...next[index], link: e.target.value || null };
+                              setCustomTags(next);
+                              form.setValue("custom_tags", next as any);
+                            }}
+                            placeholder="https://..."
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          onClick={() => {
+                            const next = customTags.filter((_, i) => i !== index);
+                            setCustomTags(next);
+                            form.setValue("custom_tags", next as any);
+                          }}
+                          className="self-end"
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      const next = [...customTags, { tag: "", label: "", value: "", link: null }];
+                      setCustomTags(next);
+                      form.setValue("custom_tags", next as any);
+                    }}
+                  >
+                    Add Tag
+                  </Button>
                 </div>
               </div>
 

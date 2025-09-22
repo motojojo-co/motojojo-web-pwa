@@ -4,6 +4,11 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Star, Gift, Users, Calendar, Lock, Clock, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { createRazorpayOrder, initializeRazorpayCheckout, verifyRazorpayPayment } from "@/services/razorpayService";
+import { createUserMembership, getPlanByName } from "@/services/membershipService";
+import { useNavigate } from "react-router-dom";
 
 const premiumFeatures = [
   {
@@ -60,6 +65,72 @@ export default function PricingPage() {
     }
   ];
   const [selected, setSelected] = useState(plans[0]);
+  const { isSignedIn, user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [isPaying, setIsPaying] = useState(false);
+
+  const handleSubscribe = async (planName: string, amountInr: number) => {
+    if (!isSignedIn || !user?.id) {
+      toast({ title: "Please sign in", description: "Sign in to subscribe to Motojojo Premium." });
+      navigate("/auth");
+      return;
+    }
+
+    setIsPaying(true);
+    try {
+      // Create Razorpay order
+      const order = await createRazorpayOrder({
+        amount: amountInr,
+        currency: "INR",
+        receipt: `premium_${planName}_${Date.now()}`,
+        notes: { type: "membership", plan: planName, userId: user.id }
+      });
+
+      if (!order.success) throw new Error("Failed to create order");
+
+      await initializeRazorpayCheckout(order.orderId, {
+        key: "rzp_live_RBveSyibt8B7dS",
+        amount: amountInr * 100,
+        currency: "INR",
+        name: "Motojojo Premium",
+        description: `${planName} Subscription`,
+        prefill: { name: user.user_metadata?.full_name, email: user.email },
+        theme: { color: "#D32F55" },
+        handler: async (response: any) => {
+          try {
+            const verified = await verifyRazorpayPayment({
+              orderId: response.razorpay_order_id,
+              paymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
+            });
+            if (!verified.verified) throw new Error("Payment verification failed");
+
+            const plan = await getPlanByName(planName);
+            if (!plan) throw new Error("Plan not found");
+
+            const created = await createUserMembership({
+              userId: user.id,
+              planId: plan.id,
+              amountInr,
+              paymentId: response.razorpay_payment_id,
+            });
+            if (!created) throw new Error("Failed to activate membership");
+
+            toast({ title: "Premium Activated!", description: "You now have 50% off for the next 3 months." });
+            navigate("/profile");
+          } catch (err: any) {
+            toast({ title: "Subscription Error", description: err.message || "Please contact support.", variant: "destructive" });
+          } finally {
+            setIsPaying(false);
+          }
+        }
+      });
+    } catch (err: any) {
+      setIsPaying(false);
+      toast({ title: "Payment Error", description: err.message || "Unable to start payment.", variant: "destructive" });
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-raspberry p-4">
@@ -74,7 +145,7 @@ export default function PricingPage() {
         </div>
       </div>
 
-      <div className="w-full max-w-2xl mb-12">
+      <div id="plans" className="w-full max-w-2xl mb-12">
         <div className="flex flex-col gap-6">
           {plans.map((plan) => (
             <Card
@@ -87,7 +158,7 @@ export default function PricingPage() {
               <CardHeader>
                 <div className="flex items-center gap-2 mb-2">
                   <CardTitle className="text-2xl text-violet font-extrabold">{plan.name}</CardTitle>
-                  <Badge className="bg-yellow text-black text-xs px-2 py-1 rounded-full">Coming Soon</Badge>
+                  <Badge className="bg-yellow text-black text-xs px-2 py-1 rounded-full">Premium</Badge>
                 </div>
               </CardHeader>
               <CardContent>
@@ -96,8 +167,8 @@ export default function PricingPage() {
                 <ul className="list-disc text-sm mt-2 ml-5 text-black">
                   {plan.perks.map((perk) => <li key={perk}>{perk}</li>)}
                 </ul>
-                <Button disabled className="w-full mt-4 bg-gradient-to-r from-yellow to-orange-400 text-black font-bold text-lg py-2 opacity-80 cursor-not-allowed">
-                  Subscribe (Coming Soon)
+                <Button onClick={() => handleSubscribe(plan.name, plan.amount)} disabled={isPaying} className="w-full mt-4 bg-gradient-to-r from-yellow to-orange-400 text-black font-bold text-lg py-2">
+                  {isPaying ? "Processing..." : "Subscribe"}
                 </Button>
               </CardContent>
             </Card>
@@ -122,14 +193,10 @@ export default function PricingPage() {
 
       <div className="flex flex-col items-center mt-8 mb-8">
         <CheckCircle className="h-10 w-10 text-green-500 mb-2" />
-        <h3 className="text-xl font-bold text-sandstorm mb-2">Motojojo Premium is launching soon!</h3>
+        <h3 className="text-xl font-bold text-sandstorm mb-2">Premium perks apply immediately after payment.</h3>
         <p className="text-base text-white/80 mb-4 text-center max-w-lg">
-          Stay tuned for updates and be the first to experience the next level of events and entertainment. <br/>
-          <span className="text-yellow font-semibold">Coming Soon</span>
+          After subscribing, you’ll see your 50% discount automatically during checkout and in your profile.
         </p>
-        <Button disabled className="bg-gradient-to-r from-yellow to-orange-400 text-black font-bold text-lg px-8 py-3 opacity-80 cursor-not-allowed">
-          Coming Soon
-        </Button>
       </div>
     </div>
   );

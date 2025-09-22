@@ -156,8 +156,16 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Premium Button */}
-                 {/*        <Button className="min-w-0 truncate text-mapcream bg-transparent hover:bg-transparent" onClick={() => navigate("/membership")}>Membership</Button> */}
+            {/* Premium Button (temporarily disabled) */}
+            {/**
+            <Button 
+              variant="ghost"
+              onClick={() => navigate("/pricing")}
+              className="min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg"
+            >
+              Premium
+            </Button>
+            **/}
 
             {/* Enhanced Experiences Navigation */}
             <Button variant="ghost" asChild className="min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg">
@@ -331,10 +339,12 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                     Invite Only
                   </Button>
 
-                  <Button className="w-full justify-start bg-gradient-to-r from-sandstorm to-raspberry hover:from-raspberry hover:to-violet text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20" onClick={() => navigate("/membership")}>
+                  {/* Premium (temporarily disabled)
+                  <Button className="w-full justify-start bg-gradient-to-r from-sandstorm to-raspberry hover:from-raspberry hover:to-violet text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20" onClick={() => navigate("/pricing")}>
                     <Heart className="h-4 w-4 mr-2" />
-                    Membership
+                    Premium
                   </Button>
+                  */}
 
                   {isSignedIn && (
                     <>

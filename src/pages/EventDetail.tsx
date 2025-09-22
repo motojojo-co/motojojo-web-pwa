@@ -64,6 +64,7 @@ import {
   createJoinRequest,
   getMyInvitationStatusForEvent,
 } from "@/services/eventInvitationService";
+import CommentsSection from "@/components/comments/CommentsSection";
 // Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -281,10 +282,19 @@ const EventDetail = () => {
   // Fetch similar events
   const { data: similarEvents = [], isLoading: similarEventsLoading } =
     useQuery({
-      queryKey: ["similarEvents", event?.category],
+      queryKey: ["similarEvents", event?.category, event?.city],
       queryFn: () => getEventsByCategory(event?.category || ""),
       enabled: !!event?.category,
-      select: (data) => data.filter((e) => e.id !== event?.id).slice(0, 3),
+      select: (data) =>
+        data
+          .filter((e) => e.id !== event?.id)
+          .filter((e) => {
+            if (!event?.city) return false;
+            const a = (e.city || "").trim().toLowerCase();
+            const b = (event.city || "").trim().toLowerCase();
+            return a === b;
+          })
+          .slice(0, 3),
     });
 
   // Fetch event types to check if this is a Local Gathering event
@@ -1467,6 +1477,16 @@ const EventDetail = () => {
               </FadeIn>
             </div>
           </div>
+
+          {/* Comments Section */}
+          <FadeIn delay={300}>
+            <div className="mt-16">
+              <CommentsSection 
+                eventId={event.id} 
+                isLocalGathering={isLocalGathering}
+              />
+            </div>
+          </FadeIn>
 
           {/* Testimonials Section */}
           <TestimonialsSection greenTheme />

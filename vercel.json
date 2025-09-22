@@ -1,8 +1,16 @@
 {
   "rewrites": [
     {
+      "source": "/api/comments",
+      "destination": "https://vibruvwwwxqtagmlkodq.supabase.co/functions/v1/comments"
+    },
+    {
+      "source": "/api/comments/(.*)",
+      "destination": "https://vibruvwwwxqtagmlkodq.supabase.co/functions/v1/comments/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
-} 
+}

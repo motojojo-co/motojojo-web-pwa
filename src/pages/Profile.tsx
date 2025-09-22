@@ -32,6 +32,7 @@ import {
 import { useCategories } from "@/hooks/use-categories";
 import { useToast } from "@/hooks/use-toast";
 import { Check, UserRound, MapPin, Phone, Mail, Ticket, Clock, CheckCircle, MessageSquare } from "lucide-react";
+import { getActiveMembership } from "@/services/membershipService";
 import { useAuth } from "@/hooks/use-auth";
 import { getUserBookings, getBookingTickets, Booking, Ticket as TicketType, subscribeToBookingUpdates, generateTicketsForBooking, resendTicketEmail, markTicketsAsAttended } from "@/services/bookingService";
 import { getEvent, getEventBookings } from "@/services/eventService";
@@ -69,6 +70,7 @@ const Profile = () => {
   const [inviteStatus, setInviteStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string>("");
+  const [membership, setMembership] = useState<{ hasActive: boolean; endDate?: string; planName?: string } | null>(null);
   
   // Get categories for preferences
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
@@ -106,6 +108,19 @@ const Profile = () => {
       });
     }
   }, [isLoaded, profile, bookingsError, toast]);
+
+  // Fetch active membership
+  useEffect(() => {
+    const fetchMembership = async () => {
+      if (isSignedIn && user?.id) {
+        const active = await getActiveMembership(user.id);
+        setMembership({ hasActive: active.hasActive, endDate: active.endDate, planName: active.planName });
+      } else {
+        setMembership({ hasActive: false });
+      }
+    };
+    fetchMembership();
+  }, [isSignedIn, user?.id]);
 
   // Show success message when redirected from successful booking
   useEffect(() => {
@@ -441,6 +456,35 @@ const Profile = () => {
                   </Card>
                 </FadeIn>
                 
+                {/* Membership Status */}
+                <FadeIn delay={150}>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Subscription</CardTitle>
+                      <CardDescription>
+                        50% off all tickets for active Premium subscribers
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {membership?.hasActive ? (
+                        <div className="space-y-2">
+                          <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</div>
+                          <div className="text-sm text-muted-foreground">Plan: <span className="font-medium">{membership.planName || '3 Months'}</span></div>
+                          {membership.endDate && (
+                            <div className="text-sm text-muted-foreground">Valid until: <span className="font-medium">{new Date(membership.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span></div>
+                          )}
+                          <div className="text-sm">Benefit: <span className="font-semibold">50% discount</span> on any ticket during the subscription period.</div>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="text-sm text-muted-foreground">No active subscription.</div>
+                          <Button onClick={() => navigate('/pricing')} className="bg-sandstorm text-black hover:bg-sandstorm/90">Get Premium</Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </FadeIn>
+
                 {/* Invite Friends Section */}
                 <FadeIn delay={200}>
                   <Card>
