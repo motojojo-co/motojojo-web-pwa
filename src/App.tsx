@@ -40,9 +40,17 @@ import InviteOnly from "./pages/InviteOnly";
 import JoinRequests from "./pages/admin/JoinRequests";
 import BulkEmailPage from "./pages/admin/BulkEmail";
 import ViewBooking from "./pages/admin/ViewBooking";
+import CreateEvent from "./pages/admin/CreateEvent";
 import Gallery from "./pages/Gallery";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -103,6 +111,11 @@ const App = () => (
           <Route path="/admin/viewbooking" element={
             <ProtectedRoute adminOnly>
               <ViewBooking />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/create-event" element={
+            <ProtectedRoute adminOnly>
+              <CreateEvent />
             </ProtectedRoute>
           } />
           <Route path="/host/login" element={<HostLogin />} />

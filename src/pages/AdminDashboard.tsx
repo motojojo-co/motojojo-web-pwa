@@ -175,30 +175,35 @@ const AdminDashboard = () => {
     queryFn: async () => {
       return await getAdminEvents();
     },
+    refetchOnWindowFocus: false,
   });
 
   // Fetch all bookings using React Query (for reports and statistics only)
   const { data: bookings = [] } = useQuery({
     queryKey: ["admin-bookings"],
     queryFn: getAllBookings,
+    refetchOnWindowFocus: false,
   });
 
   // Fetch all event types using React Query
   const { data: eventTypes = [], isLoading: eventTypesLoading } = useQuery({
     queryKey: ["admin-event-types"],
     queryFn: getAllEventTypes,
+    refetchOnWindowFocus: false,
   });
 
   // Fetch all banners using React Query
   const { data: banners = [], isLoading: bannersLoading } = useQuery({
     queryKey: ["admin-banners"],
     queryFn: getAllBanners,
+    refetchOnWindowFocus: false,
   });
 
   // Fetch all testimonials using React Query
   const { data: testimonials = [], isLoading: testimonialsLoading } = useQuery({
     queryKey: ["admin-testimonials"],
     queryFn: getAllTestimonials,
+    refetchOnWindowFocus: false,
   });
 
   // Fetch pending private join requests
@@ -206,6 +211,7 @@ const AdminDashboard = () => {
     useQuery<PendingJoinRequest[]>({
       queryKey: ["pending-join-requests"],
       queryFn: getPendingJoinRequests,
+      refetchOnWindowFocus: false,
     });
 
   const handleApproveJoin = async (invitationId: string) => {
@@ -249,6 +255,7 @@ const AdminDashboard = () => {
   } = useQuery({
     queryKey: ["admin-pending-testimonials"],
     queryFn: getPendingTestimonials,
+    refetchOnWindowFocus: false,
   });
 
   // Fetch host invitations using React Query
@@ -256,6 +263,7 @@ const AdminDashboard = () => {
     useQuery({
       queryKey: ["admin-host-invitations"],
       queryFn: getHostInvitations,
+      refetchOnWindowFocus: false,
     });
 
   // Subscribe to real-time updates
@@ -1102,7 +1110,7 @@ const AdminDashboard = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setSelectedEvent(null)}
+                onClick={() => navigate("/admin/create-event")}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Event
@@ -1565,20 +1573,12 @@ const AdminDashboard = () => {
                         <span className="ml-4 text-sm text-black">
                           Total: {events.length}
                         </span>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button>
-                              <Plus className="mr-2 h-4 w-4" />
-                              Add New Event
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                            <DialogHeader>
-                              <DialogTitle>Create New Event</DialogTitle>
-                            </DialogHeader>
-                            <EventForm onSubmit={handleCreateEvent} />
-                          </DialogContent>
-                        </Dialog>
+                        <Button
+                          onClick={() => navigate("/admin/create-event")}
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add New Event
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
