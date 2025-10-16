@@ -7,6 +7,7 @@ import Footer from "@/components/shared/Footer";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import MembershipRSVPButton from "@/components/MembershipRSVPButton";
 import { 
   Select,
   SelectContent,
@@ -684,27 +685,15 @@ const Events = () => {
                                 <div className={`${isMobile ? 'text-base' : 'text-lg'} font-bold`}>₹{event.price}</div>
                               )}
                               <div className="flex gap-2">
-                                {isMobile ? (
-                                  <Button 
-                                    size="sm" 
-                                    className="bg-gradient-to-r from-violet to-raspberry hover:from-raspberry hover:to-violet text-white font-semibold"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if ('vibrate' in navigator) navigator.vibrate(30);
-                                      navigate(getEventUrl(event));
-                                    }}
-                                  >
-                                    Book
-                                  </Button>
-                                ) : (
-                                  <Button 
-                                    asChild 
-                                    size="sm" 
-                                    onClick={() => navigate(getEventUrl(event))}
-                                  >
-                                    <span>Book Now</span>
-                                  </Button>
-                                )}
+                                <MembershipRSVPButton
+                                  eventId={event.id}
+                                  eventName={event.title}
+                                  className="text-sm"
+                                  onSuccess={() => {
+                                    // Handle successful RSVP
+                                    console.log("RSVP successful for event:", event.title);
+                                  }}
+                                />
                               </div>
                             </CardFooter>
                           </Card>

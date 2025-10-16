@@ -1,0 +1,137 @@
+/* TV Frame */
+.tv-frame {
+  position: relative;
+  background: #4a4a4a;
+  border-radius: 20px 20px 50% 50% / 10px;
+  padding: 20px;
+  box-shadow: 
+    0 0 0 10px #333,
+    0 20px 40px rgba(0, 0, 0, 0.5),
+    inset 0 0 40px rgba(0, 0, 0, 0.5);
+  transform: perspective(1000px) rotateX(5deg);
+  z-index: 1;
+}
+
+/* TV Screen */
+.tv-screen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: #000;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+  border: 2px solid #222;
+}
+
+/* TV Scanlines */
+.tv-scanlines {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.2) 50%,
+    transparent 100%
+  );
+  background-size: 100% 4px;
+  z-index: 2;
+  pointer-events: none;
+  animation: scanlines 0.5s linear infinite;
+}
+
+/* TV Noise Effect */
+.tv-noise {
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/ %3E%3C/svg%3E");
+  z-index: 1;
+  pointer-events: none;
+  animation: noise 0.2s steps(6) infinite;
+}
+
+/* TV Curvature Effect */
+.tv-curvature {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 5px;
+  box-shadow: 
+    -10px -10px 15px rgba(255, 255, 255, 0.05) inset,
+    10px 10px 15px rgba(0, 0, 0, 0.5) inset;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* TV Stand */
+.tv-stand {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 0;
+  margin-top: -10px;
+}
+
+.tv-stand-neck {
+  width: 60px;
+  height: 20px;
+  background: linear-gradient(to bottom, #555, #333);
+  border-radius: 0 0 10px 10px;
+  position: relative;
+}
+
+.tv-stand-base {
+  position: absolute;
+  bottom: -20px;
+  width: 150px;
+  height: 10px;
+  background: #333;
+  border-radius: 3px;
+}
+
+/* Animations */
+@keyframes scanlines {
+  from { background-position: 0 0; }
+  to { background-position: 0 100%; }
+}
+
+@keyframes noise {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -5%); }
+  20% { transform: translate(-10%, 5%); }
+  30% { transform: translate(5%, -10%); }
+  40% { transform: translate(-5%, 15%); }
+  50% { transform: translate(-10%, 5%); }
+  60% { transform: translate(15%, 0); }
+  70% { transform: translate(0, 10%); }
+  80% { transform: translate(-15%, 0); }
+  90% { transform: translate(10%, 5%); }
+  100% { transform: translate(5%, 0); }
+}
+
+/* TV Controls */
+.tv-control {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tv-control:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .tv-frame {
+    transform: perspective(800px) rotateX(3deg);
+    padding: 15px;
+  }
+  
+  .tv-stand-base {
+    width: 120px;
+  }
+  
+  /* Hide antennas on mobile */
+  .absolute.-top-16 {
+    display: none;
+  }
+}

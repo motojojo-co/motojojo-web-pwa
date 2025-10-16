@@ -8,7 +8,7 @@ import EventsSection from "@/components/home/EventsSection";
 import CategoriesSection from "@/components/home/CategoriesSection";
 import PremiumPopup from "@/components/shared/PremiumPopup";
 import EventTypesSection from "@/components/home/EventTypesSection";
-import CityExperiencesSection from "@/components/home/CityExperiencesSection";
+import VideoSection from "@/components/home/VideoSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import FaqSection from "@/components/home/FaqSection";
 import MediaLogosSection from "@/components/home/MediaLogosSection";
@@ -60,7 +60,7 @@ const Index = () => {
         <HeroSection />
         {/* <CityStrip selectedCity={selectedCity} setSelectedCity={setSelectedCity} /> */}
         <EventTypesSection />
-        <CityExperiencesSection selectedCity={selectedCity} setSelectedCity={setSelectedCity} />
+        <VideoSection />
         <EventsSection />
         {/* <ArtistsSection /> */}
         <MediaLogosSection />

@@ -5,6 +5,7 @@ import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/ui/motion";
+import MembershipRSVPButton from "@/components/MembershipRSVPButton";
 import {
   Card,
   CardContent,
@@ -1651,19 +1652,14 @@ const EventDetail = () => {
             </div>
             {event.is_private ? (
               myInviteStatus === "accepted" ? (
-                <Button
-                  className="ml-4 px-8 py-3 text-base rounded-full bg-pink-600 hover:bg-pink-700 text-white font-bold shadow-md transition-colors duration-150"
-                  style={{ boxShadow: "0 2px 8px rgba(255, 56, 92, 0.15)" }}
-                  onClick={() => {
-                    if (isSignedIn) {
-                      navigate(`/book/${event.id}`);
-                    } else {
-                      navigate(`/auth?redirect=/book/${event.id}`);
-                    }
+                <MembershipRSVPButton
+                  eventId={event.id}
+                  eventName={event.title}
+                  onSuccess={() => {
+                    // Refresh event data or handle success
+                    window.location.reload();
                   }}
-                >
-                  Book Now
-                </Button>
+                />
               ) : (
                 <Button
                   className="ml-4 px-8 py-3 text-base rounded-full bg-pink-600 hover:bg-pink-700 text-white font-bold shadow-md transition-colors duration-150"
@@ -1677,19 +1673,14 @@ const EventDetail = () => {
                 </Button>
               )
             ) : (
-              <Button
-                className="ml-4 px-8 py-3 text-base rounded-full bg-pink-600 hover:bg-pink-700 text-white font-bold shadow-md transition-colors duration-150"
-                style={{ boxShadow: "0 2px 8px rgba(255, 56, 92, 0.15)" }}
-                onClick={() => {
-                  if (isSignedIn) {
-                    navigate(`/book/${event.id}`);
-                  } else {
-                    navigate(`/auth?redirect=/book/${event.id}`);
-                  }
+              <MembershipRSVPButton
+                eventId={event.id}
+                eventName={event.title}
+                onSuccess={() => {
+                  // Refresh event data or handle success
+                  window.location.reload();
                 }}
-              >
-                Book Now
-              </Button>
+              />
             )}
           </div>
         </div>

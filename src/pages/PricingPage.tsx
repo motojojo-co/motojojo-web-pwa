@@ -1,49 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { createRazorpayOrder, initializeRazorpayCheckout, verifyRazorpayPayment } from "@/services/razorpayService";
 import { createUserMembership, getPlanByName } from "@/services/membershipService";
+import { getAllMembershipPlans, type MembershipPlan } from "@/services/adminMembershipService";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 // Feature section removed per request
 
 export default function PricingPage() {
-  // Demo data: could be refactored to fetch in real app
-  const plans = [
-    {
-      name: "Premium 3 Months",
-      amount: 999,
-      description: "Enjoy free tickets on eligible events for 3 months.",
-      perks: ["Free tickets on eligible events", "Priority access", "VIP Support"],
-      durationMonths: 3,
-    },
-    {
-      name: "Premium 6 Months",
-      amount: 1799,
-      description: "Double the time, same benefits — free tickets for 6 months.",
-      perks: ["Free tickets on eligible events", "Priority access", "VIP Support"],
-      durationMonths: 6,
-    },
-    {
-      name: "Premium 12 Months",
-      amount: 2999,
-      description: "Best value — free tickets for a full year.",
-      perks: ["Free tickets on eligible events", "Priority access", "VIP Support"],
-      durationMonths: 12,
-    }
-  ];
-  const [selected, setSelected] = useState(plans[0]);
   const { isSignedIn, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isPaying, setIsPaying] = useState(false);
   const [payingPlan, setPayingPlan] = useState<string | null>(null);
 
-  const handleSubscribe = async (planName: string, amountInr: number) => {
+  // Fetch membership plans from database
+  const { data: membershipPlans = [], isLoading } = useQuery({
+    queryKey: ["membership-plans"],
+    queryFn: getAllMembershipPlans,
+  });
+
+  // Transform database plans to pricing page format
+  const plans = membershipPlans
+    .filter(plan => plan.is_active)
+    .map(plan => ({
+      id: plan.id,
+      name: plan.name,
+      amount: plan.price_inr,
+      description: plan.description || "Enjoy free tickets on eligible events.",
+      perks: ["Free tickets on eligible events", "Priority access", "VIP Support"],
+      durationMonths: Math.round(plan.duration_days / 30), // Convert days to months
+      durationDays: plan.duration_days,
+    }))
+    .sort((a, b) => a.amount - b.amount); // Sort by price
+
+  const [selected, setSelected] = useState(plans[0]);
+
+  // Update selected plan when plans are loaded
+  useEffect(() => {
+    if (plans.length > 0 && !selected) {
+      setSelected(plans[0]);
+    }
+  }, [plans, selected]);
+
+  const handleSubscribe = async (planId: string, planName: string, amountInr: number) => {
     if (!isSignedIn || !user?.id) {
       toast({ title: "Please sign in", description: "Sign in to subscribe to Motojojo Premium." });
       navigate("/auth");
@@ -86,12 +92,9 @@ export default function PricingPage() {
             });
             if (!verified.verified) throw new Error("Payment verification failed");
 
-            const plan = await getPlanByName(planName);
-            if (!plan) throw new Error("Plan not found");
-
             const created = await createUserMembership({
               userId: user.id,
-              planId: plan.id,
+              planId: planId,
               amountInr,
               paymentId: response.razorpay_payment_id,
             });
@@ -114,6 +117,26 @@ export default function PricingPage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-raspberry px-4 py-10">
+        <Loader2 className="w-8 h-8 animate-spin text-sandstorm" />
+        <p className="text-white/80 mt-4">Loading pricing plans...</p>
+      </div>
+    );
+  }
+
+  if (plans.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-raspberry px-4 py-10">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-sandstorm mb-3">No Plans Available</h1>
+        <p className="text-white/80 max-w-2xl mx-auto text-center">
+          Membership plans are currently being updated. Please check back later.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-raspberry px-4 py-10">
       {/* Header */}
@@ -125,10 +148,10 @@ export default function PricingPage() {
         <div className="mt-4 inline-flex items-center rounded-full bg-white/10 p-1 backdrop-blur">
           {plans.map((plan) => (
             <button
-              key={plan.name}
+              key={plan.id}
               onClick={() => setSelected(plan)}
               className={`px-4 py-2 text-sm font-semibold rounded-full transition ${
-                selected.name === plan.name
+                selected?.name === plan.name
                   ? "bg-sandstorm text-black shadow"
                   : "text-white/90 hover:text-black hover:bg-sandstorm/80"
               }`}
@@ -143,10 +166,10 @@ export default function PricingPage() {
       <div id="plans" className="w-full max-w-6xl mb-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {plans.map((plan) => {
-            const isFeatured = selected.name === plan.name;
+            const isFeatured = selected?.name === plan.name;
             return (
               <Card
-                key={plan.name}
+                key={plan.id}
                 className={`relative overflow-hidden transition-all duration-300 bg-sandstorm/95 border-0 ${
                   isFeatured
                     ? "ring-4 ring-sandstorm/60 shadow-xl scale-[1.02]"
@@ -175,7 +198,7 @@ export default function PricingPage() {
                     ))}
                   </ul>
                   <Button
-                    onClick={() => handleSubscribe(plan.name, plan.amount)}
+                    onClick={() => handleSubscribe(plan.id, plan.name, plan.amount)}
                     disabled={isPaying && payingPlan === plan.name}
                     className={`w-full font-bold text-lg py-2 ${
                       isFeatured
