@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Search, User, Mail, Phone, Calendar, Clock, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -9,11 +9,18 @@ import { getAllMembershipSubscriptions } from "@/services/adminMembershipService
 
 const MembershipSubscriptions = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const queryClient = useQueryClient();
 
-  const { data: subscriptions = [], isLoading } = useQuery({
+  const { data: subscriptions = [], isLoading, error } = useQuery({
     queryKey: ["membership-subscriptions"],
     queryFn: getAllMembershipSubscriptions,
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0, // Don't cache the data
   });
+
+  console.log('MembershipSubscriptions component - isLoading:', isLoading);
+  console.log('MembershipSubscriptions component - error:', error);
+  console.log('MembershipSubscriptions component - subscriptions:', subscriptions);
 
   const filteredSubscriptions = subscriptions.filter(subscription => {
     const searchLower = searchTerm.toLowerCase();
@@ -46,19 +53,32 @@ const MembershipSubscriptions = () => {
     );
   }
 
+  const handleRefresh = () => {
+    console.log('Refreshing membership subscriptions...');
+    queryClient.invalidateQueries({ queryKey: ["membership-subscriptions"] });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Membership Subscriptions</h2>
-        <div className="relative w-64">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search members..."
-            className="pl-8"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <h2 className="text-2xl font-bold text-black">Membership Subscriptions</h2>
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={handleRefresh}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            Refresh
+          </button>
+          <div className="relative w-64">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search members..."
+              className="pl-8"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
@@ -66,25 +86,25 @@ const MembershipSubscriptions = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Member</TableHead>
-              <TableHead>Contact</TableHead>
-              <TableHead>Plan</TableHead>
-              <TableHead>Start Date</TableHead>
-              <TableHead>End Date</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="text-black">Member</TableHead>
+              <TableHead className="text-black">Contact</TableHead>
+              <TableHead className="text-black">Plan</TableHead>
+              <TableHead className="text-black">Start Date</TableHead>
+              <TableHead className="text-black">End Date</TableHead>
+              <TableHead className="text-black">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredSubscriptions.length > 0 ? (
               filteredSubscriptions.map((subscription) => (
                 <TableRow key={subscription.id}>
-                  <TableCell className="font-medium">
+                  <TableCell className="font-medium text-black">
                     <div className="flex items-center space-x-2">
                       <User className="h-4 w-4" />
                       <span>{subscription.user?.full_name || 'N/A'}</span>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-black">
                     <div className="space-y-1">
                       <div className="flex items-center space-x-2">
                         <Mail className="h-4 w-4 text-muted-foreground" />
@@ -98,7 +118,7 @@ const MembershipSubscriptions = () => {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-black">
                     <div className="flex items-center space-x-2">
                       <span>{subscription.plan?.name || 'N/A'}</span>
                       {subscription.plan?.duration_days && (
@@ -108,7 +128,7 @@ const MembershipSubscriptions = () => {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-black">
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <span>
@@ -118,7 +138,7 @@ const MembershipSubscriptions = () => {
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-black">
                     <div className="flex items-center space-x-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <span>
@@ -137,7 +157,7 @@ const MembershipSubscriptions = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={6} className="text-center py-8 text-black">
                   No membership subscriptions found
                 </TableCell>
               </TableRow>

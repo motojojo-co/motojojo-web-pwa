@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MembershipSubscriptions from "@/components/admin/MembershipSubscriptions";
+import MembershipPlans from "@/components/admin/MembershipPlans";
 import { FadeIn } from "@/components/ui/motion";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -1390,10 +1391,13 @@ const AdminDashboard = () => {
             </TabsContent>
 
             <TabsContent value="memberships">
-  <FadeIn delay={100}>
-    <MembershipSubscriptions />
-  </FadeIn>
-</TabsContent>
+              <FadeIn delay={100}>
+                <div className="space-y-6">
+                  <MembershipPlans />
+                  <MembershipSubscriptions />
+                </div>
+              </FadeIn>
+            </TabsContent>
 
             <TabsContent value="videos">
               <FadeIn delay={50}>
