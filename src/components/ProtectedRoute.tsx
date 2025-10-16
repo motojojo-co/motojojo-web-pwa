@@ -9,10 +9,11 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
   adminOnly?: boolean;
   hostOnly?: boolean;
+  communityLeadOnly?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly, hostOnly }) => {
-  const { isSignedIn, isLoaded, isAdmin, isHost } = useAuth();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly, hostOnly, communityLeadOnly }) => {
+  const { isSignedIn, isLoaded, isAdmin, isHost, isCommunityLead } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -39,8 +40,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly, ho
         variant: "destructive"
       });
       navigate("/");
+    } else if (isLoaded && communityLeadOnly && !isCommunityLead) {
+      toast({
+        title: "Community Lead Access Required",
+        description: "You do not have permission to access this page.",
+        variant: "destructive"
+      });
+      navigate("/");
     }
-  }, [isLoaded, isSignedIn, isAdmin, adminOnly, navigate, toast]);
+  }, [isLoaded, isSignedIn, isAdmin, isHost, isCommunityLead, adminOnly, hostOnly, communityLeadOnly, navigate, toast]);
 
   if (!isLoaded) {
     return (
@@ -62,7 +70,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly, ho
     );
   }
 
-  if (!isSignedIn || (adminOnly && !isAdmin) || (hostOnly && !isHost)) {
+  if (!isSignedIn || (adminOnly && !isAdmin) || (hostOnly && !isHost) || (communityLeadOnly && !isCommunityLead)) {
     return null; // We'll redirect in the useEffect
   }
 

@@ -76,9 +76,9 @@ const BookingPage = () => {
       finalTotal = offerPricing.totalPrice;
     }
     
-    // Apply membership discount (50%) if active
+    // Premium members get free tickets
     if (hasMembership) {
-      finalTotal = finalTotal * 0.5;
+      return 0;
     }
 
     // Apply coupon discount
@@ -556,7 +556,7 @@ Thank you for choosing Motojojo Events!`;
           )}
               
               {hasMembership && (
-                <div>Membership Discount (50%): <span className="text-black">- 50%</span></div>
+                <div>Premium Member Benefit: <span className="text-black">Free Tickets</span></div>
               )}
 
               {isCouponApplied && (

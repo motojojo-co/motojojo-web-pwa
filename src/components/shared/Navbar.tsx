@@ -156,16 +156,17 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Premium Button (temporarily disabled) */}
-            {/**
+            {/* Premium Button */}
             <Button 
               variant="ghost"
-              onClick={() => navigate("/pricing")}
+              asChild
               className="min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg"
             >
-              Premium
+              <Link to="/pricing" className="flex items-center text-white">
+                <Heart className="h-4 w-4 mr-2 text-white group-hover:text-sandstorm transition-colors duration-300" />
+                <span className="truncate text-white">Premium</span>
+              </Link>
             </Button>
-            **/}
 
             {/* Enhanced Experiences Navigation */}
             <Button variant="ghost" asChild className="min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg">
@@ -339,12 +340,10 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                     Invite Only
                   </Button>
 
-                  {/* Premium (temporarily disabled)
                   <Button className="w-full justify-start bg-gradient-to-r from-sandstorm to-raspberry hover:from-raspberry hover:to-violet text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20" onClick={() => navigate("/pricing")}>
                     <Heart className="h-4 w-4 mr-2" />
                     Premium
                   </Button>
-                  */}
 
                   {isSignedIn && (
                     <>

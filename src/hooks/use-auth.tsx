@@ -8,6 +8,7 @@ export const useAuth = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isHost, setIsHost] = useState(false);
+  const [isCommunityLead, setIsCommunityLead] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   // Always upsert user into users table after login/signup
@@ -56,6 +57,7 @@ export const useAuth = () => {
           setProfile(data);
           setIsAdmin(data?.role === 'admin');
           setIsHost(data?.role === 'host');
+          setIsCommunityLead(data?.role === 'community_lead');
         }
       } else {
         setUser(null);
@@ -63,6 +65,7 @@ export const useAuth = () => {
         setIsSignedIn(false);
         setIsAdmin(false);
         setIsHost(false);
+        setIsCommunityLead(false);
       }
       setIsLoaded(true);
     };
@@ -95,6 +98,7 @@ export const useAuth = () => {
           setProfile(payload.new);
           setIsAdmin(payload.new?.role === 'admin');
           setIsHost(payload.new?.role === 'host');
+          setIsCommunityLead(payload.new?.role === 'community_lead');
         }
         }
       )
@@ -142,12 +146,13 @@ export const useAuth = () => {
     setIsSignedIn(false);
     setIsAdmin(false);
     setIsHost(false);
+    setIsCommunityLead(false);
   };
 
   // Invite user (send invite link)
-  const inviteUser = async (email: string, role: 'user' | 'admin' = 'user') => {
-    if (role === 'admin' && !isAdmin) {
-      throw new Error('Only admins can invite other admins.');
+  const inviteUser = async (email: string, role: 'user' | 'admin' | 'community_lead' = 'user') => {
+    if ((role === 'admin' || role === 'community_lead') && !isAdmin) {
+      throw new Error('Only admins can invite other admins or community leads.');
     }
     const { data, error } = await supabase.auth.admin.inviteUserByEmail(email, { data: { role } });
     if (error) {
@@ -198,6 +203,7 @@ export const useAuth = () => {
     isSignedIn,
     isAdmin,
     isHost,
+    isCommunityLead,
     signIn,
     signUp,
     signOut,

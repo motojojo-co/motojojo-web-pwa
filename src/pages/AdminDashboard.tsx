@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import MembershipSubscriptions from "@/components/admin/MembershipSubscriptions";
 import { FadeIn } from "@/components/ui/motion";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -138,6 +139,7 @@ import { Link } from "react-router-dom";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/hooks/use-auth";
 import { getAllEvents } from "@/services/eventService";
+import CommunityLeadActivity from "./admin/CommunityLeadActivity";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -1238,6 +1240,11 @@ const AdminDashboard = () => {
                 Responses
               </Button>
             </Link>
+            <Link to="/communitylead/activity">
+              <Button className="bg-raspberry text-white font-bold px-6 py-2 rounded-lg shadow-md hover:opacity-90 transition-colors">
+                Community Lead Activity
+              </Button>
+            </Link>
             <Button
               variant="outline"
               size="sm"
@@ -1290,7 +1297,7 @@ const AdminDashboard = () => {
             onValueChange={setCurrentTab}
             className="w-full"
           >
-            <TabsList className="grid grid-cols-10 mb-8">
+            <TabsList className="grid grid-cols-11 mb-8">
               <TabsTrigger value="events">Manage Events</TabsTrigger>
               <TabsTrigger value="event-types">Event Types</TabsTrigger>
               <TabsTrigger value="banners">Manage Banners</TabsTrigger>
@@ -1298,11 +1305,19 @@ const AdminDashboard = () => {
               <TabsTrigger value="videos">Gallery Videos</TabsTrigger>
               <TabsTrigger value="revenue">Revenue</TabsTrigger>
               <TabsTrigger value="hosts">Host Management</TabsTrigger>
-              <TabsTrigger value="host-activity">Host Activity</TabsTrigger>
+              {/* <TabsTrigger value="host-activity">Host Activity</TabsTrigger> */}
+              <TabsTrigger value="community-lead-activity">Community Lead Activity</TabsTrigger>
               <TabsTrigger value="private-requests">
                 Private Requests
               </TabsTrigger>
+              <TabsTrigger value="memberships">Memberships</TabsTrigger> {/* Add this line */}
             </TabsList>
+
+            <TabsContent value="community-lead-activity">
+              <FadeIn delay={100}>
+                <CommunityLeadActivity />
+              </FadeIn>
+            </TabsContent>
 
             <TabsContent value="private-requests">
               <FadeIn delay={100}>
@@ -1373,6 +1388,12 @@ const AdminDashboard = () => {
                 </Card>
               </FadeIn>
             </TabsContent>
+
+            <TabsContent value="memberships">
+  <FadeIn delay={100}>
+    <MembershipSubscriptions />
+  </FadeIn>
+</TabsContent>
 
             <TabsContent value="videos">
               <FadeIn delay={50}>

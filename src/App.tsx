@@ -42,6 +42,11 @@ import BulkEmailPage from "./pages/admin/BulkEmail";
 import ViewBooking from "./pages/admin/ViewBooking";
 import CreateEvent from "./pages/admin/CreateEvent";
 import Gallery from "./pages/Gallery";
+import CommunityLeadLogin from "./pages/CommunityLeadLogin";
+import CommunityLeadActivityNew from "./pages/CommunityLeadActivityNew";
+import CommunityLeadCreateEvent from "./pages/CommunityLeadCreateEvent";
+import CommunityLeadRevenue from "./pages/CommunityLeadRevenue";
+import CommunityLeadEditEvent from "./pages/CommunityLeadEditEvent";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -135,6 +140,28 @@ const App = () => (
           <Route path="/kitchen-gathering" element={<KitchenGathering />} />
           <Route path="/pardah-gathering" element={<PardahGathering />} />
           <Route path="/ghumakari-kalakar" element={<GhumakariKalakar />} />
+          {/* Community Lead */}
+          <Route path="/community-lead/login" element={<CommunityLeadLogin />} />
+          <Route path="/communitylead/activity" element={
+            <ProtectedRoute communityLeadOnly>
+              <CommunityLeadActivityNew />
+            </ProtectedRoute>
+          } />
+          <Route path="/communitylead/revenue" element={
+            <ProtectedRoute communityLeadOnly>
+              <CommunityLeadRevenue />
+            </ProtectedRoute>
+          } />
+          <Route path="/communitylead/create-event" element={
+            <ProtectedRoute communityLeadOnly>
+              <CommunityLeadCreateEvent />
+            </ProtectedRoute>
+          } />
+          <Route path="/communitylead/edit-event/:id" element={
+            <ProtectedRoute communityLeadOnly>
+              <CommunityLeadEditEvent />
+            </ProtectedRoute>
+          } />
           {/* Ticket preview route with booking ID */}
           <Route
             path="/ticket-preview/:bookingId"

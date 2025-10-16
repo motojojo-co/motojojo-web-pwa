@@ -10,3 +10,5 @@ COMMENT ON COLUMN public.events.custom_tags IS 'Array of custom tagged details f
 
 
 
+
+
