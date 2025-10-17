@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Volume2, VolumeX, MapPin, Calendar, Clock, MapPin as MapPinIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getEvents, getEventCities } from '@/services/eventService';
 import { format } from 'date-fns';
+import LazyVideo from '@/components/ui/LazyVideo';
 import './TVEffect.css';
 
 interface Event {
@@ -24,15 +25,12 @@ const VideoSection = () => {
   const [cities, setCities] = useState<string[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // Fetch cities and initial events
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Auto-play the video
-        videoRef.current?.play().catch(console.error);
-        
         // Fetch available cities
         const cities = await getEventCities();
         setCities(cities);
@@ -68,10 +66,11 @@ const VideoSection = () => {
   };
 
   const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
+    setIsMuted(!isMuted);
+  };
+
+  const handlePlay = () => {
+    setIsPlaying(true);
   };
 
   // Format date to show day, month, and date
@@ -98,27 +97,21 @@ const VideoSection = () => {
           {/* Video Container - Left Side */}
           <div className="lg:w-1/2 relative">
             <div className="relative tv-frame">
-              <div className="tv-screen">
-                <video 
-                  ref={videoRef}
-                  className="w-full h-full object-cover"
+              <div className="w-full h-full relative">
+                <LazyVideo
+                  src="/optimized-video.webm"
+                  fallbackSrc="/optimized-video.mp4"
+                  poster="/video-poster.jpg"
+                  className={`w-full h-full object-cover ${isPlaying ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}
                   autoPlay
                   loop
-                  muted
-                  playsInline
-                  poster="/placeholder-video.jpg"
-                >
-                  <source src="/Image_Animated_To_Modern_Video.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
+                  muted={isMuted}
+                  onPlay={handlePlay}
+                />
                 
-                {/* TV Scan Lines Effect */}
+                {/* TV Effects */}
                 <div className="absolute inset-0 tv-scanlines"></div>
-                
-                {/* TV Noise Effect */}
                 <div className="absolute inset-0 tv-noise opacity-10"></div>
-                
-                {/* TV Screen Curvature */}
                 <div className="absolute inset-0 tv-curvature"></div>
                 
                 {/* Sound Toggle Button */}
@@ -137,12 +130,12 @@ const VideoSection = () => {
                 {/* TV Power Light */}
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_2px_rgba(239,68,68,0.7)] animate-pulse"></div>
               </div>
-              
-              {/* TV Stand */}
-              <div className="tv-stand">
-                <div className="tv-stand-neck"></div>
-                <div className="tv-stand-base"></div>
-              </div>
+            </div>
+            
+            {/* TV Stand */}
+            <div className="tv-stand">
+              <div className="tv-stand-neck"></div>
+              <div className="tv-stand-base"></div>
             </div>
             
             {/* TV Antennas */}
