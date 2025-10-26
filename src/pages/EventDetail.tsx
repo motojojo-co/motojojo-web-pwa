@@ -66,6 +66,8 @@ import {
   getMyInvitationStatusForEvent,
 } from "@/services/eventInvitationService";
 import CommentsSection from "@/components/comments/CommentsSection";
+import MembershipSalesFunnel from "@/components/MembershipSalesFunnel";
+import FloatingMembershipFunnel from "@/components/FloatingMembershipFunnel";
 // Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -1479,6 +1481,18 @@ const EventDetail = () => {
             </div>
           </div>
 
+          {/* Membership Sales Funnel */}
+          <FadeIn delay={200}>
+            <div className="mt-16">
+              <MembershipSalesFunnel
+                eventId={event.id}
+                eventName={event.title}
+                eventPrice={event.price}
+                className="mb-8"
+              />
+            </div>
+          </FadeIn>
+
           {/* Comments Section */}
           <FadeIn delay={300}>
             <div className="mt-16">
@@ -1615,6 +1629,13 @@ const EventDetail = () => {
           )}
         </div>
       </main>
+
+      {/* Floating Membership Funnel for Mobile */}
+      <FloatingMembershipFunnel
+        eventId={event.id}
+        eventName={event.title}
+        eventPrice={event.price}
+      />
 
       {/* Mobile Bottom Bar */}
       {event && !isCompleted && (
