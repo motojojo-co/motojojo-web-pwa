@@ -47,6 +47,7 @@ import CommunityLeadActivityNew from "./pages/CommunityLeadActivityNew";
 import CommunityLeadCreateEvent from "./pages/CommunityLeadCreateEvent";
 import CommunityLeadRevenue from "./pages/CommunityLeadRevenue";
 import CommunityLeadEditEvent from "./pages/CommunityLeadEditEvent";
+import MembershipClaim from "./pages/MembershipClaim";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -129,6 +130,7 @@ const App = () => (
           <Route path="/explorepremium" element={<ExplorePremium />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/membership" element={<Membership />} />
+          <Route path="/claim-membership" element={<MembershipClaim />} />
           <Route path="/mjmember" element={<MjMember />} />
           <Route path="/jojogang" element={<JoJoGang />} />
           <Route path="/feedback" element={<Feedback />} />
