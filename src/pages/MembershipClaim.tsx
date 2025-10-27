@@ -63,7 +63,7 @@ export default function MembershipClaim() {
         title: "Please sign in", 
         description: "You need to be signed in to claim your membership." 
       });
-      navigate("/auth");
+      navigate("/auth?redirect=/claim-membership");
       return;
     }
 

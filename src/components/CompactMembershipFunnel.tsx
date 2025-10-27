@@ -198,3 +198,4 @@ const CompactMembershipFunnel: React.FC<CompactMembershipFunnelProps> = ({
 };
 
 export default CompactMembershipFunnel;
+

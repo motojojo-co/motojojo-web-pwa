@@ -153,3 +153,4 @@ const FloatingMembershipFunnel: React.FC<FloatingMembershipFunnelProps> = ({
 };
 
 export default FloatingMembershipFunnel;
+
