@@ -31,6 +31,7 @@ const CommunityLeadRevenue = () => {
 
   const totalRevenue = data?.totalRevenue || 0;
   const totalBookings = data?.totalBookings || 0;
+  const communityLeadCommission = data?.communityLeadCommission || 0;
   const revenueByEvent = data?.revenueByEvent || [];
 
   // Derived KPIs
@@ -50,8 +51,8 @@ const CommunityLeadRevenue = () => {
   // CSV Export
   const exportCsv = () => {
     const rows = [
-      ["Event Title", "Bookings", "Revenue"],
-      ...filteredEvents.map((r: any) => [r.event_title, r.bookings_count, r.revenue]),
+      ["Event Title", "Bookings", "Revenue", "Commission (10%)"],
+      ...filteredEvents.map((r: any) => [r.event_title, r.bookings_count, r.revenue, r.commission]),
     ];
     const csv = rows.map(r => r.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -73,6 +74,11 @@ const CommunityLeadRevenue = () => {
             <div>
               <h1 className="text-3xl font-extrabold">Revenue</h1>
               <p className="text-gray-600">Track your earnings and performance across events.</p>
+              <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-700">
+                  <strong>Commission Structure:</strong> You earn 10% commission on all revenue from events you create and manage.
+                </p>
+              </div>
             </div>
             <div className="flex gap-2 items-end">
               <div>
@@ -88,7 +94,7 @@ const CommunityLeadRevenue = () => {
           </div>
 
           {/* KPI cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
             <Card>
               <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600 flex items-center gap-1"><IndianRupee className="h-4 w-4" />Total Revenue</CardTitle></CardHeader>
               <CardContent><div className="text-3xl font-bold">₹{totalRevenue.toLocaleString()}</div></CardContent>
@@ -105,12 +111,16 @@ const CommunityLeadRevenue = () => {
               <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600 flex items-center gap-1"><TrendingUp className="h-4 w-4" />Avg Booking Value</CardTitle></CardHeader>
               <CardContent><div className="text-3xl font-bold">₹{avgBookingValue.toLocaleString()}</div></CardContent>
             </Card>
+            <Card className="bg-green-50 border-green-200">
+              <CardHeader className="pb-2"><CardTitle className="text-sm text-green-700 flex items-center gap-1"><IndianRupee className="h-4 w-4" />Your Commission (10%)</CardTitle></CardHeader>
+              <CardContent><div className="text-3xl font-bold text-green-600">₹{communityLeadCommission.toLocaleString()}</div></CardContent>
+            </Card>
           </div>
 
           {/* Revenue by Event */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-black">Revenue by Event</CardTitle>
+              <CardTitle className="text-black">Revenue by Event (with 10% Commission)</CardTitle>
             </CardHeader>
             <CardContent>
               {filteredEvents.length === 0 ? (
@@ -127,7 +137,10 @@ const CommunityLeadRevenue = () => {
                           <div className="font-medium">{r.event_title}</div>
                           <div className="text-xs text-gray-600">Bookings: {r.bookings_count}</div>
                         </div>
-                        <div className="font-bold">₹{r.revenue.toLocaleString()}</div>
+                        <div className="text-right">
+                          <div className="font-bold">₹{r.revenue.toLocaleString()}</div>
+                          <div className="text-sm text-green-600 font-semibold">Commission: ₹{r.commission.toLocaleString()}</div>
+                        </div>
                       </div>
                       {/* Proportional bar */}
                       <div className="mt-3 h-2 bg-gray-200 rounded">

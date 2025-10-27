@@ -460,25 +460,27 @@ const Profile = () => {
                 <FadeIn delay={150}>
                   <Card>
                     <CardHeader>
-                      <CardTitle>Subscription</CardTitle>
-                      <CardDescription>
-                        50% off all tickets for active Premium subscribers
-                      </CardDescription>
+                      <CardTitle>Membership Plan</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="text-center">
                       {membership?.hasActive ? (
                         <div className="space-y-2">
-                          <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</div>
-                          <div className="text-sm text-muted-foreground">Plan: <span className="font-medium">{membership.planName || '3 Months'}</span></div>
+                          <div className="text-2xl font-bold">{membership.planName || '3 Months'}</div>
                           {membership.endDate && (
-                            <div className="text-sm text-muted-foreground">Valid until: <span className="font-medium">{new Date(membership.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span></div>
+                            <div className="text-sm text-muted-foreground">
+                              Valid until: {new Date(membership.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                            </div>
                           )}
-                          <div className="text-sm">Benefit: <span className="font-semibold">50% discount</span> on any ticket during the subscription period.</div>
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          <div className="text-sm text-muted-foreground">No active subscription.</div>
-                          <Button onClick={() => navigate('/pricing')} className="bg-sandstorm text-black hover:bg-sandstorm/90">Get Premium</Button>
+                          <div className="text-sm text-muted-foreground">No active plan</div>
+                          <Button 
+                            onClick={() => navigate('/pricing')} 
+                            className="bg-sandstorm text-black hover:bg-sandstorm/90 w-full"
+                          >
+                            View Plans
+                          </Button>
                         </div>
                       )}
                     </CardContent>

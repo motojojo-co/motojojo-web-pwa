@@ -8,8 +8,6 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getCommunityLeadEvents, deleteEventForCommunityLead } from "@/services/communityLeadService";
 import { format } from "date-fns";
-import MembershipPlans from "@/components/admin/MembershipPlans";
-import MembershipSubscriptions from "@/components/admin/MembershipSubscriptions";
 
 const CommunityLeadActivityNew = () => {
   const { isLoaded, isSignedIn, isCommunityLead } = useAuth();
@@ -106,12 +104,6 @@ const CommunityLeadActivityNew = () => {
               )}
             </CardContent>
           </Card>
-
-          {/* Membership Section */}
-          <div className="mt-8 space-y-6">
-            <MembershipPlans />
-            <MembershipSubscriptions />
-          </div>
         </div>
       </main>
       <Footer />

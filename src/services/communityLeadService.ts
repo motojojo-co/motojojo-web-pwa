@@ -265,15 +265,21 @@ export const getCommunityLeadRevenue = async (communityLeadId: string) => {
 
     const totalRevenue = bookings?.reduce((sum, booking) => sum + (booking.total_amount || 0), 0) || 0;
     const totalBookings = bookings?.length || 0;
+    
+    // Calculate 10% commission for community lead
+    const communityLeadCommission = Math.round(totalRevenue * 0.1);
 
     // Calculate revenue by event
     const revenueByEvent = events.map(event => {
       const eventBookings = bookings?.filter(booking => booking.event_id === event.id) || [];
       const eventRevenue = eventBookings.reduce((sum, booking) => sum + (booking.total_amount || 0), 0);
+      const eventCommission = Math.round(eventRevenue * 0.1);
+      
       return {
         event_id: event.id,
         event_title: event.title,
         revenue: eventRevenue,
+        commission: eventCommission,
         bookings_count: eventBookings.length
       };
     });
@@ -281,6 +287,7 @@ export const getCommunityLeadRevenue = async (communityLeadId: string) => {
     return {
       totalRevenue,
       totalBookings,
+      communityLeadCommission,
       revenueByEvent
     };
   } catch (error) {
