@@ -10,6 +10,8 @@ import { createUserMembership, getPlanByName } from "@/services/membershipServic
 import { getAllMembershipPlans, type MembershipPlan } from "@/services/adminMembershipService";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import SubscriptionQuestionnaire from "@/components/SubscriptionQuestionnaire";
+import { saveQuestionnaireData, updateQuestionnaireWithMembershipId } from "@/services/questionnaireService";
 
 // Feature section removed per request
 
@@ -19,6 +21,12 @@ export default function PricingPage() {
   const navigate = useNavigate();
   const [isPaying, setIsPaying] = useState(false);
   const [payingPlan, setPayingPlan] = useState<string | null>(null);
+  const [showQuestionnaire, setShowQuestionnaire] = useState(false);
+  const [selectedPlanForQuestionnaire, setSelectedPlanForQuestionnaire] = useState<{
+    id: string;
+    name: string;
+    amount: number;
+  } | null>(null);
 
   // Fetch membership plans from database
   const { data: membershipPlans = [], isLoading } = useQuery({
@@ -56,26 +64,60 @@ export default function PricingPage() {
       return;
     }
 
+    // Show questionnaire first
+    setSelectedPlanForQuestionnaire({ id: planId, name: planName, amount: amountInr });
+    setShowQuestionnaire(true);
+  };
+
+  const handleQuestionnaireComplete = async (questionnaireData: any) => {
+    if (!selectedPlanForQuestionnaire || !user?.id) return;
+
+    setShowQuestionnaire(false);
     setIsPaying(true);
-    setPayingPlan(planName);
+    setPayingPlan(selectedPlanForQuestionnaire.name);
+
     try {
+      // Save questionnaire data to database first
+      console.log('Saving questionnaire data...');
+      const questionnaireResult = await saveQuestionnaireData(user.id, questionnaireData);
+      
+      if (!questionnaireResult.success) {
+        console.error('Failed to save questionnaire data:', questionnaireResult.error);
+        toast({ 
+          title: "Warning", 
+          description: "Questionnaire data couldn't be saved, but proceeding with payment.", 
+          variant: "destructive" 
+        });
+      } else {
+        console.log('Questionnaire data saved successfully');
+      }
+
       // Create Razorpay order
       const order = await createRazorpayOrder({
-        amount: amountInr,
+        amount: selectedPlanForQuestionnaire.amount,
         currency: "INR",
-        receipt: `premium_${planName}_${Date.now()}`,
-        notes: { type: "membership", plan: planName, userId: user.id }
+        receipt: `premium_${selectedPlanForQuestionnaire.name}_${Date.now()}`,
+        notes: { 
+          type: "membership", 
+          plan: selectedPlanForQuestionnaire.name, 
+          userId: user.id,
+          questionnaireData: JSON.stringify(questionnaireData)
+        }
       });
 
       if (!order.success) throw new Error("Failed to create order");
 
       await initializeRazorpayCheckout(order.orderId, {
         key: "rzp_live_RBveSyibt8B7dS",
-        amount: amountInr * 100,
+        amount: selectedPlanForQuestionnaire.amount * 100,
         currency: "INR",
         name: "Motojojo Premium",
-        description: `${planName} Subscription`,
-        prefill: { name: user.user_metadata?.full_name, email: user.email },
+        description: `${selectedPlanForQuestionnaire.name} Subscription`,
+        prefill: { 
+          name: questionnaireData.name || user.user_metadata?.full_name, 
+          email: user.email,
+          contact: questionnaireData.phoneNumber
+        },
         theme: { color: "#D32F55" },
         modal: {
           ondismiss: () => {
@@ -94,11 +136,20 @@ export default function PricingPage() {
 
             const created = await createUserMembership({
               userId: user.id,
-              planId: planId,
-              amountInr,
+              planId: selectedPlanForQuestionnaire.id,
+              amountInr: selectedPlanForQuestionnaire.amount,
               paymentId: response.razorpay_payment_id,
             });
             if (!created) throw new Error("Failed to activate membership");
+
+            // Update questionnaire data with membership ID
+            console.log('Updating questionnaire data with membership ID...');
+            const updateResult = await updateQuestionnaireWithMembershipId(user.id, response.razorpay_payment_id);
+            if (!updateResult.success) {
+              console.error('Failed to update questionnaire data with membership ID:', updateResult.error);
+            } else {
+              console.log('Questionnaire data updated with membership ID successfully');
+            }
 
             toast({ title: "Premium Activated!", description: "Your Premium is active — tickets are now free on eligible events." });
             navigate("/profile");
@@ -223,6 +274,21 @@ export default function PricingPage() {
           After subscribing, your eligible event tickets will be free during your plan period.
         </p>
       </div>
+
+      {/* Subscription Questionnaire */}
+      {selectedPlanForQuestionnaire && (
+        <SubscriptionQuestionnaire
+          isOpen={showQuestionnaire}
+          onClose={() => {
+            setShowQuestionnaire(false);
+            setSelectedPlanForQuestionnaire(null);
+          }}
+          onComplete={handleQuestionnaireComplete}
+          planId={selectedPlanForQuestionnaire.id}
+          planName={selectedPlanForQuestionnaire.name}
+          amountInr={selectedPlanForQuestionnaire.amount}
+        />
+      )}
     </div>
   );
 }
