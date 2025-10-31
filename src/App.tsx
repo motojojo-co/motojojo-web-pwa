@@ -40,6 +40,7 @@ import InviteOnly from "./pages/InviteOnly";
 import JoinRequests from "./pages/admin/JoinRequests";
 import BulkEmailPage from "./pages/admin/BulkEmail";
 import ViewBooking from "./pages/admin/ViewBooking";
+import HostSpaceApprovals from "./pages/admin/HostSpaceApprovals";
 import CreateEvent from "./pages/admin/CreateEvent";
 import Gallery from "./pages/Gallery";
 import CommunityLeadLogin from "./pages/CommunityLeadLogin";
@@ -47,6 +48,7 @@ import CommunityLeadActivityNew from "./pages/CommunityLeadActivityNew";
 import CommunityLeadCreateEvent from "./pages/CommunityLeadCreateEvent";
 import CommunityLeadRevenue from "./pages/CommunityLeadRevenue";
 import CommunityLeadEditEvent from "./pages/CommunityLeadEditEvent";
+import LearnMore from "./pages/LearnMore";
 import MembershipClaim from "./pages/MembershipClaim";
 
 const queryClient = new QueryClient({
@@ -119,6 +121,11 @@ const App = () => (
               <ViewBooking />
             </ProtectedRoute>
           } />
+          <Route path="/admin/host-space-approvals" element={
+            <ProtectedRoute adminOnly>
+              <HostSpaceApprovals />
+            </ProtectedRoute>
+          } />
           <Route path="/admin/create-event" element={
             <ProtectedRoute adminOnly>
               <CreateEvent />
@@ -181,6 +188,7 @@ const App = () => (
           <Route path="/book/:eventId" element={<BookingPage />} />
           <Route path="/thank-you" element={<ThankYou />} />
           <Route path="/gallery" element={<Gallery />} />
+          <Route path="/learnmore" element={<LearnMore />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

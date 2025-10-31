@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getCommunityLeadEvents, deleteEventForCommunityLead } from "@/services/communityLeadService";
 import { format } from "date-fns";
+import CommunityLeadMembers from "@/components/CommunityLeadMembers";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const CommunityLeadActivityNew = () => {
   const { isLoaded, isSignedIn, isCommunityLead } = useAuth();
@@ -65,45 +67,58 @@ const CommunityLeadActivityNew = () => {
             </Card>
           </div>
 
-          {/* Events grid */}
-          <Card className="border-none shadow-soft">
-            <CardHeader>
-              <CardTitle className="text-xl">Your Events</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <p>Loading events...</p>
-              ) : events.length === 0 ? (
-                <div className="text-gray-600">No events yet. Click "Create Event" to get started.</div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {events.map((e: any) => (
-                    <Card key={e.id}>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg truncate">{e.title}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-sm text-gray-700 mb-2">{e.city} • {e.date ? format(new Date(e.date), "MMM dd, yyyy") : "TBA"}</div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" className="text-black" onClick={() => navigate(`/events/${e.id}`)}>View</Button>
-                          <Button variant="outline" className="text-black" onClick={() => navigate(`/communitylead/edit-event/${e.id}`)}>Edit</Button>
-                          <Button variant="outline" className="text-black" onClick={async () => {
-                            if (!confirm('Delete this event?')) return;
-                            try {
-                              await deleteEventForCommunityLead(e.id, user!.id);
-                              window.location.reload();
-                            } catch (err) {
-                              alert('Delete failed');
-                            }
-                          }}>Delete</Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Main Content with Tabs */}
+          <Tabs defaultValue="events" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="events">Your Events</TabsTrigger>
+              <TabsTrigger value="members">Community Members</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="events">
+              <Card className="border-none shadow-soft">
+                <CardHeader>
+                  <CardTitle className="text-xl">Your Events</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <p>Loading events...</p>
+                  ) : events.length === 0 ? (
+                    <div className="text-gray-600">No events yet. Click "Create Event" to get started.</div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {events.map((e: any) => (
+                        <Card key={e.id}>
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-lg truncate">{e.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="text-sm text-gray-700 mb-2">{e.city} • {e.date ? format(new Date(e.date), "MMM dd, yyyy") : "TBA"}</div>
+                            <div className="flex gap-2">
+                              <Button variant="outline" className="text-black" onClick={() => navigate(`/events/${e.id}`)}>View</Button>
+                              <Button variant="outline" className="text-black" onClick={() => navigate(`/communitylead/edit-event/${e.id}`)}>Edit</Button>
+                              <Button variant="outline" className="text-black" onClick={async () => {
+                                if (!confirm('Delete this event?')) return;
+                                try {
+                                  await deleteEventForCommunityLead(e.id, user!.id);
+                                  window.location.reload();
+                                } catch (err) {
+                                  alert('Delete failed');
+                                }
+                              }}>Delete</Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="members">
+              <CommunityLeadMembers />
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
       <Footer />

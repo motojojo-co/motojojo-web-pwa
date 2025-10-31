@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { Badge } from "@/components/ui/badge";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { 
   LogOut, 
@@ -67,6 +68,15 @@ import {
   getHostDashboardData,
   subscribeToAttendanceRecords
 } from "@/services/hostService";
+import {
+  getHostSpaces,
+  getEventsAtHostSpaces,
+  getHostEventRequests,
+  HostSpace,
+  HostEventRequest,
+} from "@/services/hostSpaceService";
+import HostSpaceForm from "@/components/host/HostSpaceForm";
+import EventRequestForm from "@/components/host/EventRequestForm";
 import { Event } from "@/services/eventService";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -102,6 +112,9 @@ const HostDashboard = () => {
   const [attendanceNotes, setAttendanceNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
+  const [isSpaceFormOpen, setIsSpaceFormOpen] = useState(false);
+  const [editingSpace, setEditingSpace] = useState<HostSpace | null>(null);
+  const [isEventRequestFormOpen, setIsEventRequestFormOpen] = useState(false);
 
   // Fetch host profile
   const { data: hostProfile, isLoading: profileLoading } = useQuery({
@@ -128,6 +141,20 @@ const HostDashboard = () => {
   const { data: attendanceSummary = [], isLoading: summaryLoading } = useQuery({
     queryKey: ['host-attendance-summary'],
     queryFn: getAttendanceSummary,
+    enabled: isHost
+  });
+
+  // Fetch host spaces
+  const { data: hostSpaces = [], isLoading: spacesLoading } = useQuery({
+    queryKey: ['host-spaces'],
+    queryFn: getHostSpaces,
+    enabled: isHost
+  });
+
+  // Fetch event requests
+  const { data: eventRequests = [], isLoading: requestsLoading } = useQuery({
+    queryKey: ['host-event-requests'],
+    queryFn: getHostEventRequests,
     enabled: isHost
   });
 
@@ -366,10 +393,13 @@ const HostDashboard = () => {
 
           {/* Main Content */}
           <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="attendance">Mark Attendance</TabsTrigger>
               <TabsTrigger value="events">My Experiences</TabsTrigger>
+              <TabsTrigger value="spaces">My Spaces</TabsTrigger>
+              <TabsTrigger value="calendar">Calendar</TabsTrigger>
+              <TabsTrigger value="requests">Event Requests</TabsTrigger>
               <TabsTrigger value="reports">Reports</TabsTrigger>
             </TabsList>
 
@@ -685,6 +715,280 @@ const HostDashboard = () => {
                   />
                 </DialogContent>
               </Dialog>
+            </TabsContent>
+
+            {/* Spaces Tab */}
+            <TabsContent value="spaces" className="space-y-6">
+              <Card className="bg-sandstorm/80 rounded-2xl p-4 shadow-soft">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>My Spaces</CardTitle>
+                    <CardDescription>
+                      Manage your spaces where events can be hosted
+                    </CardDescription>
+                  </div>
+                  <Button onClick={() => {
+                    setEditingSpace(null);
+                    setIsSpaceFormOpen(true);
+                  }}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Space
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {spacesLoading ? (
+                    <div className="space-y-4">
+                      {[1, 2, 3].map((i) => (
+                        <Skeleton key={i} className="h-32 w-full" />
+                      ))}
+                    </div>
+                  ) : hostSpaces.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <MapPin className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                      <p>No spaces added yet. Click "Add Space" to get started.</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {hostSpaces.map((space) => (
+                        <div key={space.id} className="border rounded-lg p-4 bg-white/80">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h3 className="font-semibold text-violet">{space.name}</h3>
+                              <p className="text-sm text-gray-600">{space.location}, {space.city}</p>
+                            </div>
+                            <Badge 
+                              variant={
+                                space.status === 'approved' ? 'default' : 
+                                space.status === 'pending' ? 'secondary' : 
+                                'destructive'
+                              }
+                            >
+                              {space.status}
+                            </Badge>
+                          </div>
+                          {space.images && space.images.length > 0 && (
+                            <img
+                              src={space.images[0]}
+                              alt={space.name}
+                              className="w-full h-32 object-cover rounded mb-2"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/placeholder.svg";
+                              }}
+                            />
+                          )}
+                          <p className="text-sm text-gray-600 mb-2">{space.address}</p>
+                          {space.description && (
+                            <p className="text-sm text-gray-500 mb-2 line-clamp-2">{space.description}</p>
+                          )}
+                          {space.capacity && (
+                            <p className="text-sm text-violet">Capacity: {space.capacity}</p>
+                          )}
+                          <div className="flex gap-2 mt-3">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setEditingSpace(space);
+                                setIsSpaceFormOpen(true);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            {space.status === 'approved' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setIsEventRequestFormOpen(true);
+                                }}
+                              >
+                                Request Event
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              {isSpaceFormOpen && (
+                <HostSpaceForm
+                  space={editingSpace || undefined}
+                  onSuccess={() => {
+                    setIsSpaceFormOpen(false);
+                    setEditingSpace(null);
+                    queryClient.invalidateQueries({ queryKey: ['host-spaces'] });
+                  }}
+                  onCancel={() => {
+                    setIsSpaceFormOpen(false);
+                    setEditingSpace(null);
+                  }}
+                />
+              )}
+            </TabsContent>
+
+            {/* Calendar Tab */}
+            <TabsContent value="calendar" className="space-y-6">
+              <Card className="bg-sandstorm/80 rounded-2xl p-4 shadow-soft">
+                <CardHeader>
+                  <CardTitle>Calendar - Events at Your Spaces</CardTitle>
+                  <CardDescription>
+                    View past and upcoming events happening at your spaces
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {eventsLoading ? (
+                    <div className="space-y-4">
+                      {[1, 2, 3, 4].map((i) => (
+                        <Skeleton key={i} className="h-24 w-full" />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Upcoming Events (Next 4) */}
+                      <div>
+                        <h3 className="text-lg font-semibold text-violet mb-3">Upcoming Events</h3>
+                        {hostEvents
+                          .filter(e => {
+                            const eventDate = new Date(`${e.date}T${e.time}`);
+                            return eventDate >= new Date();
+                          })
+                          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                          .slice(0, 4)
+                          .map((event) => (
+                            <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg bg-white/80 text-violet mb-2">
+                              <div>
+                                <h4 className="font-semibold">{event.title}</h4>
+                                <p className="text-sm text-gray-600">
+                                  {formatDate(event.date)} • {formatTime(event.time)}
+                                </p>
+                                <p className="text-sm text-gray-500">{event.venue}, {event.city}</p>
+                              </div>
+                              <Badge className="bg-green-500">Upcoming</Badge>
+                            </div>
+                          ))}
+                        {hostEvents.filter(e => {
+                          const eventDate = new Date(`${e.date}T${e.time}`);
+                          return eventDate >= new Date();
+                        }).length === 0 && (
+                          <p className="text-gray-500 text-center py-4">No upcoming events</p>
+                        )}
+                      </div>
+
+                      {/* Past Events */}
+                      <div className="mt-6">
+                        <h3 className="text-lg font-semibold text-violet mb-3">Past Events</h3>
+                        {hostEvents
+                          .filter(e => {
+                            const eventDate = new Date(`${e.date}T${e.time}`);
+                            return eventDate < new Date();
+                          })
+                          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                          .map((event) => (
+                            <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg bg-white/80 text-violet mb-2 opacity-75">
+                              <div>
+                                <h4 className="font-semibold">{event.title}</h4>
+                                <p className="text-sm text-gray-600">
+                                  {formatDate(event.date)} • {formatTime(event.time)}
+                                </p>
+                                <p className="text-sm text-gray-500">{event.venue}, {event.city}</p>
+                              </div>
+                              <Badge variant="outline">Past</Badge>
+                            </div>
+                          ))}
+                        {hostEvents.filter(e => {
+                          const eventDate = new Date(`${e.date}T${e.time}`);
+                          return eventDate < new Date();
+                        }).length === 0 && (
+                          <p className="text-gray-500 text-center py-4">No past events</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Event Requests Tab */}
+            <TabsContent value="requests" className="space-y-6">
+              <Card className="bg-sandstorm/80 rounded-2xl p-4 shadow-soft">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Event Requests</CardTitle>
+                    <CardDescription>
+                      Manage your requests to host events at your spaces
+                    </CardDescription>
+                  </div>
+                  <Button onClick={() => setIsEventRequestFormOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Request
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {requestsLoading ? (
+                    <div className="space-y-4">
+                      {[1, 2, 3].map((i) => (
+                        <Skeleton key={i} className="h-24 w-full" />
+                      ))}
+                    </div>
+                  ) : eventRequests.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                      <p>No event requests yet. Click "New Request" to create one.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {eventRequests.map((request) => (
+                        <div key={request.id} className="border rounded-lg p-4 bg-white/80">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h3 className="font-semibold text-violet">{request.event_title}</h3>
+                              <p className="text-sm text-gray-600">
+                                {new Date(request.requested_date).toLocaleDateString()} • {request.requested_start_time}
+                                {request.requested_end_time && ` - ${request.requested_end_time}`}
+                              </p>
+                              {request.host_space && (
+                                <p className="text-sm text-gray-500">
+                                  Space: {request.host_space.name} - {request.host_space.location}
+                                </p>
+                              )}
+                            </div>
+                            <Badge 
+                              variant={
+                                request.status === 'approved' || request.status === 'scheduled' ? 'default' : 
+                                request.status === 'pending' ? 'secondary' : 
+                                'destructive'
+                              }
+                            >
+                              {request.status}
+                            </Badge>
+                          </div>
+                          {request.event_description && (
+                            <p className="text-sm text-gray-600 mb-2">{request.event_description}</p>
+                          )}
+                          {request.expected_capacity && (
+                            <p className="text-sm text-violet">Expected Capacity: {request.expected_capacity}</p>
+                          )}
+                          {request.rejection_reason && (
+                            <p className="text-sm text-red-500 mt-2">Rejection Reason: {request.rejection_reason}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              {isEventRequestFormOpen && (
+                <EventRequestForm
+                  spaces={hostSpaces}
+                  onSuccess={() => {
+                    setIsEventRequestFormOpen(false);
+                    queryClient.invalidateQueries({ queryKey: ['host-event-requests'] });
+                  }}
+                  onCancel={() => setIsEventRequestFormOpen(false)}
+                />
+              )}
             </TabsContent>
 
             {/* Reports Tab */}

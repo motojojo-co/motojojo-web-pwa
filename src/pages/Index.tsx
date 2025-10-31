@@ -4,6 +4,7 @@ import Footer from "@/components/shared/Footer";
 import HeroSection from "@/components/home/HeroSection";
 import CityStrip from "@/components/home/CityStrip";
 import EventsSection from "@/components/home/EventsSection";
+import WhoWeAreSection from "@/components/home/WhoWeAreSection";
 // import ArtistsSection from "@/components/home/ArtistsSection";
 import CategoriesSection from "@/components/home/CategoriesSection";
 import PremiumPopup from "@/components/shared/PremiumPopup";
@@ -62,6 +63,7 @@ const Index = () => {
         <EventTypesSection />
         <VideoSection />
         <EventsSection />
+        <WhoWeAreSection />
         {/* <ArtistsSection /> */}
         <MediaLogosSection />
         <TestimonialsSection />
