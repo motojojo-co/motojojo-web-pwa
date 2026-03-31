@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getEventTypes } from "@/services/eventTypeService";
-import { getEvents } from "@/services/eventService";
+import { getEvents, getEventCities, getEventDates } from "@/services/eventService";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Calendar } from "lucide-react";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { getEventUrl } from "@/lib/eventUtils";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 function isEventOver(date: string, time: string) {
   const eventDate = new Date(`${date}T${time}`);
@@ -19,6 +20,7 @@ const PardahGathering = () => {
   const navigate = useNavigate();
   const [eventTypeId, setEventTypeId] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
 
   // Fetch event types to get the ID for 'Pardah Gathering'
   const { data: eventTypes = [], isLoading: loadingTypes } = useQuery({
@@ -35,14 +37,30 @@ const PardahGathering = () => {
     }
   }, [eventTypes]);
 
+  // Fetch city and date options
+  const { data: cities = [] } = useQuery({
+    queryKey: ["event-cities"],
+    queryFn: getEventCities,
+  });
+  const { data: dates = [] } = useQuery({
+    queryKey: ["event-dates"],
+    queryFn: getEventDates,
+  });
+
   // Fetch events for this event type
   const {
     data: events = [],
     isLoading: loadingEvents,
     isFetching: fetchingEvents,
   } = useQuery({
-    queryKey: ["pardah-gathering-events", eventTypeId],
-    queryFn: () => (eventTypeId ? getEvents({ eventType: eventTypeId, city: selectedCity }) : []),
+    queryKey: ["pardah-gathering-events", eventTypeId, selectedCity, selectedDate],
+    queryFn: () => {
+      if (!eventTypeId) return [];
+      const filters: any = { eventType: eventTypeId };
+      if (selectedCity) filters.city = selectedCity;
+      if (selectedDate) filters.date = selectedDate;
+      return getEvents(filters);
+    },
     enabled: !!eventTypeId,
   });
 
@@ -97,8 +115,51 @@ const PardahGathering = () => {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4" style={{ color: '#F7D774' }}>Pardah Gathering Events</h1>
             <p className="max-w-2xl mx-auto" style={{ color: '#F7D774' }}>
-              Discover and book the best upcoming Pardah Gathering events happening in your city. All events are organized by date for easy browsing.
+              Discover and book the best upcoming Pardah Gathering experiences in your city. Each event type has its own vibe and curated experience, all organized by date for easy browsing.
             </p>
+          </div>
+          {/* Filters Section */}
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-8">
+            <div className="w-full md:w-64">
+              <Select value={selectedCity} onValueChange={setSelectedCity}>
+                <SelectTrigger className="rounded-2xl font-medium border-none focus:ring-2 focus:ring-[#F7D774]" style={{ background: "#F7D774", color: "#8236A0" }}>
+                  <SelectValue placeholder="Filter by city" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#F7D774] text-[#8236A0]">
+                  {cities.map((city) => (
+                    <SelectItem key={city} value={city} className="text-[#8236A0]">
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-full md:w-64">
+              <Select value={selectedDate} onValueChange={setSelectedDate}>
+                <SelectTrigger className="rounded-2xl font-medium border-none focus:ring-2 focus:ring-[#F7D774]" style={{ background: "#F7D774", color: "#8236A0" }}>
+                  <SelectValue placeholder="Filter by date" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#F7D774] text-[#8236A0]">
+                  {dates.map((date) => (
+                    <SelectItem key={date} value={date} className="text-[#8236A0]">
+                      {date}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {(selectedCity || selectedDate) && (
+              <Button
+                variant="ghost"
+                className="border border-white/40 text-white hover:bg-white/10"
+                onClick={() => {
+                  setSelectedCity("");
+                  setSelectedDate("");
+                }}
+              >
+                Clear Filters
+              </Button>
+            )}
           </div>
           {/* Event List */}
           {loadingTypes || loadingEvents || fetchingEvents ? (
@@ -117,10 +178,10 @@ const PardahGathering = () => {
                     </h2>
                   </div>
                   {/* Event cards grid with purple color padding */}
-                  <div className="rounded-3xl px-8 py-8" style={{ background: '#8236A0', border: '2px solid #fff' }}>
+                  <div className="rounded-3xl px-8 py-8" style={{ background: '#F7D774' }}>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {dateEvents.map((event, index) => (
-                        <Card key={event.id} className="hover-scale border-none shadow-soft overflow-hidden" style={{ backgroundColor: '#8236A0', border: '2px solid #fff' }}>
+                        <Card key={event.id} className="hover-scale border-none shadow-soft overflow-hidden" style={{ backgroundColor: '#8236A0' }}>
                           <div className="aspect-[9/16] h-96 relative">
                             <img
                               src={event.image}

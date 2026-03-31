@@ -97,7 +97,8 @@ const VideoSection = () => {
           {/* Video Container - Left Side */}
           <div className="lg:w-1/2 relative">
             <div className="relative tv-frame">
-              <div className="w-full h-full relative">
+              <div className="tv-bezel" />
+              <div className="tv-screen">
                 <LazyVideo
                   src="/optimized-video.webm"
                   fallbackSrc="/optimized-video.mp4"
@@ -117,7 +118,7 @@ const VideoSection = () => {
                 {/* Sound Toggle Button */}
                 <button 
                   onClick={toggleMute}
-                  className="absolute bottom-6 right-6 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-all backdrop-blur-sm tv-control"
+                  className="absolute bottom-5 right-5 z-10 p-2.5 rounded-full bg-black/55 text-white hover:bg-black/70 transition-all backdrop-blur-sm tv-control"
                   aria-label={isMuted ? "Unmute" : "Mute"}
                 >
                   {isMuted ? (
@@ -128,8 +129,10 @@ const VideoSection = () => {
                 </button>
                 
                 {/* TV Power Light */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_2px_rgba(239,68,68,0.7)] animate-pulse"></div>
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_12px_3px_rgba(239,68,68,0.7)] animate-pulse"></div>
               </div>
+              <div className="tv-brand">Motojojo</div>
+              <div className="tv-speaker" />
             </div>
             
             {/* TV Stand */}

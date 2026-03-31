@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getEventTypes } from "@/services/eventTypeService";
-import { getEvents } from "@/services/eventService";
+import { getEvents, getEventCities, getEventDates } from "@/services/eventService";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Calendar } from "lucide-react";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { getEventUrl } from "@/lib/eventUtils";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 function isEventOver(date: string, time: string) {
   const eventDate = new Date(`${date}T${time}`);
@@ -19,6 +20,7 @@ const Addebazi = () => {
   const navigate = useNavigate();
   const [eventTypeId, setEventTypeId] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
 
   // Fetch event types to get the ID for 'Addebazi'
   const { data: eventTypes = [], isLoading: loadingTypes } = useQuery({
@@ -35,14 +37,30 @@ const Addebazi = () => {
     }
   }, [eventTypes]);
 
+  // Fetch city and date options
+  const { data: cities = [] } = useQuery({
+    queryKey: ["event-cities"],
+    queryFn: getEventCities,
+  });
+  const { data: dates = [] } = useQuery({
+    queryKey: ["event-dates"],
+    queryFn: getEventDates,
+  });
+
   // Fetch events for this event type
   const {
     data: events = [],
     isLoading: loadingEvents,
     isFetching: fetchingEvents,
   } = useQuery({
-    queryKey: ["addebazi-events", eventTypeId],
-    queryFn: () => (eventTypeId ? getEvents({ eventType: eventTypeId, city: selectedCity }) : []),
+    queryKey: ["addebazi-events", eventTypeId, selectedCity, selectedDate],
+    queryFn: () => {
+      if (!eventTypeId) return [];
+      const filters: any = { eventType: eventTypeId };
+      if (selectedCity) filters.city = selectedCity;
+      if (selectedDate) filters.date = selectedDate;
+      return getEvents(filters);
+    },
     enabled: !!eventTypeId,
   });
 
@@ -97,8 +115,51 @@ const Addebazi = () => {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4 text-[#FFD600]">Addebazi Events</h1>
             <p className="text-[#FFD600] max-w-2xl mx-auto">
-              Discover and book the best upcoming Addebazi events happening in your city. All events are organized by date for easy browsing.
+              Discover and book the best upcoming Addebazi experiences in your city. Each event type has its own vibe and curated experience, all organized by date for easy browsing.
             </p>
+          </div>
+          {/* Filters Section */}
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-8">
+            <div className="w-full md:w-64">
+              <Select value={selectedCity} onValueChange={setSelectedCity}>
+                <SelectTrigger className="rounded-2xl font-medium border-none focus:ring-2 focus:ring-[#2196F3]" style={{ background: "#FFD600", color: "#2196F3" }}>
+                  <SelectValue placeholder="Filter by city" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#FFD600] text-[#2196F3]">
+                  {cities.map((city) => (
+                    <SelectItem key={city} value={city} className="text-[#2196F3]">
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-full md:w-64">
+              <Select value={selectedDate} onValueChange={setSelectedDate}>
+                <SelectTrigger className="rounded-2xl font-medium border-none focus:ring-2 focus:ring-[#2196F3]" style={{ background: "#FFD600", color: "#2196F3" }}>
+                  <SelectValue placeholder="Filter by date" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#FFD600] text-[#2196F3]">
+                  {dates.map((date) => (
+                    <SelectItem key={date} value={date} className="text-[#2196F3]">
+                      {date}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {(selectedCity || selectedDate) && (
+              <Button
+                variant="ghost"
+                className="border border-white/40 text-white hover:bg-white/10"
+                onClick={() => {
+                  setSelectedCity("");
+                  setSelectedDate("");
+                }}
+              >
+                Clear Filters
+              </Button>
+            )}
           </div>
           {/* Event List */}
           {loadingTypes || loadingEvents || fetchingEvents ? (
@@ -116,7 +177,7 @@ const Addebazi = () => {
                       {formatDateHeader(date)}
                     </h2>
                   </div>
-                  {/* Event cards grid with yellow color padding */}
+                  {/* Event cards grid with theme color padding */}
                   <div className="bg-[#FFD600] rounded-3xl px-8 py-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {dateEvents.map((event, index) => (
