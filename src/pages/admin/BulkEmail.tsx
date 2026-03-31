@@ -50,13 +50,10 @@ const BulkEmailPage = () => {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvRecipients, setCsvRecipients] = useState<Array<{email: string, name?: string}>>([]);
   const [csvError, setCsvError] = useState<string | null>(null);
+  const [userSearch, setUserSearch] = useState('');
   const { toast } = useToast();
 
-  console.log('BulkEmailPage component rendered');
-  console.log('Current URL:', window.location.href);
-
   useEffect(() => {
-    console.log('BulkEmailPage useEffect triggered');
     loadUsers();
     loadEvents();
   }, []);
@@ -319,38 +316,52 @@ const BulkEmailPage = () => {
     }
   };
 
+  const filteredUsers = users.filter((user) => {
+    if (!userSearch.trim()) return true;
+    const q = userSearch.toLowerCase();
+    return (
+      user.email.toLowerCase().includes(q) ||
+      (user.name || '').toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <FadeIn>
-        <div className="container mx-auto px-4 py-8">
+        <div className="container-padding max-w-6xl mx-auto py-8">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-8 space-y-4">
             <Button
               variant="ghost"
               onClick={() => navigate('/admin/dashboard')}
-              className="mb-4"
+              className="px-0 text-gray-700 hover:text-gray-900"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
             </Button>
-            
-            <div className="flex items-center justify-between">
+
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Bulk Email Manager</h1>
-                <p className="text-gray-600 mt-2">Send emails to multiple recipients using the same system as ticket bookings</p>
+                <p className="text-gray-600 mt-2">
+                  Send targeted updates to your audience with a clean, trackable bulk email flow.
+                </p>
               </div>
-              <Badge variant="outline" className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                {recipientSource === 'csv' ? csvRecipients.length : selectedUsers.length} selected
-              </Badge>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline" className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  {recipientSource === 'csv' ? csvRecipients.length : selectedUsers.length} selected
+                </Badge>
+                <Badge variant="outline" className="capitalize">
+                  Source: {recipientSource}
+                </Badge>
+                {recipientSource !== 'csv' && (
+                  <Badge variant="outline">
+                    {users.length} total users
+                  </Badge>
+                )}
+              </div>
             </div>
-          </div>
-
-          {/* Debug info */}
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6">
-            <p className="text-sm text-blue-800">
-              <strong>Debug Info:</strong> Component loaded. Users: {users.length}, Loading: {loading.toString()}, Error: {error || 'None'}
-            </p>
           </div>
 
           {/* Error Alert */}
@@ -484,16 +495,33 @@ const BulkEmailPage = () => {
                         checked={selectedUsers.length === users.length && users.length > 0}
                         onCheckedChange={handleSelectAll}
                       />
-                      <Label htmlFor="select-all">Select All ({users.length} users)</Label>
+                      <Label htmlFor="select-all">
+                        Select All ({users.length} users)
+                      </Label>
                     </div>
 
-                    <div className="max-h-96 overflow-y-auto space-y-2">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          placeholder="Search by name or email"
+                          value={userSearch}
+                          onChange={(e) => setUserSearch(e.target.value)}
+                          className="h-9"
+                        />
+                        <Badge variant="secondary">{filteredUsers.length}</Badge>
+                      </div>
+
+                      <div className="max-h-96 overflow-y-auto space-y-2">
                       {loading ? (
                         <div className="flex items-center justify-center py-8">
                           <Loader2 className="h-6 w-6 animate-spin" />
                         </div>
+                      ) : filteredUsers.length === 0 ? (
+                        <div className="text-sm text-muted-foreground py-6 text-center">
+                          No users match your search.
+                        </div>
                       ) : (
-                        users.map(user => (
+                        filteredUsers.map(user => (
                           <div key={user.id} className="flex items-center space-x-2 p-2 border rounded">
                             <Checkbox
                               id={user.id}
@@ -509,6 +537,7 @@ const BulkEmailPage = () => {
                           </div>
                         ))
                       )}
+                      </div>
                     </div>
                   </>
                 )}

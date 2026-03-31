@@ -179,126 +179,159 @@ const CommunityLeadLogin = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-raspberry relative overflow-y-auto">
       <Navbar />
-      <main className="flex-grow flex items-center justify-center py-16 pb-20 md:pb-16">
-        <div className="container-padding max-w-md w-full">
+      <main className="flex-grow py-12 md:py-16 pb-20 md:pb-16 z-10">
+        <div className="container-padding max-w-5xl mx-auto">
           <FadeIn>
-            <Card className="border-none shadow-soft">
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl">
-                  {isSignUp ? "Join as Community Lead" : "Community Lead Login"}
-                </CardTitle>
-                <CardDescription>
-                  {isSignUp 
-                    ? "Sign up to become a community lead and start creating events"
-                    : "Sign in to access the Motojojo community lead dashboard"
-                  }
-                </CardDescription>
-                <div className="mt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+              <div className="rounded-3xl border border-sandstorm-200 bg-white/80 backdrop-blur-md p-8 flex flex-col justify-between shadow-soft">
+                <div>
+                  <img
+                    src="/media-logos/communitylead.png"
+                    alt="Community Lead"
+                    className="w-11/12 max-w-md h-auto mb-4"
+                  />
+                  <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-violet shadow-sm">
+                    <Mail className="h-4 w-4" />
+                    Community Lead
+                  </div>
+                  <h1 className="mt-4 text-3xl font-bold text-violet">Lead your city’s community</h1>
+                  <p className="mt-3 text-raspberry">
+                    Create experiences, grow your local community, and track your impact.
+                  </p>
+                </div>
+                <div className="mt-8 space-y-4">
+                  <div className="flex items-start gap-3 rounded-2xl bg-white/90 p-4 border border-sandstorm-200">
+                    <div className="h-10 w-10 rounded-xl bg-violet/10 flex items-center justify-center">
+                      <User className="h-5 w-5 text-violet" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-violet">Create events</p>
+                      <p className="text-sm text-raspberry">Publish gatherings and manage your audience.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 rounded-2xl bg-white/90 p-4 border border-sandstorm-200">
+                    <div className="h-10 w-10 rounded-xl bg-raspberry/10 flex items-center justify-center">
+                      <Mail className="h-5 w-5 text-raspberry" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-violet">Track revenue</p>
+                      <p className="text-sm text-raspberry">See bookings, commissions, and performance.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Card className="border border-sandstorm-200 shadow-soft rounded-3xl bg-white/85 backdrop-blur-md">
+                <CardHeader className="text-left">
+                  <CardTitle className="text-2xl text-violet">
+                    {isSignUp ? "Join as Community Lead" : "Community Lead Login"}
+                  </CardTitle>
+                  <CardDescription className="text-raspberry">
+                    {isSignUp 
+                      ? "Sign up to become a community lead and start creating events"
+                      : "Sign in to access the Motojojo community lead dashboard"
+                    }
+                  </CardDescription>
+                  <div className="mt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsSignUp(!isSignUp)}
+                      className="w-full border-2 border-sandstorm-300 bg-white text-violet hover:bg-sandstorm-100 hover:text-violet font-semibold transition-colors duration-150"
+                    >
+                      {isSignUp ? "Already have an account? Sign In" : "New to community leads? Sign Up"}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
                   <Button
-                    variant="outline"
-                    onClick={() => setIsSignUp(!isSignUp)}
-                    className="w-full"
+                    type="button"
+                    onClick={handleGoogleAuth}
+                    className="w-full flex items-center justify-center gap-2 border border-sandstorm-300 bg-white text-raspberry hover:bg-sandstorm-100 hover:text-violet mb-6"
+                    disabled={googleLoading}
                   >
-                    {isSignUp ? "Already have an account? Sign In" : "New to community leads? Sign Up"}
+                    <FcGoogle className="w-5 h-5" />
+                    {googleLoading ? 'Redirecting...' : 'Continue with Google'}
                   </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  type="button"
-                  onClick={handleGoogleAuth}
-                  className="w-full flex items-center justify-center gap-2 border border-gray-300 bg-white text-black hover:bg-gray-50 mb-6"
-                  disabled={googleLoading}
-                >
-                  <FcGoogle className="w-5 h-5" />
-                  {googleLoading ? 'Redirecting...' : 'Continue with Google'}
-                </Button>
-                <div className="w-full flex items-center gap-2 mb-4">
-                  <div className="flex-1 h-px bg-gray-200" />
-                  <span className="text-xs text-black">or</span>
-                  <div className="flex-1 h-px bg-gray-200" />
-                </div>
-                <form onSubmit={isSignUp ? handleSignUp : handleSubmit} className="space-y-6">
-                  {isSignUp && (
+                  <div className="w-full flex items-center gap-2 mb-4">
+                    <div className="flex-1 h-px bg-sandstorm-200" />
+                    <span className="text-xs text-sandstorm-600">or</span>
+                    <div className="flex-1 h-px bg-sandstorm-200" />
+                  </div>
+                  <form onSubmit={isSignUp ? handleSignUp : handleSubmit} className="space-y-5">
+                    {isSignUp && (
+                      <div className="space-y-2">
+                        <Label htmlFor="full_name" className="text-violet">Full Name</Label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 h-4 w-4 text-raspberry" />
+                          <Input 
+                            id="full_name" 
+                            name="full_name"
+                            type="text"
+                            placeholder="Enter your full name"
+                            className="pl-10 border-raspberry focus:border-violet focus:ring-violet/30 text-base py-3 text-black"
+                            value={credentials.full_name}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                    )}
                     <div className="space-y-2">
-                      <Label htmlFor="full_name" className="text-black">Full Name</Label>
+                      <Label htmlFor="email" className="text-violet">Email</Label>
                       <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-black" />
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-raspberry" />
                         <Input 
-                          id="full_name" 
-                          name="full_name"
-                          type="text"
-                          placeholder="Enter your full name"
-                          className="pl-10 text-black"
-                          value={credentials.full_name}
+                          id="email" 
+                          name="email"
+                          type="email"
+                          placeholder="Enter your email"
+                          className="pl-10 border-raspberry focus:border-violet focus:ring-violet/30 text-base py-3 text-black"
+                          value={credentials.email}
                           onChange={handleInputChange}
                           required
                         />
                       </div>
                     </div>
-                  )}
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-black">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-black" />
-                      <Input 
-                        id="email" 
-                        name="email"
-                        type="email"
-                        placeholder="Enter your email"
-                        className="pl-10 text-black"
-                        value={credentials.email}
-                        onChange={handleInputChange}
-                        required
-                      />
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-violet">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-raspberry" />
+                        <Input 
+                          id="password" 
+                          name="password"
+                          type="password" 
+                          placeholder="Enter your password"
+                          className="pl-10 border-raspberry focus:border-violet focus:ring-violet/30 text-base py-3 text-black"
+                          value={credentials.password}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-black">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-black" />
-                      <Input 
-                        id="password" 
-                        name="password"
-                        type="password" 
-                        placeholder="Enter your password"
-                        className="pl-10 text-black"
-                        value={credentials.password}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full text-black" disabled={loading || signUpLoading}>
+                    <Button type="submit" className="w-full bg-raspberry hover:bg-raspberry/90 text-white font-bold py-3 rounded-xl shadow transition-colors duration-150" disabled={loading || signUpLoading}>
+                      {isSignUp 
+                        ? (signUpLoading ? "Creating Account..." : "Sign Up as Community Lead")
+                        : (loading ? "Signing In..." : "Sign In")
+                      }
+                    </Button>
+                  </form>
+                </CardContent>
+                <CardFooter className="flex justify-center">
+                  <p className="text-sm text-raspberry text-center">
                     {isSignUp 
-                      ? (signUpLoading ? "Creating Account..." : "Sign Up as Community Lead")
-                      : (loading ? "Signing In..." : "Sign In")
+                      ? "Anyone can become a community lead and start creating events."
+                      : "Sign in to access your community lead dashboard."
                     }
-                  </Button>
-                </form>
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <p className="text-sm text-black">
-                  {isSignUp 
-                    ? "Anyone can become a community lead and start creating events."
-                    : "Sign in to access your community lead dashboard."
-                  }
-                </p>
-              </CardFooter>
-            </Card>
+                  </p>
+                </CardFooter>
+              </Card>
+            </div>
           </FadeIn>
         </div>
       </main>
       <Footer />
-      <div className="mt-8 flex flex-col items-center">
-        <Link to="/response">
-          <Button className="bg-violet text-black font-bold px-6 py-3 rounded-lg shadow-md hover:bg-violet-700 transition-colors">
-            Responses
-          </Button>
-        </Link>
-      </div>
     </div>
   );
 };

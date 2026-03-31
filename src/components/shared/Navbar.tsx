@@ -184,6 +184,16 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               </DropdownMenuContent>
             </DropdownMenu>
 
+            {!isSignedIn && (
+              <Button
+                variant="outline"
+                onClick={() => navigate("/auth")}
+                className="min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg"
+              >
+                Sign In
+              </Button>
+            )}
+
             {/* Mega Menu Trigger */}
             <div
               className="relative"
@@ -324,6 +334,16 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
           
           {/* Enhanced Mobile Search and Menu */}
           <div className="md:hidden flex items-center space-x-2">
+            {!isSignedIn && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/auth")}
+                className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg"
+              >
+                <User className="h-5 w-5" />
+              </Button>
+            )}
             {/* Mobile Menu Trigger */}
             <Button 
               variant="ghost" 

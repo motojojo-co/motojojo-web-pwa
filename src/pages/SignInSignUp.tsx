@@ -76,11 +76,48 @@ const SignInSignUp = () => {
     <div className="min-h-screen flex flex-col bg-raspberry relative overflow-y-auto">
       <MovingPartyBackground />
       <Navbar />
-      <main className="flex-grow flex items-center justify-center py-6 md:py-12 z-10">
-        <div className="w-full max-w-xs sm:max-w-sm md:max-w-md bg-white/80 rounded-2xl md:rounded-3xl shadow-soft p-6 md:p-10 flex flex-col items-center border border-sandstorm-200 backdrop-blur-md mx-2">
-          <img src="/public/motojojo.png" alt="Motojojo" className="w-16 h-16 md:w-20 md:h-20 mb-4 drop-shadow-lg" />
-          <h1 className="text-2xl md:text-3xl font-extrabold mb-2 text-violet drop-shadow text-center">Welcome to Motojojo</h1>
-          <p className="mb-4 md:mb-6 text-center text-raspberry font-medium text-base md:text-lg">{authMode === 'signIn' ? 'Sign in to discover and book unique experiences.' : 'Create your Motojojo account and join the community!'}</p>
+      <main className="flex-grow py-10 md:py-14 z-10">
+        <div className="container-padding max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+            <div className="rounded-3xl border border-sandstorm-200 bg-white/80 backdrop-blur-md p-8 flex flex-col justify-between shadow-soft">
+              <div>
+                <img src="/user1.png" alt="Motojojo" className="w-11/12 max-w-md h-auto mb-4" />
+                <h1 className="text-3xl font-bold text-violet">Welcome to Motojojo</h1>
+                <p className="mt-3 text-raspberry">
+                  {authMode === 'signIn'
+                    ? 'Sign in to discover and book unique experiences.'
+                    : 'Create your Motojojo account and join the community!'}
+                </p>
+              </div>
+              <div className="mt-8 space-y-4">
+                <div className="flex items-start gap-3 rounded-2xl bg-white/90 p-4 border border-sandstorm-200">
+                  <div className="h-10 w-10 rounded-xl bg-violet/10 flex items-center justify-center">
+                    <User className="h-5 w-5 text-violet" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-violet">Find your people</p>
+                    <p className="text-sm text-raspberry">Discover communities and experiences in your city.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 rounded-2xl bg-white/90 p-4 border border-sandstorm-200">
+                  <div className="h-10 w-10 rounded-xl bg-raspberry/10 flex items-center justify-center">
+                    <User className="h-5 w-5 text-raspberry" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-violet">Book with ease</p>
+                    <p className="text-sm text-raspberry">Manage tickets, bookings, and updates in one place.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/80 rounded-3xl shadow-soft p-6 md:p-10 flex flex-col items-center border border-sandstorm-200 backdrop-blur-md">
+              <h2 className="text-2xl md:text-3xl font-extrabold mb-2 text-violet drop-shadow text-center">
+                {authMode === 'signIn' ? 'Sign In' : 'Create Account'}
+              </h2>
+              <p className="mb-4 md:mb-6 text-center text-raspberry font-medium text-base md:text-lg">
+                {authMode === 'signIn' ? 'Welcome back! Let’s get you in.' : 'Join the community and start exploring.'}
+              </p>
           
           {/* Google Authentication Button */}
           <Button
@@ -103,6 +140,26 @@ const SignInSignUp = () => {
             <User className="w-5 h-5" />
             Continue as Guest
           </Button>
+
+          {/* Role-specific Login Shortcuts */}
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/host/login")}
+              className="w-full border-2 border-sandstorm-300 bg-white text-violet hover:bg-sandstorm-100 hover:text-violet font-semibold transition-colors duration-150 text-sm md:text-base py-2.5"
+            >
+              Host Login
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/community-lead/login")}
+              className="w-full border-2 border-sandstorm-300 bg-white text-violet hover:bg-sandstorm-100 hover:text-violet font-semibold transition-colors duration-150 text-sm md:text-base py-2.5"
+            >
+              Community Lead Login
+            </Button>
+          </div>
 
           <div className="w-full flex items-center gap-2 mb-4">
             <div className="flex-1 h-px bg-sandstorm-200" />
@@ -157,6 +214,8 @@ const SignInSignUp = () => {
             ) : (
               <>Already have an account? <button className="text-violet underline font-semibold hover:text-raspberry transition-colors" onClick={() => { setAuthMode('signIn'); setFormError(null); }}>Sign In</button></>
             )}
+          </div>
+            </div>
           </div>
         </div>
       </main>
