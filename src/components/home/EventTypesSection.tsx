@@ -53,7 +53,7 @@ const EventTypesSection = () => {
           <div className="absolute right-0 top-0 bottom-0 w-12 md:w-20 bg-gradient-to-l from-raspberry to-transparent z-10"></div>
           
           {/* Scrolling event types */}
-          <div className="flex animate-scroll-event-types gap-6 items-center">
+          <div className="flex flex-nowrap w-max animate-scroll-event-types gap-6 items-center">
             {/* First set of event types */}
             {eventTypes.map((type, index) => {
               const name = (type.name || '').trim().toLowerCase();

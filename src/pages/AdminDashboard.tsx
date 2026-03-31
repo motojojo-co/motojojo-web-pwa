@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentPropsWithoutRef } from "react";
 import { useNavigate } from "react-router-dom";
 import MembershipSubscriptions from "@/components/admin/MembershipSubscriptions";
 import MembershipPlans from "@/components/admin/MembershipPlans";
@@ -25,6 +25,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -94,6 +95,7 @@ import {
   MoreHorizontal,
   MessageSquare,
   Star,
+  Video,
   Check,
   X,
 } from "lucide-react";
@@ -171,6 +173,26 @@ const AdminDashboard = () => {
   const [hostInviteLoading, setHostInviteLoading] = useState(false);
   const [isHostInviteDialogOpen, setIsHostInviteDialogOpen] = useState(false);
   const [hostActivity, setHostActivity] = useState([]);
+  const adminTabs = [
+    { value: "events", label: "Manage Events", icon: Calendar },
+    { value: "event-types", label: "Event Types", icon: Filter },
+    { value: "banners", label: "Manage Banners", icon: Star },
+    { value: "testimonials", label: "Testimonials", icon: MessageSquare },
+    { value: "videos", label: "Gallery Videos", icon: Video },
+    { value: "revenue", label: "Revenue", icon: DollarSign },
+    { value: "hosts", label: "Host Management", icon: Users },
+    { value: "community-lead-activity", label: "Community Lead Activity", icon: Users },
+    { value: "private-requests", label: "Private Requests", icon: Mail },
+    { value: "memberships", label: "Memberships", icon: CheckCircle },
+  ];
+
+  type AdminCardProps = ComponentPropsWithoutRef<typeof Card>;
+  const AdminCard = ({ className, ...props }: AdminCardProps) => (
+    <Card
+      className={cn("border border-slate-200 bg-white shadow-sm", className)}
+      {...props}
+    />
+  );
 
   // Fetch events using React Query with proper query function
   const { data: events = [], isLoading } = useQuery({
@@ -1021,252 +1043,292 @@ const AdminDashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      {/* Admin Header */}
-      <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm shadow-sm py-4">
-        <div className="container-padding flex justify-between items-center">
-          <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-gradient">Motojojo Admin</h1>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Overview Stats */}
-            <div className="hidden lg:flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-blue-500" />
-                <span className="font-medium">
-                  {events?.length || 0} Events
-                </span>
+    <div className="min-h-screen bg-white text-slate-900">
+      <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
+        <div className="flex min-h-screen">
+          <aside className="hidden lg:flex w-64 flex-col border-r border-slate-200 bg-white sticky top-0 h-screen">
+            <div className="px-6 py-5 border-b border-slate-200">
+              <div className="text-xs uppercase tracking-[0.2em] text-slate-500">
+                Motojojo
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Users className="h-4 w-4 text-green-500" />
-                <span className="font-medium">{bookings.length} Bookings</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <DollarSign className="h-4 w-4 text-yellow-500" />
-                <span className="font-medium">
-                  ₹
-                  {bookings
-                    .reduce((sum, booking) => sum + booking.amount, 0)
-                    .toLocaleString()}
-                </span>
-              </div>
+              <div className="text-lg font-semibold text-slate-900">Admin Console</div>
             </div>
-
-            {/* Mobile Stats */}
-            <TooltipProvider>
-              <div className="lg:hidden flex items-center gap-3 text-sm">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1 cursor-help">
-                      <Calendar className="h-4 w-4 text-blue-500" />
-                      <span className="font-medium">{events?.length || 0}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Total Events</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1 cursor-help">
-                      <Users className="h-4 w-4 text-green-500" />
-                      <span className="font-medium">{bookings.length}</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Total Bookings</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1 cursor-help">
-                      <DollarSign className="h-4 w-4 text-yellow-500" />
-                      <span className="font-medium">
-                        ₹
-                        {(
-                          bookings.reduce(
-                            (sum, booking) => sum + booking.amount,
-                            0
-                          ) / 1000
-                        ).toFixed(0)}
-                        K
-                      </span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      Total Revenue: ₹
-                      {bookings
-                        .reduce((sum, booking) => sum + booking.amount, 0)
-                        .toLocaleString()}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
+            <div className="px-3 py-4">
+              <div className="text-xs uppercase tracking-[0.2em] text-slate-500 px-3 mb-3">
+                Navigation
               </div>
-            </TooltipProvider>
-
-            {/* Quick Actions */}
-            <div className="hidden md:flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate("/admin/create-event")}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Event
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate("/admin/viewbooking")}
-              >
-                <Users className="h-4 w-4 mr-2" />
-                View Bookings
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleProcessCompletedEvents}
-                disabled={isProcessingEvents}
-              >
-                {isProcessingEvents ? (
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                ) : (
-                  <CheckCircle className="h-4 w-4" />
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDownloadSystemReport}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => setIsInviteDialogOpen(true)}
-              >
-                <Users className="h-4 w-4 mr-2" />
-                Invite Admin
-              </Button>
+              <TabsList className="flex h-auto w-full flex-col items-stretch justify-start gap-2 bg-transparent p-0">
+                {adminTabs.map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      className="justify-start gap-3 rounded-xl px-3 py-2 text-left text-sm data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{tab.label}</span>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
             </div>
+          </aside>
 
-            {/* Mobile Quick Actions */}
-            <div className="md:hidden flex items-center gap-1">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>Quick Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
+          <div className="flex-1 min-w-0">
+            <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur">
+              <div className="container-padding py-4">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <h1 className="text-2xl font-semibold text-slate-900">
+                        Admin Dashboard
+                      </h1>
+                      <div className="lg:hidden flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={handleLogout}>
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Logout
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-64">
+                            <DropdownMenuLabel>Quick Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => navigate("/admin/create-event")}>
+                              <Plus className="h-4 w-4 mr-2" />
+                              Add Event
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate("/admin/viewbooking")}>
+                              <Users className="h-4 w-4 mr-2" />
+                              View Bookings
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setIsInviteDialogOpen(true)}>
+                              <Users className="h-4 w-4 mr-2" />
+                              Invite Admin
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel>Reports & Tools</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={handleGenerateSystemReport}>
+                              <AlertCircle className="h-4 w-4 mr-2" />
+                              Generate Report
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleDownloadSystemReport}>
+                              <Download className="h-4 w-4 mr-2" />
+                              Download CSV
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={handleProcessCompletedEvents}
+                              disabled={isProcessingEvents}
+                            >
+                              {isProcessingEvents ? (
+                                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                              ) : (
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                              )}
+                              {isProcessingEvents
+                                ? "Processing Events..."
+                                : "Process Completed Events"}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel>Navigation</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => navigate("/admin/users")}>
+                              <Users className="h-4 w-4 mr-2" />
+                              View Users
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate("/response")}>
+                              <MessageSquare className="h-4 w-4 mr-2" />
+                              Responses
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate("/communitylead/activity")}>
+                              <Users className="h-4 w-4 mr-2" />
+                              Community Lead Activity
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
 
-                  <DropdownMenuItem onClick={() => setSelectedEvent(null)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New Event
-                  </DropdownMenuItem>
+                    <div className="hidden lg:flex items-center gap-4 text-sm text-slate-600">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-blue-400" />
+                        <span>{events?.length || 0} Events</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-green-400" />
+                        <span>{bookings.length} Bookings</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-yellow-400" />
+                        <span>
+                          ₹
+                          {bookings
+                            .reduce((sum, booking) => sum + booking.amount, 0)
+                            .toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
 
-                  <DropdownMenuItem onClick={() => navigate("/admin/viewbooking")}>
-                    <Users className="h-4 w-4 mr-2" />
-                    View All Bookings
-                  </DropdownMenuItem>
+                    <TooltipProvider>
+                      <div className="lg:hidden flex items-center gap-3 text-sm text-slate-600">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-1 cursor-help">
+                              <Calendar className="h-4 w-4 text-blue-400" />
+                              <span>{events?.length || 0}</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Total Events</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-1 cursor-help">
+                              <Users className="h-4 w-4 text-green-400" />
+                              <span>{bookings.length}</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Total Bookings</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-1 cursor-help">
+                              <DollarSign className="h-4 w-4 text-yellow-400" />
+                              <span>
+                                ₹
+                                {(
+                                  bookings.reduce((sum, booking) => sum + booking.amount, 0) / 1000
+                                ).toFixed(0)}
+                                K
+                              </span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>
+                              Total Revenue: ₹
+                              {bookings
+                                .reduce((sum, booking) => sum + booking.amount, 0)
+                                .toLocaleString()}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </TooltipProvider>
+                  </div>
 
-                  <DropdownMenuItem onClick={() => setCurrentTab("overview")}>
-                    <TrendingUp className="h-4 w-4 mr-2" />
-                    Dashboard Overview
-                  </DropdownMenuItem>
+                  <div className="hidden lg:flex flex-wrap items-center gap-2 justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate("/admin/create-event")}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Event
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate("/admin/viewbooking")}
+                    >
+                      <Users className="h-4 w-4 mr-2" />
+                      View Bookings
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => setIsInviteDialogOpen(true)}
+                    >
+                      <Users className="h-4 w-4 mr-2" />
+                      Invite Admin
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <MoreHorizontal className="h-4 w-4 mr-2" />
+                          More
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-64">
+                        <DropdownMenuLabel>Reports & Tools</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleGenerateSystemReport}>
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          Generate Report
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleDownloadSystemReport}>
+                          <Download className="h-4 w-4 mr-2" />
+                          Download CSV
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={handleProcessCompletedEvents}
+                          disabled={isProcessingEvents}
+                        >
+                          {isProcessingEvents ? (
+                            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                          )}
+                          {isProcessingEvents
+                            ? "Processing Events..."
+                            : "Process Completed Events"}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuLabel>Navigation</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => navigate("/admin/users")}>
+                          <Users className="h-4 w-4 mr-2" />
+                          View Users
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate("/response")}>
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          Responses
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate("/communitylead/activity")}>
+                          <Users className="h-4 w-4 mr-2" />
+                          Community Lead Activity
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button variant="outline" size="sm" onClick={handleLogout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </header>
 
-                  <DropdownMenuSeparator />
-                  <DropdownMenuLabel>Reports & Analytics</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-
-                  <DropdownMenuItem onClick={handleGenerateSystemReport}>
-                    <AlertCircle className="h-4 w-4 mr-2" />
-                    Generate Report
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem onClick={handleDownloadSystemReport}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Download CSV Report
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator />
-                  <DropdownMenuLabel>Event Management</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-
-                  <DropdownMenuItem
-                    onClick={handleProcessCompletedEvents}
-                    disabled={isProcessingEvents}
-                  >
-                    {isProcessingEvents ? (
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                    )}
-                    {isProcessingEvents
-                      ? "Processing Events..."
-                      : "Process Completed Events"}
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem onClick={handleTestCompletedEvents}>
-                    <Clock className="h-4 w-4 mr-2" />
-                    Test Event Status
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="text-red-600"
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Logout</span>
-            </Button>
-            <Link to="/response">
-              <Button className="bg-yellow text-black font-bold px-6 py-2 rounded-lg shadow-md hover:bg-yellow-400 transition-colors">
-                Responses
-              </Button>
-            </Link>
-            <Link to="/communitylead/activity">
-              <Button className="bg-raspberry text-white font-bold px-6 py-2 rounded-lg shadow-md hover:opacity-90 transition-colors">
-                Community Lead Activity
-              </Button>
-            </Link>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/admin/users")}
-            >
-              <Users className="h-4 w-4 mr-2" />
-              View Users
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <main className="flex-grow py-8 pb-20 md:pb-8">
-        <div className="container-padding">
-          <FadeIn>
-            <h2 className="text-3xl font-bold mb-8">Admin Dashboard</h2>
-          </FadeIn>
+            <main className="flex-grow py-8 pb-20 md:pb-8">
+              <div className="container-padding">
+                <div className="lg:hidden mb-6">
+                  <TabsList className="grid h-auto w-full grid-cols-2 gap-3 sm:grid-cols-3 bg-transparent p-0">
+                    {adminTabs.map((tab) => {
+                      const Icon = tab.icon;
+                      return (
+                        <TabsTrigger
+                          key={tab.value}
+                          value={tab.value}
+                          className="justify-start gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm data-[state=active]:bg-slate-100 data-[state=active]:text-slate-900 text-slate-600"
+                        >
+                          <Icon className="h-4 w-4" />
+                          <span className="truncate">{tab.label}</span>
+                        </TabsTrigger>
+                      );
+                    })}
+                  </TabsList>
+                </div>
 
           {/* Quick Access Section */}
           <FadeIn delay={50}>
-            <Card className="mb-8">
+            <AdminCard className="mb-8">
               <CardHeader>
                 <CardTitle>Quick Access</CardTitle>
                 <CardDescription>Common admin tasks and tools</CardDescription>
@@ -1290,29 +1352,8 @@ const AdminDashboard = () => {
                   </Button>
                 </div>
               </CardContent>
-            </Card>
+            </AdminCard>
           </FadeIn>
-
-          <Tabs
-            value={currentTab}
-            onValueChange={setCurrentTab}
-            className="w-full"
-          >
-            <TabsList className="grid grid-cols-11 mb-8">
-              <TabsTrigger value="events">Manage Events</TabsTrigger>
-              <TabsTrigger value="event-types">Event Types</TabsTrigger>
-              <TabsTrigger value="banners">Manage Banners</TabsTrigger>
-              <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
-              <TabsTrigger value="videos">Gallery Videos</TabsTrigger>
-              <TabsTrigger value="revenue">Revenue</TabsTrigger>
-              <TabsTrigger value="hosts">Host Management</TabsTrigger>
-              {/* <TabsTrigger value="host-activity">Host Activity</TabsTrigger> */}
-              <TabsTrigger value="community-lead-activity">Community Lead Activity</TabsTrigger>
-              <TabsTrigger value="private-requests">
-                Private Requests
-              </TabsTrigger>
-              <TabsTrigger value="memberships">Memberships</TabsTrigger> {/* Add this line */}
-            </TabsList>
 
             <TabsContent value="community-lead-activity">
               <FadeIn delay={100}>
@@ -1322,7 +1363,7 @@ const AdminDashboard = () => {
 
             <TabsContent value="private-requests">
               <FadeIn delay={100}>
-                <Card>
+                <AdminCard>
                   <CardHeader>
                     <CardTitle className="text-black">
                       Private Event Join Requests
@@ -1386,7 +1427,7 @@ const AdminDashboard = () => {
                       </Table>
                     )}
                   </CardContent>
-                </Card>
+                </AdminCard>
               </FadeIn>
             </TabsContent>
 
@@ -1407,7 +1448,7 @@ const AdminDashboard = () => {
 
             <TabsContent value="revenue">
               <FadeIn delay={100}>
-                <Card>
+                <AdminCard>
                   <CardHeader>
                     <CardTitle className="text-black">
                       Revenue Breakdown
@@ -1584,14 +1625,14 @@ const AdminDashboard = () => {
                       );
                     })()}
                   </CardContent>
-                </Card>
+                </AdminCard>
               </FadeIn>
             </TabsContent>
 
             <TabsContent value="events">
               <div className="grid grid-cols-1 gap-8">
                 <FadeIn delay={100}>
-                  <Card>
+                  <AdminCard>
                     <CardHeader>
                       <CardTitle className="flex justify-between items-center">
                         <span className="text-black">All Events</span>
@@ -1742,7 +1783,7 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                     </CardContent>
-                  </Card>
+                  </AdminCard>
                 </FadeIn>
               </div>
             </TabsContent>
@@ -1750,7 +1791,7 @@ const AdminDashboard = () => {
             <TabsContent value="event-types">
               <div className="grid grid-cols-1 gap-8">
                 <FadeIn delay={100}>
-                  <Card>
+                  <AdminCard>
                     <CardHeader>
                       <CardTitle className="flex justify-between items-center">
                         <span className="text-black">All Event Types</span>
@@ -1870,7 +1911,7 @@ const AdminDashboard = () => {
                         </Table>
                       </div>
                     </CardContent>
-                  </Card>
+                  </AdminCard>
                 </FadeIn>
               </div>
 
@@ -1904,7 +1945,7 @@ const AdminDashboard = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="md:col-span-2">
                   <FadeIn delay={100}>
-                    <Card>
+                    <AdminCard>
                       <CardHeader>
                         <CardTitle className="flex justify-between items-center">
                           <span className="text-black">All Experiences</span>
@@ -1959,13 +2000,13 @@ const AdminDashboard = () => {
                           </Table>
                         </div>
                       </CardContent>
-                    </Card>
+                    </AdminCard>
                   </FadeIn>
                 </div>
 
                 <div>
                   <FadeIn delay={200}>
-                    <Card>
+                    <AdminCard>
                       <CardHeader>
                         <CardTitle>Add New Experience</CardTitle>
                         <CardDescription>
@@ -2003,7 +2044,7 @@ const AdminDashboard = () => {
                           </Button>
                         </form>
                       </CardContent>
-                    </Card>
+                    </AdminCard>
                   </FadeIn>
                 </div>
               </div>
@@ -2020,7 +2061,7 @@ const AdminDashboard = () => {
             <TabsContent value="banners">
               <div className="grid grid-cols-1 gap-8">
                 <FadeIn delay={100}>
-                  <Card>
+                  <AdminCard>
                     <CardHeader>
                       <CardTitle className="flex justify-between items-center">
                         <span className="text-black">All Banners</span>
@@ -2132,7 +2173,7 @@ const AdminDashboard = () => {
                         </Table>
                       </div>
                     </CardContent>
-                  </Card>
+                  </AdminCard>
                 </FadeIn>
               </div>
 
@@ -2160,7 +2201,7 @@ const AdminDashboard = () => {
               <div className="grid grid-cols-1 gap-8">
                 {/* Pending Testimonials Section - always on top */}
                 <FadeIn delay={50}>
-                  <Card>
+                  <AdminCard>
                     <CardHeader>
                       <CardTitle className="text-black">
                         Pending Testimonials
@@ -2262,12 +2303,12 @@ const AdminDashboard = () => {
                         </Table>
                       </div>
                     </CardContent>
-                  </Card>
+                  </AdminCard>
                 </FadeIn>
 
                 {/* Approved/All Testimonials Section */}
                 <FadeIn delay={100}>
-                  <Card>
+                  <AdminCard>
                     <CardHeader>
                       <CardTitle className="flex justify-between items-center">
                         <span className="text-black">All Testimonials</span>
@@ -2365,7 +2406,7 @@ const AdminDashboard = () => {
                         </Table>
                       </div>
                     </CardContent>
-                  </Card>
+                  </AdminCard>
                 </FadeIn>
               </div>
 
@@ -2522,7 +2563,7 @@ const AdminDashboard = () => {
             <TabsContent value="hosts">
               <FadeIn delay={100}>
                 <div className="grid grid-cols-1 gap-8">
-                  <Card>
+                  <AdminCard>
                     <CardHeader>
                       <CardTitle className="flex justify-between items-center">
                         <span className="text-black">Host Management</span>
@@ -2647,14 +2688,14 @@ const AdminDashboard = () => {
                         </div>
                       )}
                     </CardContent>
-                  </Card>
+                  </AdminCard>
                 </div>
               </FadeIn>
             </TabsContent>
 
             <TabsContent value="host-activity">
               <FadeIn delay={100}>
-                <Card>
+                <AdminCard>
                   <CardHeader>
                     <CardTitle className="text-black">Host Activity</CardTitle>
                     <CardDescription>
@@ -2700,14 +2741,14 @@ const AdminDashboard = () => {
                       </Table>
                     </div>
                   </CardContent>
-                </Card>
+                </AdminCard>
               </FadeIn>
             </TabsContent>
 
             <TabsContent value="overview">
               <FadeIn delay={100}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                  <Card>
+                  <AdminCard>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
@@ -2721,9 +2762,9 @@ const AdminDashboard = () => {
                         <Calendar className="h-8 w-8 text-blue-500" />
                       </div>
                     </CardContent>
-                  </Card>
+                  </AdminCard>
 
-                  <Card>
+                  <AdminCard>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
@@ -2737,9 +2778,9 @@ const AdminDashboard = () => {
                         <Users className="h-8 w-8 text-green-500" />
                       </div>
                     </CardContent>
-                  </Card>
+                  </AdminCard>
 
-                  <Card>
+                  <AdminCard>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
@@ -2756,9 +2797,9 @@ const AdminDashboard = () => {
                         <DollarSign className="h-8 w-8 text-yellow-500" />
                       </div>
                     </CardContent>
-                  </Card>
+                  </AdminCard>
 
-                  <Card>
+                  <AdminCard>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
@@ -2776,11 +2817,11 @@ const AdminDashboard = () => {
                         <CheckCircle className="h-8 w-8 text-purple-500" />
                       </div>
                     </CardContent>
-                  </Card>
+                  </AdminCard>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                  <Card>
+                  <AdminCard>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Clock className="h-5 w-5" />
@@ -2830,9 +2871,9 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                     </CardContent>
-                  </Card>
+                  </AdminCard>
 
-                  <Card>
+                  <AdminCard>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <TrendingUp className="h-5 w-5" />
@@ -2877,13 +2918,15 @@ const AdminDashboard = () => {
                         </Button>
                       </div>
                     </CardContent>
-                  </Card>
+                  </AdminCard>
                 </div>
               </FadeIn>
             </TabsContent>
-          </Tabs>
-        </div>
-      </main>
+                </div>
+              </main>
+            </div>
+          </div>
+        </Tabs>
 
       {/* Edit Event Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>

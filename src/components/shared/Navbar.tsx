@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Search, User, Menu, X, ShoppingCart, Ticket, Home, Calendar, Heart, Settings, MessageSquare, History, LogOut, Lock, Bell, Sparkles, Zap, Video } from "lucide-react";
+import { MapPin, Search, User, Menu, X, Ticket, Home, Calendar, Heart, History, LogOut, Lock, Sparkles, Zap, Video, ChevronDown, LayoutGrid } from "lucide-react";
 import { cities } from "@/data/mockData";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
@@ -24,7 +24,8 @@ type NavbarProps = {
 const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { isSignedIn, isAdmin, signIn, signUp, signOut } = useAuth();
+  const [isMegaOpen, setIsMegaOpen] = useState(false);
+  const { isSignedIn, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const totalItems = useCartStore(state => state.getTotalItems());
@@ -44,6 +45,7 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
   // Close mobile menu on navigation
   useEffect(() => {
     setIsMobileMenuOpen(false);
+    setIsMegaOpen(false);
   }, [location.pathname]);
 
   // Remove the problematic event handler that was preventing navigation
@@ -79,12 +81,38 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
     setSearchValue("");
   };
 
+  const megaSections = [
+    {
+      title: "Explore",
+      items: [
+        { label: "Experiences", description: "Discover upcoming experiences", path: "/events", icon: Calendar },
+        { label: "Past Experiences", description: "See highlights from earlier events", path: "/previousevents", icon: History },
+        { label: "Gallery", description: "Stories, videos, and memories", path: "/gallery", icon: Video },
+      ],
+    },
+    {
+      title: "Community",
+      items: [
+        { label: "Invite Only", description: "Members-only gatherings", path: "/inviteonly?tag=inviteonly", icon: Lock },
+        { label: "Premium", description: "Upgrade for exclusive perks", path: "/pricing", icon: Heart },
+        { label: "Home", description: "Back to main page", path: "/", icon: Home },
+      ],
+    },
+    {
+      title: "Account",
+      items: [
+        { label: "Profile", description: "Manage your profile", path: "/profile", icon: User, auth: true },
+        { label: "My Bookings", description: "Tickets and reservations", path: "/profile?tab=bookings", icon: Ticket, auth: true },
+      ],
+    },
+  ];
+
   return (
     <>
 
       {/* Top Header - Modern Glassmorphism Design */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 navbar-slide-in ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 navbar-slide-in relative ${
           isScrolled 
             ? 'bg-white/10 backdrop-blur-xl border-b border-white/20 shadow-2xl py-3 navbar-pulse-glow' 
             : 'bg-gradient-to-r from-raspberry/20 via-sandstorm/20 to-violet/20 backdrop-blur-md border-b border-white/10 py-4 navbar-floating'
@@ -116,10 +144,10 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
             </div>
           </Link>
 
-          {/* Desktop Nav Items - wrap and space items, allow shrinking */}
-          <div className="hidden md:flex flex-wrap items-center gap-3 min-w-0 flex-1 justify-end">
+          {/* Desktop Nav Items - Mega Menu Style */}
+          <div className="hidden md:flex items-center gap-4 min-w-0 flex-1 justify-end">
             {/* Enhanced Search Bar with Glassmorphism */}
-            <form className="relative w-64 min-w-0 group" onSubmit={handleSearch}>
+            <form className="relative w-72 min-w-0 group" onSubmit={handleSearch}>
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/70 h-4 w-4 transition-all duration-300 group-focus-within:text-sandstorm group-focus-within:scale-110" />
                 <Input
@@ -156,104 +184,146 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Premium Button */}
-            <Button 
-              variant="ghost"
-              asChild
-              className="min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg"
+            {/* Mega Menu Trigger */}
+            <div
+              className="relative"
+              onMouseEnter={() => setIsMegaOpen(true)}
+              onMouseLeave={() => setIsMegaOpen(false)}
             >
-              <Link to="/pricing" className="flex items-center text-white">
-                <Heart className="h-4 w-4 mr-2 text-white group-hover:text-sandstorm transition-colors duration-300" />
-                <span className="truncate text-white">Premium</span>
-              </Link>
-            </Button>
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2 min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg"
+                onClick={() => setIsMegaOpen((prev) => !prev)}
+              >
+                <LayoutGrid className="h-4 w-4 text-white" />
+                <span className="truncate text-white">Menu</span>
+                <ChevronDown className={`h-4 w-4 text-white transition-transform duration-300 ${isMegaOpen ? "rotate-180" : ""}`} />
+              </Button>
 
-            {/* Enhanced Experiences Navigation */}
-            <Button variant="ghost" asChild className="min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg">
-              <Link to="/events" className="flex items-center text-white">
-                <Calendar className="h-4 w-4 mr-2 text-white group-hover:text-sandstorm transition-colors duration-300" />
-                <span className="truncate text-white">Experiences</span>
-              </Link>
-            </Button>
+              {isMegaOpen && (
+                <div className="absolute right-0 top-[110%] w-[760px] max-w-[90vw] rounded-3xl border border-white/20 bg-gradient-to-br from-raspberry/95 via-violet/95 to-sandstorm/95 backdrop-blur-2xl shadow-2xl p-6">
+                  <div className="grid grid-cols-12 gap-6">
+                    <div className="col-span-8 grid grid-cols-3 gap-5">
+                      {megaSections.map((section) => (
+                        <div key={section.title} className="space-y-3">
+                          <div className="text-xs uppercase tracking-[0.2em] text-white/70">
+                            {section.title}
+                          </div>
+                          <div className="space-y-2">
+                            {section.items.map((item) => {
+                              const Icon = item.icon;
+                              const isLocked = item.auth && !isSignedIn;
+                              return (
+                                <button
+                                  key={item.label}
+                                  type="button"
+                                  onClick={() =>
+                                    item.auth
+                                      ? handleAuthenticatedNavigation(item.path)
+                                      : navigate(item.path)
+                                  }
+                                  className="w-full text-left rounded-2xl border border-white/10 bg-white/10 hover:bg-white/20 transition-all duration-300 px-3 py-2.5 group"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <span className="h-9 w-9 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300">
+                                      <Icon className="h-4 w-4 text-white" />
+                                    </span>
+                                    <div className="min-w-0">
+                                      <div className="text-sm font-semibold text-white truncate">
+                                        {item.label}
+                                      </div>
+                                      <div className="text-xs text-white/70 truncate">
+                                        {isLocked ? "Sign in required" : item.description}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="col-span-4 space-y-4">
+                      <div className="rounded-2xl p-4 bg-gradient-to-br from-sandstorm/90 to-raspberry/90 text-black shadow-xl">
+                        <div className="flex items-center gap-2 text-black/80 text-xs uppercase tracking-[0.2em]">
+                          <Sparkles className="h-4 w-4" />
+                          Featured
+                        </div>
+                        <div className="mt-3 text-lg font-semibold">Premium Pass</div>
+                        <div className="mt-1 text-sm text-black/80">
+                          Priority access, curated drops, member-only pricing.
+                        </div>
+                        <Button
+                          className="mt-4 w-full bg-black/90 text-white hover:bg-black transition-all duration-300"
+                          onClick={() => navigate("/pricing")}
+                        >
+                          Upgrade Now
+                        </Button>
+                      </div>
 
-            <Button variant="ghost" asChild className="min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg">
-              <Link to="/previousevents" className="flex items-center text-white">
-                <History className="h-4 w-4 mr-2 text-white group-hover:text-sandstorm transition-colors duration-300" />
-                <span className="truncate text-white">Past Experiences</span>
-              </Link>
-            </Button>
-
-            <Button variant="ghost" asChild className="min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg">
-              <Link to="/gallery" className="flex items-center text-white">
-                <Video className="h-4 w-4 mr-2 text-white group-hover:text-sandstorm transition-colors duration-300" />
-                <span className="truncate text-white">Gallery</span>
-              </Link>
-            </Button>
-
-            {/* Enhanced Auth Buttons */}
-            {!isSignedIn ? (
-              <>
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate('/auth')} 
-                  className="min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg"
-                >
-                  Sign In
-                </Button>
-                <Button 
-                  onClick={() => navigate('/auth')} 
-                  className="min-w-0 truncate bg-gradient-to-r from-sandstorm to-raspberry hover:from-raspberry hover:to-violet text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20 navbar-button-hover"
-                >
-                  Sign Up
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => handleAuthenticatedNavigation("/profile")}
-                  className="flex items-center gap-2 min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg"
-                >
-                  <User className="h-4 w-4 text-white" />
-                  <span className="truncate text-white">Profile</span>
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => handleAuthenticatedNavigation("/profile?tab=bookings")}
-                  className="flex items-center gap-2 min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg relative"
-                >
-                  <Ticket className="h-4 w-4 text-white" />
-                  <span className="truncate text-white">My Bookings</span>
-                  {totalItems > 0 && (
-                    <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-raspberry to-violet text-white text-xs px-1.5 py-0.5 rounded-full animate-pulse">
-                      {totalItems}
-                    </Badge>
-                  )}
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  onClick={handleSignOut} 
-                  className="min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-red-400 transition-all duration-300 hover:scale-105 shadow-lg"
-                >
-                  <LogOut className="h-4 w-4 mr-2 text-white" />
-                  <span className="truncate text-white">Sign Out</span>
-                </Button>
-              </>
-            )}
+                      <div className="rounded-2xl p-4 bg-white/10 border border-white/20">
+                        {!isSignedIn ? (
+                          <div className="space-y-3">
+                            <div className="text-sm text-white/80">Ready to join the crew?</div>
+                            <Button
+                              variant="outline"
+                              onClick={() => navigate("/auth")}
+                              className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 rounded-xl text-white hover:text-sandstorm transition-all duration-300"
+                            >
+                              Sign In
+                            </Button>
+                            <Button
+                              onClick={() => navigate("/auth")}
+                              className="w-full bg-gradient-to-r from-sandstorm to-raspberry hover:from-raspberry hover:to-violet text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20"
+                            >
+                              Create Account
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            <div className="text-sm text-white/80">Welcome back.</div>
+                            <Button
+                              variant="ghost"
+                              onClick={() => handleAuthenticatedNavigation("/profile")}
+                              className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300"
+                            >
+                              <User className="h-4 w-4 mr-2" />
+                              Profile
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              onClick={() => handleAuthenticatedNavigation("/profile?tab=bookings")}
+                              className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 relative"
+                            >
+                              <Ticket className="h-4 w-4 mr-2" />
+                              My Bookings
+                              {totalItems > 0 && (
+                                <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-raspberry to-violet text-white text-xs px-1.5 py-0.5 rounded-full animate-pulse">
+                                  {totalItems}
+                                </Badge>
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              onClick={handleSignOut}
+                              className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-red-400 transition-all duration-300"
+                            >
+                              <LogOut className="h-4 w-4 mr-2" />
+                              Sign Out
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           
           {/* Enhanced Mobile Search and Menu */}
           <div className="md:hidden flex items-center space-x-2">
-            {/* Mobile Search Button */}
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg"
-            >
-              <Search className="h-5 w-5" />
-            </Button>
-            
             {/* Mobile Menu Trigger */}
             <Button 
               variant="ghost" 
@@ -270,10 +340,10 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
           </div>
         </div>
 
-        {/* Enhanced Mobile Search and Menu Overlay */}
+        {/* Enhanced Mobile Mega Menu Overlay */}
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white/10 backdrop-blur-xl border-t border-white/20 shadow-2xl animate-slide-down">
-            <div className="max-h-[80vh] overflow-y-auto p-6">
+            <div className="max-h-[85vh] overflow-y-auto p-6">
               <div className="flex flex-col space-y-4">
                 {/* Enhanced Mobile Search Bar */}
                 <form className="relative group" onSubmit={handleSearch}>
@@ -313,56 +383,47 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* Navigation Menu - No Duplicates */}
-                <div className="space-y-3">
-                  <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" onClick={() => navigate("/")}>
-                    <Home className="h-4 w-4 mr-2" />
-                    Home
-                  </Button>
-
-                  <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" onClick={() => navigate("/events")}>
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Experiences
-                  </Button>
-
-                  <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" onClick={() => navigate("/previousevents")}>
-                    <History className="h-4 w-4 mr-2" />
-                    Past Experiences
-                  </Button>
-
-                  <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" onClick={() => navigate("/gallery")}>
-                    <Video className="h-4 w-4 mr-2" />
-                    Gallery
-                  </Button>
-
-                  <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" onClick={() => navigate("/inviteonly?tag=inviteonly")}>
-                    <Lock className="h-4 w-4 mr-2" />
-                    Invite Only
-                  </Button>
-
-                  <Button className="w-full justify-start bg-gradient-to-r from-sandstorm to-raspberry hover:from-raspberry hover:to-violet text-black font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20" onClick={() => navigate("/pricing")}>
-                    <Heart className="h-4 w-4 mr-2" />
-                    Premium
-                  </Button>
-
-                  {isSignedIn && (
-                    <>
-                      <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg relative" onClick={() => handleAuthenticatedNavigation("/profile?tab=bookings")}>
-                        <Ticket className="h-4 w-4 mr-2" />
-                        My Bookings
-                        {totalItems > 0 && (
-                          <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-raspberry to-violet text-white text-xs px-1.5 py-0.5 rounded-full animate-pulse">
-                            {totalItems}
-                          </Badge>
-                        )}
-                      </Button>
-
-                      <Button variant="ghost" className="w-full justify-start bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg" onClick={() => handleAuthenticatedNavigation("/profile")}>
-                        <User className="h-4 w-4 mr-2" />
-                        Profile
-                      </Button>
-                    </>
-                  )}
+                {/* Mobile Mega Menu Sections */}
+                <div className="space-y-6">
+                  {megaSections.map((section) => (
+                    <div key={section.title} className="space-y-3">
+                      <div className="text-xs uppercase tracking-[0.2em] text-white/70">
+                        {section.title}
+                      </div>
+                      <div className="grid grid-cols-1 gap-3">
+                        {section.items.map((item) => {
+                          const Icon = item.icon;
+                          const isLocked = item.auth && !isSignedIn;
+                          return (
+                            <button
+                              key={item.label}
+                              type="button"
+                              onClick={() =>
+                                item.auth
+                                  ? handleAuthenticatedNavigation(item.path)
+                                  : navigate(item.path)
+                              }
+                              className="w-full text-left rounded-2xl border border-white/10 bg-white/10 hover:bg-white/20 transition-all duration-300 px-4 py-3"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center">
+                                  <Icon className="h-4 w-4 text-white" />
+                                </span>
+                                <div className="min-w-0">
+                                  <div className="text-sm font-semibold text-white truncate">
+                                    {item.label}
+                                  </div>
+                                  <div className="text-xs text-white/70 truncate">
+                                    {isLocked ? "Sign in required" : item.description}
+                                  </div>
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
                 {/* Authentication Section */}

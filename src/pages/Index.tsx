@@ -73,7 +73,7 @@ const Index = () => {
         <Footer />
       </div>
       {/* City Selection Modal */}
-      <Dialog open={showCityModal}>
+      <Dialog open={showCityModal} onOpenChange={setShowCityModal}>
         <DialogContent className="max-w-md mx-auto">
           <DialogHeader>
             <DialogTitle>Select Your City</DialogTitle>
