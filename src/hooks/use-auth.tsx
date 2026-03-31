@@ -55,9 +55,10 @@ export const useAuth = () => {
           setIsAdmin(false);
         } else {
           setProfile(data);
-          setIsAdmin(data?.role === 'admin');
-          setIsHost(data?.role === 'host');
-          setIsCommunityLead(data?.role === 'community_lead');
+          const isAdminRole = data?.role === 'admin';
+          setIsAdmin(isAdminRole);
+          setIsHost(isAdminRole || data?.role === 'host');
+          setIsCommunityLead(isAdminRole || data?.role === 'community_lead');
         }
       } else {
         setUser(null);
@@ -96,9 +97,10 @@ export const useAuth = () => {
         (payload) => {
                   if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
           setProfile(payload.new);
-          setIsAdmin(payload.new?.role === 'admin');
-          setIsHost(payload.new?.role === 'host');
-          setIsCommunityLead(payload.new?.role === 'community_lead');
+          const isAdminRole = payload.new?.role === 'admin';
+          setIsAdmin(isAdminRole);
+          setIsHost(isAdminRole || payload.new?.role === 'host');
+          setIsCommunityLead(isAdminRole || payload.new?.role === 'community_lead');
         }
         }
       )
