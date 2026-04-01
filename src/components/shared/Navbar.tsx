@@ -184,6 +184,15 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
               </DropdownMenuContent>
             </DropdownMenu>
 
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/gallery")}
+              className="flex items-center gap-2 min-w-0 truncate bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg"
+            >
+              <Video className="h-4 w-4 text-white" />
+              <span className="truncate text-white">Gallery</span>
+            </Button>
+
             {!isSignedIn && (
               <Button
                 variant="outline"
@@ -344,6 +353,14 @@ const Navbar = ({ selectedCity, setSelectedCity, bgColor, logoSrc }: NavbarProps
                 <User className="h-5 w-5" />
               </Button>
             )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/gallery")}
+              className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-xl text-white hover:text-sandstorm transition-all duration-300 hover:scale-105 shadow-lg"
+            >
+              <Video className="h-5 w-5" />
+            </Button>
             {/* Mobile Menu Trigger */}
             <Button 
               variant="ghost" 

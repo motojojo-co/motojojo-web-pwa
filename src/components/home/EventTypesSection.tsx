@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/ui/motion";
 import { getEventTypes } from "@/services/eventTypeService";
@@ -37,12 +36,39 @@ const EventTypesSection = () => {
     );
   }
 
+  const renderLogo = (type: any) => (
+    <div className="w-[300px] md:w-[350px] h-80 flex items-center justify-center">
+      {type.image_url ? (
+        <img
+          src={type.image_url}
+          alt={type.name}
+          className="w-full h-full object-contain"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent) {
+              parent.innerHTML = `<div class='w-full h-full flex items-center justify-center text-3xl'>${type.icon || "🎭"}</div>`;
+            }
+          }}
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-3xl">
+          {type.icon || "🎭"}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <section className="py-16 overflow-hidden relative">
       <div>
         <FadeIn>
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
-            <h2 className="section-title text-white text-center md:text-left mb-4 md:mb-0">Event Types</h2>
+          <div className="flex flex-col md:flex-row md:justify-center md:items-center mb-8 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div className="text-center">
+              <h2 className="section-title text-white mb-3">Event Types</h2>
+              <div className="w-24 h-1 bg-yellow-400 mx-auto"></div>
+            </div>
           </div>
         </FadeIn>
         
@@ -53,7 +79,7 @@ const EventTypesSection = () => {
           <div className="absolute right-0 top-0 bottom-0 w-12 md:w-20 bg-gradient-to-l from-raspberry to-transparent z-10"></div>
           
           {/* Scrolling event types */}
-          <div className="flex flex-nowrap w-max animate-scroll-event-types gap-6 items-center">
+          <div className="flex flex-nowrap w-max animate-scroll-event-types gap-1 items-center">
             {/* First set of event types */}
             {eventTypes.map((type, index) => {
               const name = (type.name || '').trim().toLowerCase();
@@ -69,31 +95,9 @@ const EventTypesSection = () => {
                       onClick={() => navigate('/local-gathering')}
                       className="focus:outline-none"
                     >
-                      <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft flex flex-col items-center justify-between">
-                        <div className="relative h-80 overflow-hidden w-full bg-transparent">
-                          {type.image_url ? (
-                            <img
-                              src={type.image_url}
-                              alt={type.name}
-                              className="w-full h-full object-contain"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                const parent = target.parentElement;
-                                if (parent) {
-                                  parent.innerHTML = `<div class='w-full h-full flex items-center justify-center text-2xl'>${type.icon || "🎭"}</div>`;
-                                }
-                              }}
-                            />
-                          ) : (
-                            <div 
-                              className="w-full h-full flex items-center justify-center text-2xl bg-violet/10 text-violet"
-                            >
-                              {type.icon || "🎭"}
-                            </div>
-                          )}
-                        </div>
-                      </Card>
+                    <div className="hover-scale">
+                      {renderLogo(type)}
+                    </div>
                     </button>
                   ) : isGhumakariKalaakar ? (
                     <button
@@ -101,31 +105,9 @@ const EventTypesSection = () => {
                       onClick={() => navigate('/ghumakari-kalakar')}
                       className="focus:outline-none"
                     >
-                      <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft flex flex-col items-center justify-between">
-                        <div className="relative h-80 overflow-hidden w-full bg-transparent">
-                          {type.image_url ? (
-                            <img
-                              src={type.image_url}
-                              alt={type.name}
-                              className="w-full h-full object-contain"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                const parent = target.parentElement;
-                                if (parent) {
-                                  parent.innerHTML = `<div class='w-full h-full flex items-center justify-center text-2xl'>${type.icon || "🎭"}</div>`;
-                                }
-                              }}
-                            />
-                          ) : (
-                            <div 
-                              className="w-full h-full flex items-center justify-center text-2xl bg-violet/10 text-violet"
-                            >
-                              {type.icon || "🎭"}
-                            </div>
-                          )}
-                        </div>
-                      </Card>
+                    <div className="hover-scale">
+                      {renderLogo(type)}
+                    </div>
                     </button>
                   ) : isAddebazi ? (
                     <button
@@ -133,31 +115,9 @@ const EventTypesSection = () => {
                       onClick={() => navigate('/addebazi')}
                       className="focus:outline-none"
                     >
-                      <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft flex flex-col items-center justify-between">
-                        <div className="relative h-80 overflow-hidden w-full bg-transparent">
-                          {type.image_url ? (
-                            <img
-                              src={type.image_url}
-                              alt={type.name}
-                              className="w-full h-full object-contain"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                const parent = target.parentElement;
-                                if (parent) {
-                                  parent.innerHTML = `<div class='w-full h-full flex items-center justify-center text-2xl'>${type.icon || "🎭"}</div>`;
-                                }
-                              }}
-                            />
-                          ) : (
-                            <div 
-                              className="w-full h-full flex items-center justify-center text-2xl bg-violet/10 text-violet"
-                            >
-                              {type.icon || "🎭"}
-                            </div>
-                          )}
-                        </div>
-                      </Card>
+                    <div className="hover-scale">
+                      {renderLogo(type)}
+                    </div>
                     </button>
                   ) : isPardahGathering ? (
                     <button
@@ -165,59 +125,15 @@ const EventTypesSection = () => {
                       onClick={() => navigate('/pardah-gathering')}
                       className="focus:outline-none"
                     >
-                      <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft flex flex-col items-center justify-between">
-                        <div className="relative h-80 overflow-hidden w-full bg-transparent">
-                          {type.image_url ? (
-                            <img
-                              src={type.image_url}
-                              alt={type.name}
-                              className="w-full h-full object-contain"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                const parent = target.parentElement;
-                                if (parent) {
-                                  parent.innerHTML = `<div class='w-full h-full flex items-center justify-center text-2xl'>${type.icon || "🎭"}</div>`;
-                                }
-                              }}
-                            />
-                          ) : (
-                            <div 
-                              className="w-full h-full flex items-center justify-center text-2xl bg-violet/10 text-violet"
-                            >
-                              {type.icon || "🎭"}
-                            </div>
-                          )}
-                        </div>
-                      </Card>
+                    <div className="hover-scale">
+                      {renderLogo(type)}
+                    </div>
                     </button>
                   ) : (
                     <Link to={`/events?type=${type.id}`}>
-                      <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft flex flex-col items-center justify-between">
-                        <div className="relative h-80 overflow-hidden w-full bg-transparent">
-                          {type.image_url ? (
-                            <img
-                              src={type.image_url}
-                              alt={type.name}
-                              className="w-full h-full object-contain"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                const parent = target.parentElement;
-                                if (parent) {
-                                  parent.innerHTML = `<div class='w-full h-full flex items-center justify-center text-2xl'>${type.icon || "🎭"}</div>`;
-                                }
-                              }}
-                            />
-                          ) : (
-                            <div 
-                              className="w-full h-full flex items-center justify-center text-2xl bg-violet/10 text-violet"
-                            >
-                              {type.icon || "🎭"}
-                            </div>
-                          )}
-                        </div>
-                      </Card>
+                      <div className="hover-scale">
+                        {renderLogo(type)}
+                      </div>
                     </Link>
                   )}
                 </div>
@@ -239,31 +155,9 @@ const EventTypesSection = () => {
                     onClick={() => navigate('/local-gathering')}
                     className="focus:outline-none"
                   >
-                    <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft flex flex-col items-center justify-between">
-                      <div className="relative h-80 overflow-hidden w-full bg-transparent">
-                        {type.image_url ? (
-                          <img
-                            src={type.image_url}
-                            alt={type.name}
-                            className="w-full h-full object-contain"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                parent.innerHTML = `<div class='w-full h-full flex items-center justify-center text-2xl'>${type.icon || "🎭"}</div>`;
-                              }
-                            }}
-                          />
-                        ) : (
-                          <div 
-                            className="w-full h-full flex items-center justify-center text-2xl bg-violet/10 text-violet"
-                          >
-                            {type.icon || "🎭"}
-                          </div>
-                        )}
-                      </div>
-                    </Card>
+                    <div className="hover-scale">
+                      {renderLogo(type)}
+                    </div>
                   </button>
                 ) : isGhumakariKalaakar ? (
                   <button
@@ -271,31 +165,9 @@ const EventTypesSection = () => {
                     onClick={() => navigate('/ghumakari-kalakar')}
                     className="focus:outline-none"
                   >
-                    <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft flex flex-col items-center justify-between">
-                      <div className="relative h-80 overflow-hidden w-full bg-transparent">
-                        {type.image_url ? (
-                          <img
-                            src={type.image_url}
-                            alt={type.name}
-                            className="w-full h-full object-contain"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                parent.innerHTML = `<div class='w-full h-full flex items-center justify-center text-2xl'>${type.icon || "🎭"}</div>`;
-                              }
-                            }}
-                          />
-                        ) : (
-                          <div 
-                            className="w-full h-full flex items-center justify-center text-2xl bg-violet/10 text-violet"
-                          >
-                            {type.icon || "🎭"}
-                          </div>
-                        )}
-                      </div>
-                    </Card>
+                    <div className="hover-scale">
+                      {renderLogo(type)}
+                    </div>
                   </button>
                 ) : isAddebazi ? (
                   <button
@@ -303,31 +175,9 @@ const EventTypesSection = () => {
                     onClick={() => navigate('/addebazi')}
                     className="focus:outline-none"
                   >
-                    <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft flex flex-col items-center justify-between">
-                      <div className="relative h-80 overflow-hidden w-full bg-transparent">
-                        {type.image_url ? (
-                          <img
-                            src={type.image_url}
-                            alt={type.name}
-                            className="w-full h-full object-contain"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                parent.innerHTML = `<div class='w-full h-full flex items-center justify-center text-2xl'>${type.icon || "🎭"}</div>`;
-                              }
-                            }}
-                          />
-                        ) : (
-                          <div 
-                            className="w-full h-full flex items-center justify-center text-2xl bg-violet/10 text-violet"
-                          >
-                            {type.icon || "🎭"}
-                          </div>
-                        )}
-                      </div>
-                    </Card>
+                    <div className="hover-scale">
+                      {renderLogo(type)}
+                    </div>
                   </button>
                 ) : isPardahGathering ? (
                   <button
@@ -335,59 +185,15 @@ const EventTypesSection = () => {
                     onClick={() => navigate('/pardah-gathering')}
                     className="focus:outline-none"
                   >
-                    <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft flex flex-col items-center justify-between">
-                      <div className="relative h-80 overflow-hidden w-full bg-transparent">
-                        {type.image_url ? (
-                          <img
-                            src={type.image_url}
-                            alt={type.name}
-                            className="w-full h-full object-contain"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                parent.innerHTML = `<div class='w-full h-full flex items-center justify-center text-2xl'>${type.icon || "🎭"}</div>`;
-                              }
-                            }}
-                          />
-                        ) : (
-                          <div 
-                            className="w-full h-full flex items-center justify-center text-2xl bg-violet/10 text-violet"
-                          >
-                            {type.icon || "🎭"}
-                          </div>
-                        )}
-                      </div>
-                    </Card>
+                    <div className="hover-scale">
+                      {renderLogo(type)}
+                    </div>
                   </button>
                 ) : (
                   <Link to={`/events?type=${type.id}`}>
-                    <Card className="w-[300px] md:w-[350px] hover-scale overflow-hidden border-none shadow-soft flex flex-col items-center justify-between">
-                      <div className="relative h-80 overflow-hidden w-full bg-transparent">
-                        {type.image_url ? (
-                          <img
-                            src={type.image_url}
-                            alt={type.name}
-                            className="w-full h-full object-contain"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                parent.innerHTML = `<div class='w-full h-full flex items-center justify-center text-2xl'>${type.icon || "🎭"}</div>`;
-                              }
-                            }}
-                          />
-                        ) : (
-                          <div 
-                            className="w-full h-full flex items-center justify-center text-2xl bg-violet/10 text-violet"
-                          >
-                            {type.icon || "🎭"}
-                          </div>
-                        )}
-                      </div>
-                    </Card>
+                    <div className="hover-scale">
+                      {renderLogo(type)}
+                    </div>
                   </Link>
                 )}
                 </div>
