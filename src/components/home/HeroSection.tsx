@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/ui/motion";
 import { Link } from "react-router-dom";
@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 
 const HeroSection = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [fadeProgress, setFadeProgress] = useState(0);
 
   // Try to autoplay the video when component mounts
   useEffect(() => {
@@ -21,6 +22,22 @@ const HeroSection = () => {
         });
       }
     }
+  }, []);
+
+  useEffect(() => {
+    let rafId = 0;
+    const handleScroll = () => {
+      rafId = window.requestAnimationFrame(() => {
+        const progress = Math.min(window.scrollY / window.innerHeight, 1);
+        setFadeProgress(progress);
+      });
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafId) window.cancelAnimationFrame(rafId);
+    };
   }, []);
 
   return (
@@ -52,6 +69,12 @@ const HeroSection = () => {
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/30 to-background/70" />
       </div>
+
+      {/* Camouflage fade overlay (scrolls up from bottom) */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-background via-background/70 to-transparent transition-[height] duration-200"
+        style={{ height: `${20 + fadeProgress * 60}%` }}
+      />
       
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col justify-center px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">

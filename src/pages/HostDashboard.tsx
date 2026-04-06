@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FadeIn } from "@/components/ui/motion";
 import { Button } from "@/components/ui/button";
@@ -110,6 +110,12 @@ const HostDashboard = () => {
   const [ticketNumber, setTicketNumber] = useState('');
   const [attendanceStatus, setAttendanceStatus] = useState<'present' | 'absent'>('present');
   const [attendanceNotes, setAttendanceNotes] = useState('');
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const scanIntervalRef = useRef<number | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const [loading, setLoading] = useState(false);
   const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
   const [isSpaceFormOpen, setIsSpaceFormOpen] = useState(false);
@@ -223,6 +229,81 @@ const HostDashboard = () => {
     }
   };
 
+  const stopScanner = () => {
+    if (scanIntervalRef.current) {
+      window.clearInterval(scanIntervalRef.current);
+      scanIntervalRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setIsScanning(false);
+  };
+
+  const startScanner = async () => {
+    try {
+      setScanError(null);
+      const BarcodeDetectorCtor = (window as any).BarcodeDetector;
+      if (!BarcodeDetectorCtor) {
+        setScanError("Camera scanning is not supported in this browser. Please use manual entry.");
+        return;
+      }
+      if (!videoRef.current) return;
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+        audio: false,
+      });
+      streamRef.current = stream;
+      videoRef.current.srcObject = stream;
+      await videoRef.current.play();
+
+      const detector = new BarcodeDetectorCtor({ formats: ["qr_code"] });
+      setIsScanning(true);
+
+      scanIntervalRef.current = window.setInterval(async () => {
+        try {
+          if (!videoRef.current) return;
+          const barcodes = await detector.detect(videoRef.current);
+          if (barcodes && barcodes.length > 0) {
+            const rawValue = barcodes[0]?.rawValue?.trim();
+            if (rawValue) {
+              setTicketNumber(rawValue);
+              setAttendanceStatus('present');
+              setAttendanceNotes('');
+              stopScanner();
+              await handleMarkAttendance();
+            }
+          }
+        } catch (error) {
+          // ignore transient detection errors
+        }
+      }, 500);
+    } catch (error: any) {
+      setScanError(error?.message || "Unable to access camera. Please check permissions.");
+      stopScanner();
+    }
+  };
+
+  useEffect(() => {
+    if (!isAttendanceDialogOpen) {
+      setIsScannerOpen(false);
+    }
+  }, [isAttendanceDialogOpen]);
+
+  useEffect(() => {
+    if (isScannerOpen) {
+      startScanner();
+    } else {
+      stopScanner();
+    }
+    return () => stopScanner();
+  }, [isScannerOpen]);
+
   const handleMarkAttendance = async () => {
     if (!selectedEvent || !ticketNumber.trim()) {
       toast({
@@ -320,7 +401,7 @@ const HostDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <div className="min-h-screen bg-white text-slate-900 relative isolate">
       <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
         <div className="flex min-h-screen">
           <aside className="hidden lg:flex w-72 flex-col border-r border-slate-200 bg-white sticky top-0 h-screen">
@@ -352,8 +433,8 @@ const HostDashboard = () => {
             </div>
           </aside>
 
-          <div className="flex-1 min-w-0">
-            <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur">
+          <div className="flex-1 min-w-0 relative z-50 pointer-events-auto">
+            <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur pointer-events-auto">
               <div className="container-padding py-4">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                   <div className="flex items-center gap-4">
@@ -378,7 +459,7 @@ const HostDashboard = () => {
               </div>
             </header>
 
-            <main className="py-8 pb-20 md:pb-8">
+            <main className="py-8 pb-20 md:pb-8 relative z-50 pointer-events-auto">
               <div className="container-padding max-w-7xl mx-auto">
                 <FadeIn>
                   <div className="lg:hidden mb-6">
@@ -545,6 +626,45 @@ const HostDashboard = () => {
                         <DialogTitle>Mark Attendance</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4">
+                        <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm font-medium text-slate-700">Scan QR with Camera</div>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setIsScannerOpen((prev) => !prev)}
+                            >
+                              <QrCode className="h-4 w-4 mr-2" />
+                              {isScannerOpen ? "Stop Scanner" : "Start Scanner"}
+                            </Button>
+                          </div>
+                          {isScannerOpen && (
+                            <div className="space-y-3">
+                              <div className="relative overflow-hidden rounded-lg bg-black">
+                                <video
+                                  ref={videoRef}
+                                  className="w-full h-52 object-cover"
+                                  playsInline
+                                  muted
+                                />
+                                <div className="pointer-events-none absolute inset-0 border-2 border-white/40 rounded-lg" />
+                                {isScanning && (
+                                  <div className="absolute bottom-2 left-2 text-xs text-white bg-black/60 px-2 py-1 rounded">
+                                    Scanning...
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-xs text-slate-600">
+                                Align the ticket QR inside the frame. Attendance will be marked automatically.
+                              </div>
+                            </div>
+                          )}
+                          {scanError && (
+                            <div className="text-xs text-red-600">{scanError}</div>
+                          )}
+                        </div>
+
                         <div className="space-y-2">
                           <Label>Ticket Number</Label>
                           <Input
