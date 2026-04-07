@@ -180,7 +180,6 @@ const AdminDashboard = () => {
     { value: "testimonials", label: "Testimonials", icon: MessageSquare },
     { value: "videos", label: "Gallery Videos", icon: Video },
     { value: "revenue", label: "Revenue", icon: DollarSign },
-    { value: "collaboration", label: "Collaboration", icon: Users },
     { value: "hosts", label: "Host Management", icon: Users },
     { value: "community-lead-activity", label: "Community Lead Activity", icon: Users },
     { value: "private-requests", label: "Private Requests", icon: Mail },
@@ -1360,14 +1359,6 @@ const AdminDashboard = () => {
                     Community Lead Activity
                   </Button>
                   <Button 
-                    onClick={() => setCurrentTab('collaboration')}
-                    variant="outline"
-                    className="flex items-center gap-2"
-                  >
-                    <Users className="h-4 w-4" />
-                    Collaboration
-                  </Button>
-                  <Button 
                     onClick={() => window.location.href = '/admin/users'}
                     variant="outline"
                     className="flex items-center gap-2"
@@ -1528,120 +1519,8 @@ const AdminDashboard = () => {
                       );
                       const totalRevenue =
                         totalCurrentRevenue + totalPreviousRevenue;
-                      const collaborationPartner = "Artyug";
-                      const collaborationSharePercentage = 0.4;
-                      const platformSharePercentage = 0.4;
-                      const collaborationShare = Math.round(
-                        totalRevenue * collaborationSharePercentage
-                      );
-                      const platformShare = Math.round(
-                        totalRevenue * platformSharePercentage
-                      );
-                      const motojojoShare =
-                        totalRevenue - collaborationShare - platformShare;
-                      const bookingCount = bookings.length;
-                      const averageBookingValue =
-                        bookingCount > 0
-                          ? Math.round(totalRevenue / bookingCount)
-                          : 0;
-                      const monthlyRevenue = bookings.reduce(
-                        (acc, booking) => {
-                          const month = new Date(booking.booking_date).toLocaleDateString(
-                            "en-US",
-                            { month: "short", year: "numeric" }
-                          );
-                          acc[month] = (acc[month] || 0) + booking.amount;
-                          return acc;
-                        },
-                        {} as Record<string, number>
-                      );
-                      const trendMonths = Object.entries(monthlyRevenue).slice(
-                        0,
-                        3
-                      );
                       return (
                         <div className="space-y-10">
-                          {/* Collaboration Dashboard */}
-                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-                            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                              <div>
-                                <p className="text-sm uppercase tracking-[0.18em] text-slate-500">
-                                  Collaboration Insight
-                                </p>
-                                <h3 className="text-2xl font-semibold text-slate-900">
-                                  {collaborationPartner} Collaboration Overview
-                                </h3>
-                                <p className="mt-2 max-w-2xl text-sm text-slate-600">
-                                  Collaborator analytics with revenue-share distribution and settlement visibility across transactions.
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                              <div className="rounded-2xl bg-white p-5 shadow-sm">
-                                <p className="text-sm text-slate-500">Total Recorded Revenue</p>
-                                <p className="mt-3 text-3xl font-semibold text-slate-900">
-                                  ₹{totalRevenue.toLocaleString()}
-                                </p>
-                              </div>
-                              <div className="rounded-2xl bg-white p-5 shadow-sm">
-                                <p className="text-sm text-slate-500">Artyug Partner Share</p>
-                                <p className="mt-3 text-3xl font-semibold text-sky-700">
-                                  ₹{collaborationShare.toLocaleString()}
-                                </p>
-                                <p className="mt-1 text-sm text-slate-500">{Math.round(collaborationSharePercentage * 100)}%</p>
-                              </div>
-                              <div className="rounded-2xl bg-white p-5 shadow-sm">
-                                <p className="text-sm text-slate-500">Razorpay Platform Share</p>
-                                <p className="mt-3 text-3xl font-semibold text-amber-700">
-                                  ₹{platformShare.toLocaleString()}
-                                </p>
-                                <p className="mt-1 text-sm text-slate-500">{Math.round(platformSharePercentage * 100)}%</p>
-                              </div>
-                            </div>
-
-                            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                              <div className="rounded-2xl bg-white p-5 shadow-sm">
-                                <p className="text-sm text-slate-500">Motojojo Remaining Revenue</p>
-                                <p className="mt-3 text-2xl font-semibold text-emerald-700">
-                                  ₹{motojojoShare.toLocaleString()}
-                                </p>
-                              </div>
-                              <div className="rounded-2xl bg-white p-5 shadow-sm">
-                                <p className="text-sm text-slate-500">Average Booking Value</p>
-                                <p className="mt-3 text-2xl font-semibold text-slate-900">
-                                  ₹{averageBookingValue.toLocaleString()}
-                                </p>
-                                <p className="mt-1 text-sm text-slate-500">{bookingCount} bookings total</p>
-                              </div>
-                            </div>
-
-                            <div className="mt-6">
-                              <div className="text-sm uppercase tracking-[0.18em] text-slate-500">
-                                Revenue Trend (Last 3 Months)
-                              </div>
-                              <div className="mt-3 grid gap-4 sm:grid-cols-3">
-                                {trendMonths.length > 0 ? (
-                                  trendMonths.map(([month, amount]) => (
-                                    <div
-                                      key={month}
-                                      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-                                    >
-                                      <p className="text-sm text-slate-500">{month}</p>
-                                      <p className="mt-2 text-xl font-semibold text-slate-900">
-                                        ₹{amount.toLocaleString()}
-                                      </p>
-                                    </div>
-                                  ))
-                                ) : (
-                                  <div className="rounded-2xl border border-slate-200 bg-white p-4 text-slate-500">
-                                    No revenue trend data available.
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
                           {/* Current/Ongoing Events Revenue */}
                           <div>
                             <h3 className="text-lg font-semibold mb-2 text-black">
@@ -1756,145 +1635,6 @@ const AdminDashboard = () => {
                               <span className="text-2xl font-bold text-green-700">
                                 ₹{totalRevenue.toLocaleString()}
                               </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </CardContent>
-                </AdminCard>
-              </FadeIn>
-            </TabsContent>
-
-            <TabsContent value="collaboration">
-              <FadeIn delay={100}>
-                <AdminCard>
-                  <CardHeader>
-                    <CardTitle>Artyug Collaboration Dashboard</CardTitle>
-                    <CardDescription>
-                      Collaboration metrics with Artyug and Razorpay platform shares.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {(() => {
-                      const collaborationPartner = "Artyug";
-                      const sharePercent = 0.4;
-                      const totalRevenue = bookings.reduce(
-                        (sum, booking) => sum + booking.amount,
-                        0
-                      );
-                      const partnerShare = Math.round(totalRevenue * sharePercent);
-                      const platformShare = Math.round(totalRevenue * sharePercent);
-                      const motojojoShare =
-                        totalRevenue - partnerShare - platformShare;
-                      const bookingCount = bookings.length;
-                      const averageBookingValue =
-                        bookingCount > 0
-                          ? Math.round(totalRevenue / bookingCount)
-                          : 0;
-                      const monthlyRevenue = bookings.reduce(
-                        (acc, booking) => {
-                          const month = new Date(booking.booking_date).toLocaleDateString(
-                            "en-US",
-                            { month: "short", year: "numeric" }
-                          );
-                          acc[month] = (acc[month] || 0) + booking.amount;
-                          return acc;
-                        },
-                        {} as Record<string, number>
-                      );
-                      const trendMonths = Object.entries(monthlyRevenue).slice(
-                        0,
-                        3
-                      );
-                      return (
-                        <div className="space-y-8">
-                          <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="rounded-2xl bg-slate-50 p-6 shadow-sm">
-                              <p className="text-sm text-slate-500 uppercase tracking-[0.18em]">
-                                Collaboration Partner
-                              </p>
-                              <p className="mt-3 text-2xl font-semibold text-slate-900">
-                                {collaborationPartner}
-                              </p>
-                            </div>
-                            <div className="rounded-2xl bg-slate-50 p-6 shadow-sm">
-                              <p className="text-sm text-slate-500 uppercase tracking-[0.18em]">
-                                Collaboration Type
-                              </p>
-                              <p className="mt-3 text-2xl font-semibold text-slate-900">
-                                Revenue Share Demo
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="grid gap-4 sm:grid-cols-3">
-                            <div className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
-                              <p className="text-sm text-slate-500">Total Revenue</p>
-                              <p className="mt-3 text-3xl font-semibold text-slate-900">
-                                ₹{totalRevenue.toLocaleString()}
-                              </p>
-                            </div>
-                            <div className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
-                              <p className="text-sm text-slate-500">Artyug Share</p>
-                              <p className="mt-3 text-3xl font-semibold text-sky-700">
-                                ₹{partnerShare.toLocaleString()}
-                              </p>
-                              <p className="mt-1 text-sm text-slate-500">
-                                40% of total revenue
-                              </p>
-                            </div>
-                            <div className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
-                              <p className="text-sm text-slate-500">Razorpay Share</p>
-                              <p className="mt-3 text-3xl font-semibold text-amber-700">
-                                ₹{platformShare.toLocaleString()}
-                              </p>
-                              <p className="mt-1 text-sm text-slate-500">
-                                40% of total revenue
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
-                              <p className="text-sm text-slate-500">Motojojo Net Revenue</p>
-                              <p className="mt-3 text-3xl font-semibold text-emerald-700">
-                                ₹{motojojoShare.toLocaleString()}
-                              </p>
-                            </div>
-                            <div className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200">
-                              <p className="text-sm text-slate-500">Average Booking Value</p>
-                              <p className="mt-3 text-3xl font-semibold text-slate-900">
-                                ₹{averageBookingValue.toLocaleString()}
-                              </p>
-                              <p className="mt-1 text-sm text-slate-500">
-                                {bookingCount} bookings processed
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="rounded-2xl bg-slate-50 p-6 shadow-sm border border-slate-200">
-                            <h4 className="text-base font-semibold text-slate-900">
-                              Revenue Analytics
-                            </h4>
-                            <p className="mt-2 text-sm text-slate-600">
-                              Demo analytics with actual collected revenue and an illustrative Artyug collaboration split.
-                            </p>
-                            <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                              {trendMonths.length > 0 ? (
-                                trendMonths.map(([month, amount]) => (
-                                  <div key={month} className="rounded-2xl bg-white p-4 border border-slate-200">
-                                    <p className="text-sm text-slate-500">{month}</p>
-                                    <p className="mt-2 text-xl font-semibold text-slate-900">
-                                      ₹{amount.toLocaleString()}
-                                    </p>
-                                  </div>
-                                ))
-                              ) : (
-                                <div className="rounded-2xl bg-white p-4 border border-slate-200 text-slate-500">
-                                  No monthly revenue analytics available.
-                                </div>
-                              )}
                             </div>
                           </div>
                         </div>
